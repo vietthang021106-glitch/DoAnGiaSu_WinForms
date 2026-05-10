@@ -741,7 +741,7 @@ namespace DoAnGiaSu_WinForms.GUI
                 const string sql = @"SELECT bd.MaGS, gs.HoTen, gs.SDT, gs.CCCD,
                                      tr.TenTruong, td.TenTrinhDo,
                                      gs.AnhMinhChung, gs.AnhBangDiem,
-                                     gs.ThanhTich, gs.MaNamHoc,
+                                     ISNULL('GPA: ' + gs.DiemGPA, xl.TenXepLoai) AS ThanhTich, gs.MaNamHoc,
                                      gs.MaChungChi, dmcc.TenChungChi, gs.DiemChungChi,
                                      gt.TenGioiTinh, ns.Nam AS NamSinh,
                                      CAST('DaDuyet' AS NVARCHAR(20)) AS TrangThaiDangKy
@@ -752,6 +752,7 @@ namespace DoAnGiaSu_WinForms.GUI
                                      LEFT JOIN DM_GIOITINH gt ON gs.MaGioiTinh = gt.MaGioiTinh
                                      LEFT JOIN DM_NAMSINH ns ON gs.MaNamSinh = ns.MaNamSinh
                                      LEFT JOIN DM_CHUNGCHI dmcc ON gs.MaChungChi = dmcc.MaChungChi
+                                     LEFT JOIN DM_XEPLOAI xl ON gs.MaXepLoai = xl.MaXepLoai
                                      WHERE bd.MaBaiDang = @ma";
 
                 using SqlDataAdapter da = new SqlDataAdapter(sql, conn);

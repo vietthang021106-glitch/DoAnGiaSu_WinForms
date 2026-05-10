@@ -27,8 +27,8 @@ namespace DoAnGiaSu_WinForms.DAL
         {
             using (SqlConnection conn = db.GetConnection())
             {
-                string query = @"INSERT INTO GIASU (HoTen, SDT, CCCD, MaGioiTinh, MaNamSinh, MaTruong, MaTrinhDo, TrangThaiDuyet, MaTK, AnhMinhChung, ThanhTich, AnhBangDiem, AnhChungChi, MaNamHoc, MaChungChi, DiemChungChi) 
-                                VALUES (@hoten, @sdt, @cccd, @magt, @mans, @matruong, @matd, 'ChoDuyet', @matk, @anh, @thanhtich, @anhbangdiem, @anhchungchi, @manamhoc, @machungchi, @diemchungchi)";
+                string query = @"INSERT INTO GIASU (HoTen, SDT, CCCD, MaGioiTinh, MaNamSinh, MaTruong, MaTrinhDo, TrangThaiDuyet, MaTK, AnhMinhChung, AnhBangDiem, AnhChungChi, MaNamHoc, MaChungChi, DiemChungChi, DiemGPA, MaXepLoai) 
+                                VALUES (@hoten, @sdt, @cccd, @magt, @mans, @matruong, @matd, 'ChoDuyet', @matk, @anh, @anhbangdiem, @anhchungchi, @manamhoc, @machungchi, @diemchungchi, @diemgpa, @maxeploai)";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@hoten", gs.HoTen);
@@ -40,12 +40,13 @@ namespace DoAnGiaSu_WinForms.DAL
                 cmd.Parameters.AddWithValue("@matd", gs.MaTrinhDo);
                 cmd.Parameters.AddWithValue("@matk", gs.MaTK);
                 cmd.Parameters.AddWithValue("@anh", (object)gs.AnhMinhChung ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@thanhtich", (object)gs.ThanhTich ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@anhbangdiem", (object)gs.AnhBangDiem ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@anhchungchi", (object)gs.AnhChungChi ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@manamhoc", (object?)gs.MaNamHoc ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@machungchi", (object?)gs.MaChungChi ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@diemchungchi", (object)gs.DiemChungChi ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@diemgpa", (object)gs.DiemGPA ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@maxeploai", (object?)gs.MaXepLoai ?? DBNull.Value);
 
                 conn.Open();
                 return cmd.ExecuteNonQuery() > 0;
@@ -110,36 +111,38 @@ namespace DoAnGiaSu_WinForms.DAL
         {
             using (SqlConnection conn = db.GetConnection())
             {
-                string query = @"SELECT gs.MaGS, gs.HoTen, gs.SDT, gs.CCCD,
-                                gs.AnhMinhChung, gs.AnhBangDiem, gs.AnhChungChi,
-                                gs.ThanhTich, gs.MaNamHoc,
-                                gs.MaChungChi, gs.DiemChungChi,
-                                dmcc.TenChungChi,
-                                t.TenTruong, td.TenTrinhDo, gs.TrangThaiDuyet,
-                                AVG(CAST(dg.SoSao AS FLOAT)) AS DiemTrungBinh,
-                                COUNT(dg.MaDanhGia) AS SoLuotDanhGia,
+                string query = @"SELECT GS.MaGS, GS.HoTen, GS.SDT, GS.CCCD,
+                                GS.AnhMinhChung, GS.AnhBangDiem, GS.AnhChungChi,
+                                ISNULL('GPA: ' + GS.DiemGPA, XL.TenXepLoai) AS ThanhTich, 
+                                GS.MaNamHoc,
+                                GS.MaChungChi, GS.DiemChungChi,
+                                DMCC.TenChungChi,
+                                T.TenTruong, TD.TenTrinhDo, GS.TrangThaiDuyet,
+                                AVG(CAST(DG.SoSao AS FLOAT)) AS DiemTrungBinh,
+                                COUNT(DG.MaDanhGia) AS SoLuotDanhGia,
                                 CASE
-                                    WHEN COUNT(dg.MaDanhGia) > 0 THEN
-                                        CONVERT(NVARCHAR(10), CAST(ROUND(AVG(CAST(dg.SoSao AS FLOAT)), 1) AS DECIMAL(10,1)))
-                                        + N' ⭐ (' + CAST(COUNT(dg.MaDanhGia) AS NVARCHAR(20)) + N' đánh giá)'
+                                    WHEN COUNT(DG.MaDanhGia) > 0 THEN
+                                        CONVERT(NVARCHAR(10), CAST(ROUND(AVG(CAST(DG.SoSao AS FLOAT)), 1) AS DECIMAL(10,1)))
+                                        + N' ⭐ (' + CAST(COUNT(DG.MaDanhGia) AS NVARCHAR(20)) + N' đánh giá)'
                                     ELSE N'Chưa có đánh giá'
                                 END AS colRating
-                                FROM GIASU gs
-                                LEFT JOIN DM_TRUONG t ON gs.MaTruong = t.MaTruong
-                                LEFT JOIN DM_TRINHDO td ON gs.MaTrinhDo = td.MaTrinhDo
-                                LEFT JOIN DM_CHUNGCHI dmcc ON gs.MaChungChi = dmcc.MaChungChi
-                                LEFT JOIN DANHGIA dg ON dg.MaGS = gs.MaGS
-                                GROUP BY gs.MaGS, gs.HoTen, gs.SDT, gs.CCCD,
-                                         gs.AnhMinhChung, gs.AnhBangDiem, gs.AnhChungChi,
-                                         gs.ThanhTich, gs.MaNamHoc,
-                                         gs.MaChungChi, gs.DiemChungChi, dmcc.TenChungChi,
-                                         t.TenTruong, td.TenTrinhDo, gs.TrangThaiDuyet
+                                FROM GIASU GS
+                                LEFT JOIN DM_TRUONG T ON GS.MaTruong = T.MaTruong
+                                LEFT JOIN DM_TRINHDO TD ON GS.MaTrinhDo = TD.MaTrinhDo
+                                LEFT JOIN DM_CHUNGCHI DMCC ON GS.MaChungChi = DMCC.MaChungChi
+                                LEFT JOIN DM_XEPLOAI XL ON GS.MaXepLoai = XL.MaXepLoai
+                                LEFT JOIN DANHGIA DG ON DG.MaGS = GS.MaGS
+                                GROUP BY GS.MaGS, GS.HoTen, GS.SDT, GS.CCCD,
+                                         GS.AnhMinhChung, GS.AnhBangDiem, GS.AnhChungChi,
+                                         GS.DiemGPA, XL.TenXepLoai, GS.MaNamHoc,
+                                         GS.MaChungChi, GS.DiemChungChi, DMCC.TenChungChi,
+                                         T.TenTruong, TD.TenTrinhDo, GS.TrangThaiDuyet
                                 ORDER BY
                                     CASE
-                                        WHEN gs.TrangThaiDuyet = 'ChoDuyet' THEN 1
-                                        WHEN gs.TrangThaiDuyet = 'DaDuyet' THEN 2
+                                        WHEN GS.TrangThaiDuyet = 'ChoDuyet' THEN 1
+                                        WHEN GS.TrangThaiDuyet = 'DaDuyet' THEN 2
                                         ELSE 3
-                                    END, gs.MaGS DESC";
+                                    END, GS.MaGS DESC";
                 SqlDataAdapter da = new SqlDataAdapter(query, conn);
                 DataTable dt = new DataTable();
                 da.Fill(dt);

@@ -2,15 +2,8 @@
 {
     partial class FormMainAdmin
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -22,10 +15,6 @@
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             panel1 = new Panel();
@@ -37,25 +26,19 @@
             lblLogo = new Label();
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
-            btnDuyetBai = new Button();
-            dgvDuyetBai = new DataGridView();
+            pnlTopFilter = new Panel();
+            cmbLocTrangThai = new ComboBox();
+            flpBaiDang = new FlowLayoutPanel();
             tabPage2 = new TabPage();
-            btnDuyetGiaSu = new Button();
-            btnTuChoiGiaSu = new Button();
-            btnXoaGiaSu = new Button();
-            dgvDuyetGiaSu = new DataGridView();
-            tabPage3 = new TabPage();
-            btnXacNhanTien = new Button();
-            btnTuChoiTien = new Button();
-            dgvHoaHong = new DataGridView();
+            flpGiaSu = new FlowLayoutPanel();
             picMinhChung = new PictureBox();
+            tabPage3 = new TabPage();
+            flpHoaHong = new FlowLayoutPanel();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)dgvDuyetBai).BeginInit();
+            pnlTopFilter.SuspendLayout();
             tabPage2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)dgvDuyetGiaSu).BeginInit();
             tabPage3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)dgvHoaHong).BeginInit();
             ((System.ComponentModel.ISupportInitialize)picMinhChung).BeginInit();
             panel1.SuspendLayout();
             panelSidebar.SuspendLayout();
@@ -179,55 +162,53 @@
             // tabPage1
             // 
             tabPage1.BackColor = Color.Transparent;
-            tabPage1.Controls.Add(btnDuyetBai);
-            tabPage1.Controls.Add(dgvDuyetBai);
+            tabPage1.Controls.Add(flpBaiDang);
+            tabPage1.Controls.Add(pnlTopFilter);
             tabPage1.Location = new Point(4, 37);
             tabPage1.Name = "tabPage1";
-            tabPage1.Padding = new Padding(3);
+            tabPage1.Padding = new Padding(0);
             tabPage1.Size = new Size(1658, 437);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Quản lý bài đăng";
             tabPage1.Click += tabPage1_Click;
             // 
-            // btnDuyetBai
+            // pnlTopFilter
             // 
-            btnDuyetBai.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnDuyetBai.BackColor = Color.FromArgb(24, 119, 242);
-            btnDuyetBai.FlatAppearance.BorderSize = 0;
-            btnDuyetBai.FlatStyle = FlatStyle.Flat;
-            btnDuyetBai.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-            btnDuyetBai.ForeColor = Color.White;
-            btnDuyetBai.Location = new Point(1353, 370);
-            btnDuyetBai.Name = "btnDuyetBai";
-            btnDuyetBai.Size = new Size(277, 44);
-            btnDuyetBai.TabIndex = 1;
-            btnDuyetBai.Text = "Xóa bài";
-            btnDuyetBai.UseVisualStyleBackColor = false;
-            btnDuyetBai.Click += btnDuyetBai_Click;
+            pnlTopFilter.Dock = DockStyle.Top;
+            pnlTopFilter.Height = 50;
+            pnlTopFilter.BackColor = Color.WhiteSmoke;
+            pnlTopFilter.Padding = new Padding(12, 10, 12, 10);
+            pnlTopFilter.Margin = new Padding(0);
+            pnlTopFilter.Controls.Add(cmbLocTrangThai);
             // 
-            // dgvDuyetBai
+            // cmbLocTrangThai
             // 
-            dgvDuyetBai.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            dgvDuyetBai.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvDuyetBai.BackgroundColor = Color.White;
-            dgvDuyetBai.BorderStyle = BorderStyle.None;
-            dgvDuyetBai.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvDuyetBai.Location = new Point(20, 20);
-            dgvDuyetBai.Name = "dgvDuyetBai";
-            dgvDuyetBai.RowHeadersWidth = 51;
-            dgvDuyetBai.Size = new Size(1610, 330);
-            dgvDuyetBai.TabIndex = 0;
-            dgvDuyetBai.CellContentClick += dgvDuyetBai_CellContentClick;
-            dgvDuyetBai.CellValueChanged += dgvDuyetBai_CellValueChanged;
+            cmbLocTrangThai.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbLocTrangThai.FormattingEnabled = true;
+            cmbLocTrangThai.Items.AddRange(new object[] { "Tất cả", "ChuaGiao", "ChoPhuHuynhDuyet", "DangGiaoDich", "DaGiao" });
+            cmbLocTrangThai.SelectedIndex = 0;
+            cmbLocTrangThai.Dock = DockStyle.Left;
+            cmbLocTrangThai.Name = "cmbLocTrangThai";
+            cmbLocTrangThai.Size = new Size(220, 28);
+            cmbLocTrangThai.TabIndex = 1;
+            cmbLocTrangThai.SelectedIndexChanged += cmbLocTrangThai_SelectedIndexChanged;
+            // 
+            // flpBaiDang
+            // 
+            flpBaiDang.Dock = DockStyle.Fill;
+            flpBaiDang.AutoScroll = true;
+            flpBaiDang.FlowDirection = FlowDirection.LeftToRight;
+            flpBaiDang.WrapContents = true;
+            flpBaiDang.BackColor = Color.FromArgb(240, 242, 245);
+            flpBaiDang.Padding = new Padding(12);
+            flpBaiDang.Margin = new Padding(0);
+            flpBaiDang.Location = new Point(0, 50);
             // 
             // tabPage2
             // 
             tabPage2.BackColor = Color.Transparent;
+            tabPage2.Controls.Add(flpGiaSu);
             tabPage2.Controls.Add(picMinhChung);
-            tabPage2.Controls.Add(btnDuyetGiaSu);
-            tabPage2.Controls.Add(btnTuChoiGiaSu);
-            tabPage2.Controls.Add(btnXoaGiaSu);
-            tabPage2.Controls.Add(dgvDuyetGiaSu);
             tabPage2.Location = new Point(4, 29);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3);
@@ -235,68 +216,14 @@
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Duyệt gia sư";
             // 
-            // btnDuyetGiaSu
+            // flpGiaSu
             // 
-            btnDuyetGiaSu.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnDuyetGiaSu.BackColor = Color.FromArgb(40, 167, 69);
-            btnDuyetGiaSu.FlatAppearance.BorderSize = 0;
-            btnDuyetGiaSu.FlatStyle = FlatStyle.Flat;
-            btnDuyetGiaSu.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-            btnDuyetGiaSu.ForeColor = Color.White;
-            btnDuyetGiaSu.Location = new Point(1093, 370);
-            btnDuyetGiaSu.Name = "btnDuyetGiaSu";
-            btnDuyetGiaSu.Size = new Size(160, 44);
-            btnDuyetGiaSu.TabIndex = 1;
-            btnDuyetGiaSu.Text = "Duyệt";
-            btnDuyetGiaSu.UseVisualStyleBackColor = false;
-            btnDuyetGiaSu.Click += btnDuyetGiaSu_Click;
-            // 
-            // btnTuChoiGiaSu
-            // 
-            btnTuChoiGiaSu.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnTuChoiGiaSu.BackColor = Color.FromArgb(255, 193, 7);
-            btnTuChoiGiaSu.FlatAppearance.BorderSize = 0;
-            btnTuChoiGiaSu.FlatStyle = FlatStyle.Flat;
-            btnTuChoiGiaSu.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-            btnTuChoiGiaSu.ForeColor = Color.White;
-            btnTuChoiGiaSu.Location = new Point(1273, 370);
-            btnTuChoiGiaSu.Name = "btnTuChoiGiaSu";
-            btnTuChoiGiaSu.Size = new Size(160, 44);
-            btnTuChoiGiaSu.TabIndex = 2;
-            btnTuChoiGiaSu.Text = "Từ chối";
-            btnTuChoiGiaSu.UseVisualStyleBackColor = false;
-            btnTuChoiGiaSu.Click += btnTuChoiGiaSu_Click;
-            // 
-            // btnXoaGiaSu
-            // 
-            btnXoaGiaSu.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnXoaGiaSu.BackColor = Color.FromArgb(220, 53, 69);
-            btnXoaGiaSu.FlatAppearance.BorderSize = 0;
-            btnXoaGiaSu.FlatStyle = FlatStyle.Flat;
-            btnXoaGiaSu.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-            btnXoaGiaSu.ForeColor = Color.White;
-            btnXoaGiaSu.Location = new Point(1453, 370);
-            btnXoaGiaSu.Name = "btnXoaGiaSu";
-            btnXoaGiaSu.Size = new Size(160, 44);
-            btnXoaGiaSu.TabIndex = 3;
-            btnXoaGiaSu.Text = "Xóa";
-            btnXoaGiaSu.UseVisualStyleBackColor = false;
-            btnXoaGiaSu.Click += btnXoaGiaSu_Click;
-            // 
-            // dgvDuyetGiaSu
-            // 
-            dgvDuyetGiaSu.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            dgvDuyetGiaSu.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvDuyetGiaSu.BackgroundColor = Color.White;
-            dgvDuyetGiaSu.BorderStyle = BorderStyle.None;
-            dgvDuyetGiaSu.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvDuyetGiaSu.Location = new Point(20, 20);
-            dgvDuyetGiaSu.Name = "dgvDuyetGiaSu";
-            dgvDuyetGiaSu.RowHeadersWidth = 51;
-            dgvDuyetGiaSu.Size = new Size(1610, 330);
-            dgvDuyetGiaSu.TabIndex = 0;
-            dgvDuyetGiaSu.CellValueChanged += dgvDuyetGiaSu_CellValueChanged;
-            dgvDuyetGiaSu.CellContentClick += dgvDuyetGiaSu_CellContentClick;
+            flpGiaSu.Dock = DockStyle.Fill;
+            flpGiaSu.AutoScroll = true;
+            flpGiaSu.FlowDirection = FlowDirection.LeftToRight;
+            flpGiaSu.WrapContents = true;
+            flpGiaSu.BackColor = Color.White;
+            flpGiaSu.Padding = new Padding(12);
             // 
             // picMinhChung
             // 
@@ -313,60 +240,21 @@
             // tabPage3
             // 
             tabPage3.BackColor = Color.Transparent;
-            tabPage3.Controls.Add(btnTuChoiTien);
-            tabPage3.Controls.Add(btnXacNhanTien);
-            tabPage3.Controls.Add(dgvHoaHong);
+            tabPage3.Controls.Add(flpHoaHong);
             tabPage3.Location = new Point(4, 29);
             tabPage3.Name = "tabPage3";
             tabPage3.Size = new Size(1658, 445);
             tabPage3.TabIndex = 2;
             tabPage3.Text = "Xác nhận Hoa hồng";
             // 
-            // btnXacNhanTien
+            // flpHoaHong
             // 
-            btnXacNhanTien.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnXacNhanTien.BackColor = Color.FromArgb(24, 119, 242);
-            btnXacNhanTien.FlatAppearance.BorderSize = 0;
-            btnXacNhanTien.FlatStyle = FlatStyle.Flat;
-            btnXacNhanTien.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-            btnXacNhanTien.ForeColor = Color.White;
-            btnXacNhanTien.Location = new Point(1327, 370);
-            btnXacNhanTien.Name = "btnXacNhanTien";
-            btnXacNhanTien.Size = new Size(308, 48);
-            btnXacNhanTien.TabIndex = 2;
-            btnXacNhanTien.Text = "Xác nhận đã nhận tiền";
-            btnXacNhanTien.UseVisualStyleBackColor = false;
-            btnXacNhanTien.Click += btnXacNhanTien_Click;
-            // 
-            // btnTuChoiTien
-            // 
-            btnTuChoiTien.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnTuChoiTien.BackColor = Color.FromArgb(255, 193, 7);
-            btnTuChoiTien.FlatAppearance.BorderSize = 0;
-            btnTuChoiTien.FlatStyle = FlatStyle.Flat;
-            btnTuChoiTien.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-            btnTuChoiTien.ForeColor = Color.Black;
-            btnTuChoiTien.Location = new Point(1130, 370);
-            btnTuChoiTien.Name = "btnTuChoiTien";
-            btnTuChoiTien.Size = new Size(180, 48);
-            btnTuChoiTien.TabIndex = 3;
-            btnTuChoiTien.Text = "Từ chối bill";
-            btnTuChoiTien.UseVisualStyleBackColor = false;
-            btnTuChoiTien.Click += btnTuChoiTien_Click;
-            // 
-            // dgvHoaHong
-            // 
-            dgvHoaHong.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            dgvHoaHong.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvHoaHong.BackgroundColor = Color.White;
-            dgvHoaHong.BorderStyle = BorderStyle.None;
-            dgvHoaHong.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvHoaHong.Location = new Point(20, 20);
-            dgvHoaHong.Name = "dgvHoaHong";
-            dgvHoaHong.RowHeadersWidth = 51;
-            dgvHoaHong.Size = new Size(1610, 330);
-            dgvHoaHong.TabIndex = 1;
-            dgvHoaHong.CellContentClick += dgvHoaHong_CellContentClick;
+            flpHoaHong.Dock = DockStyle.Fill;
+            flpHoaHong.AutoScroll = true;
+            flpHoaHong.FlowDirection = FlowDirection.LeftToRight;
+            flpHoaHong.WrapContents = true;
+            flpHoaHong.BackColor = Color.White;
+            flpHoaHong.Padding = new Padding(12);
             // 
             // FormMainAdmin
             // 
@@ -380,11 +268,9 @@
             Load += FormMainAdmin_Load;
             tabControl1.ResumeLayout(false);
             tabPage1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)dgvDuyetBai).EndInit();
+            pnlTopFilter.ResumeLayout(false);
             tabPage2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)dgvDuyetGiaSu).EndInit();
             tabPage3.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)dgvHoaHong).EndInit();
             ((System.ComponentModel.ISupportInitialize)picMinhChung).EndInit();
             panelSidebar.ResumeLayout(false);
             panel1.ResumeLayout(false);
@@ -396,16 +282,10 @@
         private TabControl tabControl1;
         private TabPage tabPage1;
         private TabPage tabPage2;
-        private DataGridView dgvDuyetBai;
-        private Button btnDuyetBai;
         private TabPage tabPage3;
-        private Button btnXacNhanTien;
-        private Button btnTuChoiTien;
-        private DataGridView dgvHoaHong;
-        private DataGridView dgvDuyetGiaSu;
-        private Button btnDuyetGiaSu;
-        private Button btnTuChoiGiaSu;
-        private Button btnXoaGiaSu;
+        private FlowLayoutPanel flpBaiDang;
+        private FlowLayoutPanel flpGiaSu;
+        private FlowLayoutPanel flpHoaHong;
         private Panel panel1;
         private Panel panelSidebar;
         private Label lblLogo;
@@ -414,5 +294,7 @@
         private Button btnNavHoaHong;
         private Button btnDangXuat;
         private PictureBox picMinhChung;
+        private Panel pnlTopFilter;
+        private ComboBox cmbLocTrangThai;
     }
 }

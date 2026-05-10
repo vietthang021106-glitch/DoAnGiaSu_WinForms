@@ -151,6 +151,36 @@ namespace DoAnGiaSu_WinForms.DAL
             }
         }
 
+        public DataTable LayTatCaBaiAdmin(string trangThai = "Tất cả")
+        {
+            using (SqlConnection conn = db.GetConnection())
+            {
+                conn.Open();
+                XuLyQuaHanNopLaiBill(conn);
+
+                string query = @"SELECT bd.MaBaiDang, ph.HoTen, m.TenMon, l.TenLop, ht.TenHinhThuc, q.TenQuan, bd.SoNhaDuong, bd.YeuCauThem, bd.MucLuong, bd.TrangThai, bd.MaGS
+                                FROM BAIDANG bd
+                                LEFT JOIN PHUHUYNH ph ON bd.MaPH = ph.MaPH
+                                LEFT JOIN DM_MONHOC m ON bd.MaMon = m.MaMon
+                                LEFT JOIN DM_LOPHOC l ON bd.MaLop = l.MaLop
+                                LEFT JOIN DM_HINHTHUC ht ON bd.MaHinhThuc = ht.MaHinhThuc
+                                LEFT JOIN DM_QUANHUYEN q ON bd.MaQuan = q.MaQuan
+                                WHERE (@TrangThai = N'Tất cả' OR bd.TrangThai = @TrangThai)
+                                ORDER BY 
+                                    CASE 
+                                        WHEN bd.TrangThai = 'DangGiaoDich' THEN 1
+                                        WHEN bd.TrangThai = 'ChuaGiao' THEN 2
+                                        WHEN bd.TrangThai = 'DaGiao' THEN 3
+                                        ELSE 4
+                                    END, bd.MaBaiDang DESC";
+                SqlDataAdapter da = new SqlDataAdapter(query, conn);
+                da.SelectCommand.Parameters.AddWithValue("@TrangThai", trangThai);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                return dt;
+            }
+        }
+
         // 3. FIX: Lấy lớp cho Gia sư xem ở Tab 1 (ĐÃ ẨN SỐ NHÀ ĐƯỜNG)
         public DataTable LayLopMoiChoGiaSu(int maGS, string orderByClause = " ORDER BY MaBaiDang DESC")
         {
@@ -341,7 +371,7 @@ namespace DoAnGiaSu_WinForms.DAL
                 string query = @"SELECT dk.MaGS, gs.HoTen, gs.SDT, gs.CCCD,
                                 tr.TenTruong, td.TenTrinhDo,
                                 gs.AnhMinhChung, gs.AnhBangDiem,
-                                gs.ThanhTich, gs.MaNamHoc,
+                                ISNULL('GPA: ' + gs.DiemGPA, xl.TenXepLoai) AS ThanhTich, gs.MaNamHoc,
                                 gs.MaChungChi, dmcc.TenChungChi, gs.DiemChungChi,
                                 gt.TenGioiTinh, ns.Nam AS NamSinh, nh.TenNamHoc,
                                 gd.TrangThaiDongPhi,
@@ -356,12 +386,13 @@ namespace DoAnGiaSu_WinForms.DAL
                                 LEFT JOIN DM_NAMSINH ns ON gs.MaNamSinh = ns.MaNamSinh
                                 LEFT JOIN DM_CHUNGCHI dmcc ON gs.MaChungChi = dmcc.MaChungChi
                                 LEFT JOIN DM_NAMHOC nh ON gs.MaNamHoc = nh.MaNamHoc
+                                LEFT JOIN DM_XEPLOAI xl ON gs.MaXepLoai = xl.MaXepLoai
                                 LEFT JOIN GIAODICH gd ON dk.MaBaiDang = gd.MaBaiDang AND dk.MaGS = gd.MaGS
                                 LEFT JOIN DANHGIA dg ON gs.MaGS = dg.MaGS
                                 WHERE dk.MaBaiDang = @ma
                                 GROUP BY dk.MaGS, gs.HoTen, gs.SDT, gs.CCCD,
                                          tr.TenTruong, td.TenTrinhDo, gs.AnhMinhChung, gs.AnhBangDiem,
-                                         gs.ThanhTich, gs.MaNamHoc, gs.MaChungChi, dmcc.TenChungChi,
+                                         gs.DiemGPA, xl.TenXepLoai, gs.MaNamHoc, gs.MaChungChi, dmcc.TenChungChi,
                                          gs.DiemChungChi, gt.TenGioiTinh, ns.Nam, nh.TenNamHoc,
                                          gd.TrangThaiDongPhi, dk.TrangThai
                                 ORDER BY CASE dk.TrangThai

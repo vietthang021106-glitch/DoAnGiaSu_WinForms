@@ -33,6 +33,8 @@ namespace DoAnGiaSu_WinForms.GUI
         private Label lblAnhChungChi;
         private Button btnChonAnhChungChi;
         private PictureBox picChungChi;
+        private Label lblGPA;
+        private TextBox txtGPA;
 
         GiaSuDAL gsDal = new GiaSuDAL();
         TaiKhoanDAL tkDal = new TaiKhoanDAL();
@@ -294,19 +296,23 @@ namespace DoAnGiaSu_WinForms.GUI
                 gs.AnhMinhChung = CopyProofImage(duongDanAnh, _tkDangKy.TenDangNhap, "the");
                 gs.AnhBangDiem = CopyProofImage(duongDanAnhBangDiem, _tkDangKy.TenDangNhap, "bang");
 
-                gs.ThanhTich = laSV
-                    ? (txtThanhTich?.Text.Trim() ?? "")
-                    : (cboXepLoai?.Text.Trim() ?? "");
-
                 gs.DiemChungChi = txtDiemChungChi?.Text.Trim() ?? "";
 
                 gs.MaNamHoc = null;
-                if (laSV && cboNamHoc != null)
+                gs.DiemGPA = null;
+                gs.MaXepLoai = null;
+
+                if (laSV)
                 {
-                    if (cboNamHoc.SelectedValue != null && int.TryParse(cboNamHoc.SelectedValue.ToString(), out int maNamHoc))
-                        gs.MaNamHoc = maNamHoc;
-                    else if (int.TryParse(cboNamHoc.Text, out int namHocTuText))
-                        gs.MaNamHoc = namHocTuText;
+                    gs.MaNamHoc = cboNamHoc?.SelectedValue != null && int.TryParse(cboNamHoc.SelectedValue.ToString(), out int maNamHoc) ? maNamHoc : null;
+                    gs.DiemGPA = txtGPA?.Text.Trim();
+                    gs.MaXepLoai = null;
+                }
+                else
+                {
+                    gs.MaNamHoc = null;
+                    gs.DiemGPA = null;
+                    gs.MaXepLoai = cboXepLoai?.SelectedValue != null && int.TryParse(cboXepLoai.SelectedValue.ToString(), out int maXepLoai) ? maXepLoai : null;
                 }
 
                 gs.MaChungChi = null;
@@ -414,6 +420,9 @@ namespace DoAnGiaSu_WinForms.GUI
             btnChonAnhChungChi.Click += btnChonAnhChungChi_Click;
             picChungChi = new PictureBox { BorderStyle = BorderStyle.FixedSingle, Location = new Point(170, 995), Size = new Size(290, 105), SizeMode = PictureBoxSizeMode.Zoom, BackColor = Color.White, Visible = true };
 
+            lblGPA = new Label { Text = "GPA", AutoSize = true, BackColor = Color.Transparent, Font = new Font("Segoe UI", 10.5F, FontStyle.Bold), ForeColor = Color.FromArgb(24, 33, 53), Location = new Point(60, 1130) };
+            txtGPA = new TextBox { Font = new Font("Segoe UI", 11F), BorderStyle = BorderStyle.FixedSingle, Location = new Point(60, 1160), Size = new Size(200, 32), Visible = false };
+
             pnl.Controls.Add(lblNamHoc);
             pnl.Controls.Add(cboNamHoc);
             pnl.Controls.Add(lblThanhTich);
@@ -430,13 +439,15 @@ namespace DoAnGiaSu_WinForms.GUI
             pnl.Controls.Add(lblAnhChungChi);
             pnl.Controls.Add(btnChonAnhChungChi);
             pnl.Controls.Add(picChungChi);
+            pnl.Controls.Add(lblGPA);
+            pnl.Controls.Add(txtGPA);
 
             if (button1 != null)
             {
-                button1.Location = new Point(60, 1115);
+                button1.Location = new Point(60, 1220);
             }
 
-            pnl.Size = new Size(520, 1180);
+            pnl.Size = new Size(520, 1280);
             ClientSize = new Size(800, 920);
 
             LoadBoSungDanhMuc();
@@ -513,6 +524,9 @@ namespace DoAnGiaSu_WinForms.GUI
             if (lblThanhTich != null) lblThanhTich.Visible = laSV;
             if (txtThanhTich != null) txtThanhTich.Visible = laSV;
 
+            if (lblGPA != null) lblGPA.Visible = laSV;
+            if (txtGPA != null) txtGPA.Visible = laSV;
+
             if (lblXepLoai != null) lblXepLoai.Visible = !laSV;
             if (cboXepLoai != null) cboXepLoai.Visible = !laSV;
 
@@ -532,5 +546,4 @@ namespace DoAnGiaSu_WinForms.GUI
             File.Copy(sourcePath, destPath, true);
             return destPath;
         }
-    }
-}
+    }}

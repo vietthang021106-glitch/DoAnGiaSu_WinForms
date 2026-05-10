@@ -292,7 +292,6 @@
             Controls.Add(panel1);
             Name = "FormDangBai";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Đăng bài tìm gia sư";
             Load += FormDangBai_Load;
             panel1.ResumeLayout(false);
             panel1.PerformLayout();

@@ -13,13 +13,13 @@
         public string TrangThaiDuyet { get; set; } // Mặc định 'ChoDuyet'
         public int MaTK { get; set; }           // Khóa ngoại ID từ TAIKHOAN
         public string AnhMinhChung { get; set; }
-
-        public string ThanhTich { get; set; }
         public string AnhBangDiem { get; set; }
         public string AnhChungChi { get; set; }
         public int? MaNamHoc { get; set; }
 
         public int? MaChungChi { get; set; }
         public string DiemChungChi { get; set; }
+        public string DiemGPA { get; set; }
+        public int? MaXepLoai { get; set; }
     }
 }
