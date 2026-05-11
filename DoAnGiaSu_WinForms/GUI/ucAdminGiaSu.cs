@@ -13,9 +13,13 @@ namespace DoAnGiaSu_WinForms.GUI
         private readonly Label lblHoTen;
         private readonly Label lblSDT;
         private readonly Label lblCCCD;
+        private readonly Label lblGioiTinh;
+        private readonly Label lblNamSinh;
         private readonly Label lblThanhTich;
+        private readonly Label lblNamHoc;
         private readonly Label lblTruong;
         private readonly Label lblTrinhDo;
+        private readonly Label lblChungChi;
         private readonly PictureBox picThe;
         private readonly PictureBox picBangDiem;
         private readonly PictureBox picChungChi;
@@ -27,6 +31,7 @@ namespace DoAnGiaSu_WinForms.GUI
         private readonly FlowLayoutPanel flpMainContent;
         private readonly TableLayoutPanel tblBody;
         private readonly Panel pnlImageStack;
+        private readonly Label[] infoLabels;
 
         public event EventHandler DuyetClicked;
         public event EventHandler TuChoiClicked;
@@ -34,14 +39,13 @@ namespace DoAnGiaSu_WinForms.GUI
 
         public ucAdminGiaSu()
         {
-            BorderStyle = BorderStyle.None;
+            BorderStyle = BorderStyle.FixedSingle;
             BackColor = Color.White;
-            Margin = new Padding(12);
-            Padding = new Padding(15);
-            AutoSize = true;
-            AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            Width = 420;
-            MinimumSize = new Size(420, 520);
+            Margin = new Padding(10);
+            Padding = new Padding(0);
+            AutoSize = false;
+            MinimumSize = new Size(330, 350);
+            Size = new Size(330, 350);
             DoubleBuffered = true;
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
 
@@ -50,34 +54,48 @@ namespace DoAnGiaSu_WinForms.GUI
                 Dock = DockStyle.Fill,
                 FlowDirection = FlowDirection.TopDown,
                 WrapContents = false,
-                AutoScroll = false,
-                AutoSize = true,
+                AutoScroll = true,
+                AutoSize = false,
                 AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 BackColor = Color.White,
-                Padding = new Padding(20),
+                Padding = new Padding(10, 5, 10, 5),
                 Margin = new Padding(0)
             };
 
-            lblMaGS = CreateLabel(9F, FontStyle.Regular, Color.FromArgb(120, 120, 120), 24, false);
-            lblHoTen = CreateLabel(13F, FontStyle.Bold, Color.FromArgb(35, 45, 60), 30, false);
-            lblSDT = CreateLabel(10F, FontStyle.Regular, Color.FromArgb(70, 70, 70), 24, false);
-            lblCCCD = CreateLabel(10F, FontStyle.Regular, Color.FromArgb(70, 70, 70), 24, false);
-            lblThanhTich = CreateLabel(10F, FontStyle.Regular, Color.FromArgb(70, 70, 70), 44, true);
-            lblTruong = CreateLabel(10F, FontStyle.Regular, Color.FromArgb(70, 70, 70), 44, true);
-            lblTrinhDo = CreateLabel(10F, FontStyle.Regular, Color.FromArgb(70, 70, 70), 44, true);
+            lblMaGS = CreateLabel(9F, FontStyle.Regular, Color.Gray, 22, false);
+            lblHoTen = CreateLabel(10F, FontStyle.Bold, Color.FromArgb(35, 45, 60), 24, false);
+            lblSDT = CreateLabel(9F, FontStyle.Regular, Color.DimGray, 22, false);
+            lblCCCD = CreateLabel(9F, FontStyle.Regular, Color.DimGray, 22, false);
+            lblGioiTinh = CreateLabel(9F, FontStyle.Regular, Color.DimGray, 22, false);
+            lblNamSinh = CreateLabel(9F, FontStyle.Regular, Color.DimGray, 22, false);
+            lblThanhTich = CreateLabel(9F, FontStyle.Regular, Color.DimGray, 24, true);
+            lblNamHoc = CreateLabel(9F, FontStyle.Regular, Color.DimGray, 24, true);
+            lblTruong = CreateLabel(9F, FontStyle.Regular, Color.DimGray, 24, true);
+            lblTrinhDo = CreateLabel(9F, FontStyle.Regular, Color.DimGray, 24, true);
+            lblChungChi = CreateLabel(9F, FontStyle.Regular, Color.DimGray, 24, true);
+
+            infoLabels = new[]
+            {
+                lblMaGS, lblHoTen, lblSDT, lblCCCD, lblGioiTinh, lblNamSinh,
+                lblThanhTich, lblNamHoc, lblTruong, lblTrinhDo, lblChungChi
+            };
 
             flpMainContent.Controls.Add(lblMaGS);
             flpMainContent.Controls.Add(lblHoTen);
             flpMainContent.Controls.Add(lblSDT);
             flpMainContent.Controls.Add(lblCCCD);
+            flpMainContent.Controls.Add(lblGioiTinh);
+            flpMainContent.Controls.Add(lblNamSinh);
             flpMainContent.Controls.Add(lblThanhTich);
+            flpMainContent.Controls.Add(lblNamHoc);
             flpMainContent.Controls.Add(lblTruong);
             flpMainContent.Controls.Add(lblTrinhDo);
+            flpMainContent.Controls.Add(lblChungChi);
 
             pnlImageStack = new Panel
             {
                 Dock = DockStyle.Right,
-                Width = 120,
+                Width = 90,
                 BackColor = Color.White,
                 Margin = new Padding(0),
                 Padding = new Padding(0)
@@ -92,9 +110,9 @@ namespace DoAnGiaSu_WinForms.GUI
                 Padding = new Padding(0)
             };
             tblImages.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tblImages.RowStyles.Add(new RowStyle(SizeType.Absolute, 100F));
-            tblImages.RowStyles.Add(new RowStyle(SizeType.Absolute, 100F));
-            tblImages.RowStyles.Add(new RowStyle(SizeType.Absolute, 100F));
+            tblImages.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
+            tblImages.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
+            tblImages.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
 
             picThe = CreatePictureBox();
             picBangDiem = CreatePictureBox();
@@ -115,14 +133,15 @@ namespace DoAnGiaSu_WinForms.GUI
                 Padding = new Padding(0)
             };
             tblBody.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tblBody.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120F));
+            tblBody.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90F));
+            tblBody.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             tblBody.Controls.Add(flpMainContent, 0, 0);
             tblBody.Controls.Add(pnlImageStack, 1, 0);
 
             pnlFooter = new Panel
             {
                 Dock = DockStyle.Bottom,
-                Height = 55,
+                Height = 45,
                 BackColor = Color.White,
                 Margin = new Padding(0),
                 Padding = new Padding(0)
@@ -135,7 +154,7 @@ namespace DoAnGiaSu_WinForms.GUI
                 RowCount = 1,
                 BackColor = Color.White,
                 Margin = new Padding(0),
-                Padding = new Padding(0)
+                Padding = new Padding(10, 5, 10, 8)
             };
             tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
             tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
@@ -156,6 +175,8 @@ namespace DoAnGiaSu_WinForms.GUI
 
             Controls.Add(tblBody);
             Controls.Add(pnlFooter);
+
+            UpdateContentLayout();
         }
 
         private static Label CreateLabel(float size, FontStyle style, Color foreColor, int height, bool ellipsis)
@@ -163,11 +184,11 @@ namespace DoAnGiaSu_WinForms.GUI
             return new Label
             {
                 AutoSize = true,
-                MaximumSize = new Size(360, 0),
+                MaximumSize = new Size(270, 0),
                 Font = new Font("Segoe UI", size, style),
                 ForeColor = foreColor,
                 BackColor = Color.Transparent,
-                Margin = new Padding(0, 0, 0, 10),
+                Margin = new Padding(0, 3, 0, 3),
                 AutoEllipsis = ellipsis,
                 TextAlign = ContentAlignment.MiddleLeft
             };
@@ -181,7 +202,7 @@ namespace DoAnGiaSu_WinForms.GUI
                 SizeMode = PictureBoxSizeMode.Zoom,
                 BackColor = Color.WhiteSmoke,
                 Dock = DockStyle.Fill,
-                Margin = new Padding(5)
+                Margin = new Padding(4)
             };
         }
 
@@ -191,20 +212,43 @@ namespace DoAnGiaSu_WinForms.GUI
             {
                 Text = text,
                 Dock = DockStyle.Fill,
-                Height = 34,
+                Height = 40,
                 BackColor = backColor,
                 ForeColor = foreColor,
                 FlatStyle = FlatStyle.Flat,
-                Margin = new Padding(10, 8, 10, 8)
+                Margin = new Padding(6, 4, 6, 4)
             };
             btn.FlatAppearance.BorderSize = 0;
             return btn;
+        }
+
+        private void UpdateContentLayout()
+        {
+            if (flpMainContent == null || flpMainContent.IsDisposed || infoLabels == null)
+            {
+                return;
+            }
+
+            int contentWidth = Math.Max(120,
+                flpMainContent.ClientSize.Width
+                - flpMainContent.Padding.Left
+                - flpMainContent.Padding.Right
+                - SystemInformation.VerticalScrollBarWidth);
+
+            foreach (var label in infoLabels)
+            {
+                if (label != null && !label.IsDisposed)
+                {
+                    label.MaximumSize = new Size(contentWidth, 0);
+                }
+            }
         }
 
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
             ApplyRoundedRegion();
+            UpdateContentLayout();
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -271,10 +315,46 @@ namespace DoAnGiaSu_WinForms.GUI
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public string GioiTinh
+        {
+            get => lblGioiTinh.Text;
+            set
+            {
+                lblGioiTinh.Text = $"Giới tính: {value}";
+                lblGioiTinh.Visible = !string.IsNullOrWhiteSpace(value);
+            }
+        }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public string NamSinh
+        {
+            get => lblNamSinh.Text;
+            set
+            {
+                lblNamSinh.Text = $"Năm sinh: {value}";
+                lblNamSinh.Visible = !string.IsNullOrWhiteSpace(value);
+            }
+        }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string ThanhTich
         {
             get => lblThanhTich.Text;
             set => lblThanhTich.Text = $"Thành tích: {value}";
+        }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public string NamHoc
+        {
+            get => lblNamHoc.Text;
+            set
+            {
+                lblNamHoc.Text = $"Năm học: {value}";
+                lblNamHoc.Visible = !string.IsNullOrWhiteSpace(value);
+            }
         }
 
         [Browsable(false)]
@@ -291,6 +371,39 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             get => lblTrinhDo.Text;
             set => lblTrinhDo.Text = $"Trình độ: {value}";
+        }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public string ChungChi
+        {
+            get => lblChungChi.Text;
+            set
+            {
+                lblChungChi.Text = $"Chứng chỉ: {value}";
+                lblChungChi.Visible = !string.IsNullOrWhiteSpace(value);
+            }
+        }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public string UrlAnhThe
+        {
+            set => SetPictureFromPath(picThe, value);
+        }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public string UrlAnhBang
+        {
+            set => SetPictureFromPath(picBangDiem, value);
+        }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public string UrlAnhChungChi
+        {
+            set => SetPictureFromPath(picChungChi, value);
         }
 
         [Browsable(false)]
@@ -346,11 +459,13 @@ namespace DoAnGiaSu_WinForms.GUI
             using FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
             using Image image = Image.FromStream(fs);
             pictureBox.Image = new Bitmap(image);
+            pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
         }
 
         private static void SetPictureFromImage(PictureBox pictureBox, Image image)
         {
             pictureBox.Image = image == null ? null : new Bitmap(image);
+            pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
         }
     }
 }

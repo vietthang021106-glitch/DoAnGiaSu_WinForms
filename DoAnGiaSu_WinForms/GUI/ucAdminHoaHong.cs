@@ -32,14 +32,15 @@ namespace DoAnGiaSu_WinForms.GUI
 
         public ucAdminHoaHong()
         {
-            BorderStyle = BorderStyle.None;
+            BorderStyle = BorderStyle.FixedSingle;
             BackColor = Color.White;
-            Margin = new Padding(12);
-            Padding = new Padding(15);
-            AutoSize = true;
+            Margin = new Padding(10);
+            Padding = new Padding(0);
+            AutoSize = false;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            Width = 420;
-            MinimumSize = new Size(420, 500);
+            Width = 380;
+            Height = 300;
+            MinimumSize = new Size(380, 300);
             DoubleBuffered = true;
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
 
@@ -49,20 +50,20 @@ namespace DoAnGiaSu_WinForms.GUI
                 FlowDirection = FlowDirection.TopDown,
                 WrapContents = false,
                 AutoScroll = false,
-                AutoSize = true,
+                AutoSize = false,
                 AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 BackColor = Color.White,
-                Padding = new Padding(20),
+                Padding = new Padding(10, 5, 10, 5),
                 Margin = new Padding(0)
             };
 
-            lblMaBaiDang = CreateLabel(9F, FontStyle.Regular, Color.FromArgb(120, 120, 120), 24, false);
-            lblPhuHuynh = CreateLabel(13F, FontStyle.Bold, Color.FromArgb(35, 45, 60), 32, false);
-            lblMonHoc = CreateLabel(10F, FontStyle.Regular, Color.FromArgb(35, 45, 60), 28, false);
-            lblMucLuong = CreateLabel(10F, FontStyle.Regular, Color.FromArgb(35, 45, 60), 28, false);
-            lblHoaHong = CreateLabel(12F, FontStyle.Bold, Color.Red, 30, false);
-            lblTrangThai = CreateLabel(10F, FontStyle.Regular, Color.FromArgb(35, 45, 60), 28, false);
-            lblMaGS = CreateLabel(10F, FontStyle.Regular, Color.FromArgb(35, 45, 60), 28, false);
+            lblMaBaiDang = CreateLabel(9F, FontStyle.Regular, Color.Gray, 22, false);
+            lblPhuHuynh = CreateLabel(10F, FontStyle.Bold, Color.FromArgb(35, 45, 60), 24, false);
+            lblMonHoc = CreateLabel(10F, FontStyle.Regular, Color.Black, 22, false);
+            lblMucLuong = CreateLabel(10F, FontStyle.Regular, Color.Black, 22, false);
+            lblHoaHong = CreateLabel(12F, FontStyle.Bold, Color.Red, 24, false);
+            lblTrangThai = CreateLabel(10F, FontStyle.Regular, Color.DimGray, 22, false);
+            lblMaGS = CreateLabel(10F, FontStyle.Regular, Color.DimGray, 22, false);
 
             flpMainContent.Controls.Add(lblMaBaiDang);
             flpMainContent.Controls.Add(lblPhuHuynh);
@@ -75,7 +76,7 @@ namespace DoAnGiaSu_WinForms.GUI
             pnlImage = new Panel
             {
                 Dock = DockStyle.Right,
-                Width = 120,
+                Width = 90,
                 BackColor = Color.White,
                 Margin = new Padding(0),
                 Padding = new Padding(0)
@@ -101,14 +102,14 @@ namespace DoAnGiaSu_WinForms.GUI
                 Padding = new Padding(0)
             };
             tblBody.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tblBody.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120F));
+            tblBody.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90F));
             tblBody.Controls.Add(flpMainContent, 0, 0);
             tblBody.Controls.Add(pnlImage, 1, 0);
 
             pnlFooter = new Panel
             {
                 Dock = DockStyle.Bottom,
-                Height = 55,
+                Height = 45,
                 BackColor = Color.White,
                 Margin = new Padding(0),
                 Padding = new Padding(0)
@@ -121,7 +122,7 @@ namespace DoAnGiaSu_WinForms.GUI
                 RowCount = 1,
                 BackColor = Color.White,
                 Margin = new Padding(0),
-                Padding = new Padding(0)
+                Padding = new Padding(10, 5, 10, 8)
             };
             tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
             tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
@@ -149,11 +150,11 @@ namespace DoAnGiaSu_WinForms.GUI
             return new Label
             {
                 AutoSize = true,
-                MaximumSize = new Size(360, 0),
+                MaximumSize = new Size(340, 0),
                 Font = new Font("Segoe UI", size, style),
                 ForeColor = foreColor,
                 BackColor = Color.Transparent,
-                Margin = new Padding(0, 0, 0, 10),
+                Margin = new Padding(0, 3, 0, 3),
                 AutoEllipsis = ellipsis,
                 TextAlign = ContentAlignment.MiddleLeft
             };
@@ -165,11 +166,11 @@ namespace DoAnGiaSu_WinForms.GUI
             {
                 Text = text,
                 Dock = DockStyle.Fill,
-                Height = 34,
+                Height = 40,
                 BackColor = backColor,
                 ForeColor = foreColor,
                 FlatStyle = FlatStyle.Flat,
-                Margin = new Padding(10, 8, 10, 8)
+                Margin = new Padding(6, 4, 6, 4)
             };
             btn.FlatAppearance.BorderSize = 0;
             return btn;

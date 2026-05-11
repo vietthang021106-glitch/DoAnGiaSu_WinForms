@@ -23,39 +23,42 @@ namespace DoAnGiaSu_WinForms.GUI
         private readonly Label lblTrangThai;
         private readonly Label lblMaGSNhan;
         private readonly Label lblYeuCau;
+        private readonly Label lblTrinhDo;
+        private readonly Label[] contentLabels;
 
         public event EventHandler DuyetClicked;
         public event EventHandler XoaBaiClicked;
 
         public ucAdminBaiDang()
         {
-            BorderStyle = BorderStyle.None;
+            BorderStyle = BorderStyle.FixedSingle;
             BackColor = Color.White;
             Margin = new Padding(10);
             Padding = new Padding(0);
-            Width = 320;
-            Height = 450;
-            MinimumSize = new Size(320, 450);
+            AutoSize = false;
+            MinimumSize = new Size(330, 380);
+            Size = new Size(330, 380);
             DoubleBuffered = true;
 
             tlpRoot = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 ColumnCount = 1,
-                RowCount = 2,
+                RowCount = 3,
                 Margin = new Padding(0),
                 Padding = new Padding(0),
                 BackColor = Color.White
             };
             tlpRoot.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
             tlpRoot.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tlpRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
+            tlpRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 45F));
 
             pnlContent = new Panel
             {
                 Dock = DockStyle.Fill,
                 BackColor = Color.White,
-                Padding = new Padding(15),
+                Padding = new Padding(10, 5, 10, 5),
                 Margin = new Padding(0)
             };
 
@@ -70,25 +73,43 @@ namespace DoAnGiaSu_WinForms.GUI
                 Padding = new Padding(0)
             };
 
-            lblMaBaiDang = CreateLabel(9F, FontStyle.Regular, Color.Gray, 0, "Mã bài: ");
-            lblMonHoc = CreateLabel(12F, FontStyle.Bold, Color.FromArgb(35, 45, 60), 0, "Môn học: ");
-            lblLop = CreateLabel(10F, FontStyle.Bold, Color.DarkBlue, 0, "Lớp: ");
-            lblHinhThuc = CreateLabel(10F, FontStyle.Regular, Color.DimGray, 0, "Hình thức: ");
-            lblKhuVuc = CreateLabel(10F, FontStyle.Regular, Color.DimGray, 0, "Khu vực: ");
-            lblMucLuong = CreateLabel(12F, FontStyle.Bold, Color.Red, 0, "Mức lương: ");
-            lblPhuHuynh = CreateLabel(10F, FontStyle.Regular, Color.DimGray, 0, "Phụ huynh: ");
-            lblYeuCau = CreateLabel(10F, FontStyle.Regular, Color.DimGray, 0, "Yêu cầu: ");
-            lblTrangThai = CreateLabel(10F, FontStyle.Regular, Color.DimGray, 0, "Trạng thái: ");
-            lblMaGSNhan = CreateLabel(10F, FontStyle.Regular, Color.DimGray, 0, "Mã GS nhận: ");
+            lblMaBaiDang = new Label
+            {
+                Text = "Mã bài: ",
+                AutoSize = true,
+                ForeColor = Color.Gray,
+                Font = new Font("Segoe UI", 9F),
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(10, 3, 10, 3)
+            };
+
+            lblMonHoc = CreateLabel(10F, FontStyle.Regular, Color.Black, "Môn học: ");
+            lblLop = CreateLabel(10F, FontStyle.Bold, Color.Navy, "Lớp: ");
+            lblHinhThuc = CreateLabel(10F, FontStyle.Regular, Color.Black, "Hình thức: ");
+            lblKhuVuc = CreateLabel(10F, FontStyle.Regular, Color.Black, "Khu vực: ");
+            lblYeuCau = CreateLabel(10F, FontStyle.Regular, Color.DarkRed, "Yêu cầu: ");
+            lblTrinhDo = CreateLabel(10F, FontStyle.Regular, Color.Black, "Trình độ: ");
+            lblMucLuong = CreateLabel(12F, FontStyle.Bold, Color.Red, "Mức lương: ");
+            lblPhuHuynh = CreateLabel(10F, FontStyle.Regular, Color.DimGray, "Phụ huynh: ");
+            lblTrangThai = CreateLabel(10F, FontStyle.Regular, Color.DimGray, "Trạng thái: ");
+            lblMaGSNhan = CreateLabel(10F, FontStyle.Regular, Color.DimGray, "Mã GS nhận: ");
+
+            contentLabels = new[]
+            {
+                lblMonHoc, lblLop, lblTrinhDo, lblHinhThuc, lblKhuVuc, lblYeuCau,
+                lblMucLuong, lblPhuHuynh, lblTrangThai, lblMaGSNhan
+            };
 
             flpMainContent.Controls.Add(lblMaBaiDang);
             flpMainContent.Controls.Add(lblMonHoc);
             flpMainContent.Controls.Add(lblLop);
+            flpMainContent.Controls.Add(lblTrinhDo);
             flpMainContent.Controls.Add(lblHinhThuc);
             flpMainContent.Controls.Add(lblKhuVuc);
+            flpMainContent.Controls.Add(lblYeuCau);
             flpMainContent.Controls.Add(lblMucLuong);
             flpMainContent.Controls.Add(lblPhuHuynh);
-            flpMainContent.Controls.Add(lblYeuCau);
             flpMainContent.Controls.Add(lblTrangThai);
             flpMainContent.Controls.Add(lblMaGSNhan);
 
@@ -100,7 +121,7 @@ namespace DoAnGiaSu_WinForms.GUI
                 ColumnCount = 2,
                 RowCount = 1,
                 Margin = new Padding(0),
-                Padding = new Padding(0),
+                Padding = new Padding(10, 5, 10, 8),
                 BackColor = Color.White
             };
             tlpButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -109,7 +130,7 @@ namespace DoAnGiaSu_WinForms.GUI
             btnDuyet = new Button
             {
                 Dock = DockStyle.Fill,
-                Margin = new Padding(0),
+                Margin = new Padding(6, 0, 6, 0),
                 BackColor = Color.DodgerBlue,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
@@ -121,7 +142,7 @@ namespace DoAnGiaSu_WinForms.GUI
             btnXoa = new Button
             {
                 Dock = DockStyle.Fill,
-                Margin = new Padding(0),
+                Margin = new Padding(6, 0, 6, 0),
                 BackColor = Color.Crimson,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
@@ -133,25 +154,52 @@ namespace DoAnGiaSu_WinForms.GUI
             tlpButtons.Controls.Add(btnDuyet, 0, 0);
             tlpButtons.Controls.Add(btnXoa, 1, 0);
 
-            tlpRoot.Controls.Add(pnlContent, 0, 0);
-            tlpRoot.Controls.Add(tlpButtons, 0, 1);
+            tlpRoot.Controls.Add(lblMaBaiDang, 0, 0);
+            tlpRoot.Controls.Add(pnlContent, 0, 1);
+            tlpRoot.Controls.Add(tlpButtons, 0, 2);
 
             Controls.Add(tlpRoot);
+            UpdateContentLayout();
         }
 
-        private static Label CreateLabel(float size, FontStyle style, Color foreColor, int height, string prefix)
+        private static Label CreateLabel(float size, FontStyle style, Color foreColor, string prefix)
         {
             return new Label
             {
                 AutoSize = true,
-                MaximumSize = new Size(280, 0),
+                MaximumSize = new Size(340, 0),
                 Font = new Font("Segoe UI", size, style),
                 ForeColor = foreColor,
                 BackColor = Color.Transparent,
-                Margin = new Padding(0, 0, 0, 10),
+                Margin = new Padding(0, 3, 0, 3),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Text = prefix
             };
+        }
+
+        private void UpdateContentLayout()
+        {
+            if (flpMainContent == null || flpMainContent.IsDisposed || contentLabels == null)
+            {
+                return;
+            }
+
+            int contentWidth = Math.Max(120,
+                flpMainContent.ClientSize.Width - flpMainContent.Padding.Left - flpMainContent.Padding.Right - SystemInformation.VerticalScrollBarWidth);
+
+            foreach (var label in contentLabels)
+            {
+                if (label != null && !label.IsDisposed)
+                {
+                    label.MaximumSize = new Size(contentWidth, 0);
+                }
+            }
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            UpdateContentLayout();
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -162,7 +210,15 @@ namespace DoAnGiaSu_WinForms.GUI
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public int MaBaiDang { get; set; }
+        public int MaBaiDang
+        {
+            get;
+            set
+            {
+                field = value;
+                lblMaBaiDang.Text = $"Mã bài: {value}";
+            }
+        }
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -234,6 +290,18 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             get => lblYeuCau.Text;
             set => lblYeuCau.Text = $"Yêu cầu: {value}";
+        }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public string TrinhDo
+        {
+            get => lblTrinhDo.Text;
+            set
+            {
+                lblTrinhDo.Text = $"Trình độ: {value}";
+                lblTrinhDo.Visible = !string.IsNullOrWhiteSpace(value);
+            }
         }
     }
 }

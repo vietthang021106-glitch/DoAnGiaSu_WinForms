@@ -113,10 +113,10 @@ namespace DoAnGiaSu_WinForms.DAL
             {
                 string query = @"SELECT GS.MaGS, GS.HoTen, GS.SDT, GS.CCCD,
                                 GS.AnhMinhChung, GS.AnhBangDiem, GS.AnhChungChi,
-                                ISNULL('GPA: ' + GS.DiemGPA, XL.TenXepLoai) AS ThanhTich, 
-                                GS.MaNamHoc,
-                                GS.MaChungChi, GS.DiemChungChi,
-                                DMCC.TenChungChi,
+                                ISNULL('GPA: ' + GS.DiemGPA, XL.TenXepLoai) AS ThanhTich,
+                                GT.TenGioiTinh, NS.Nam, NH.TenNamHoc,
+                                ISNULL(CC.TenChungChi + ': ' + GS.DiemChungChi, '') AS ThongTinChungChi,
+                                GS.MaNamHoc, GS.MaChungChi, GS.DiemChungChi, DMCC.TenChungChi,
                                 T.TenTruong, TD.TenTrinhDo, GS.TrangThaiDuyet,
                                 AVG(CAST(DG.SoSao AS FLOAT)) AS DiemTrungBinh,
                                 COUNT(DG.MaDanhGia) AS SoLuotDanhGia,
@@ -127,15 +127,20 @@ namespace DoAnGiaSu_WinForms.DAL
                                     ELSE N'Chưa có đánh giá'
                                 END AS colRating
                                 FROM GIASU GS
+                                LEFT JOIN DM_GIOITINH GT ON GS.MaGioiTinh = GT.MaGioiTinh
+                                LEFT JOIN DM_NAMSINH NS ON GS.MaNamSinh = NS.MaNamSinh
+                                LEFT JOIN DM_NAMHOC NH ON GS.MaNamHoc = NH.MaNamHoc
                                 LEFT JOIN DM_TRUONG T ON GS.MaTruong = T.MaTruong
                                 LEFT JOIN DM_TRINHDO TD ON GS.MaTrinhDo = TD.MaTrinhDo
                                 LEFT JOIN DM_CHUNGCHI DMCC ON GS.MaChungChi = DMCC.MaChungChi
+                                LEFT JOIN DM_CHUNGCHI CC ON GS.MaChungChi = CC.MaChungChi
                                 LEFT JOIN DM_XEPLOAI XL ON GS.MaXepLoai = XL.MaXepLoai
                                 LEFT JOIN DANHGIA DG ON DG.MaGS = GS.MaGS
                                 GROUP BY GS.MaGS, GS.HoTen, GS.SDT, GS.CCCD,
                                          GS.AnhMinhChung, GS.AnhBangDiem, GS.AnhChungChi,
-                                         GS.DiemGPA, XL.TenXepLoai, GS.MaNamHoc,
-                                         GS.MaChungChi, GS.DiemChungChi, DMCC.TenChungChi,
+                                         GS.DiemGPA, XL.TenXepLoai, GT.TenGioiTinh, NS.Nam, NH.TenNamHoc,
+                                         CC.TenChungChi, GS.DiemChungChi, GS.MaNamHoc,
+                                         GS.MaChungChi, DMCC.TenChungChi,
                                          T.TenTruong, TD.TenTrinhDo, GS.TrangThaiDuyet
                                 ORDER BY
                                     CASE

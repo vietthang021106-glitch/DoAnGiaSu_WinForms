@@ -53,127 +53,114 @@ namespace DoAnGiaSu_WinForms.GUI
 
         private void InitializeComponent()
         {
-            AutoSize = true;
-            AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            MinimumSize = new Size(450, 220);
+            AutoSize = false;
+            Size = new Size(520, 300);
             BackColor = Color.White;
             BorderStyle = BorderStyle.FixedSingle;
-            Padding = new Padding(8);
+            Padding = new Padding(6);
 
-            // ========== LEFT PANEL - PICTURE BOX ==========
-            Panel pnlLeft = new Panel
+            TableLayoutPanel tlpRoot = new TableLayoutPanel
             {
-                Dock = DockStyle.Left,
-                Width = 140,
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 2,
                 BackColor = Color.White,
-                Margin = new Padding(0)
+                Margin = new Padding(0),
+                Padding = new Padding(0)
             };
+            tlpRoot.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 140F));
+            tlpRoot.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpRoot.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tlpRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 55F));
 
             picMinhChung = new PictureBox
             {
                 Width = 120,
-                Height = 150,
+                Height = 170,
                 SizeMode = PictureBoxSizeMode.Zoom,
                 BorderStyle = BorderStyle.FixedSingle,
                 BackColor = Color.FromArgb(240, 243, 248),
-                Margin = new Padding(5),
-                Dock = DockStyle.Top
-            };
-            pnlLeft.Controls.Add(picMinhChung);
-
-            // ========== RIGHT PANEL - INFO + BUTTON ==========
-            Panel pnlRight = new Panel
-            {
-                Dock = DockStyle.Fill,
-                Padding = new Padding(10, 0, 10, 0),
-                BackColor = Color.White,
-                Margin = new Padding(0)
+                Margin = new Padding(2),
+                Dock = DockStyle.Fill
             };
 
             flpThongTin = new FlowLayoutPanel
             {
-                Dock = DockStyle.Top,
+                Dock = DockStyle.Fill,
                 FlowDirection = FlowDirection.TopDown,
                 AutoScroll = false,
-                AutoSize = true,
-                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                AutoSize = false,
                 WrapContents = false,
-                Padding = new Padding(0),
+                Padding = new Padding(6),
                 Margin = new Padding(0),
                 BackColor = Color.White
             };
 
-            // Họ tên - in đậm, chữ to, màu xanh dương
             lblHoTen = new Label
             {
                 AutoSize = true,
-                MaximumSize = new Size(280, 0),
-                Font = new Font("Segoe UI", 13F, FontStyle.Bold),
+                MaximumSize = new Size(340, 0),
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
                 ForeColor = Color.Navy,
-                Margin = new Padding(0, 0, 0, 4)
+                Margin = new Padding(0, 0, 0, 3)
             };
 
-            // Đánh giá
             lblDanhGia = new Label
             {
                 AutoSize = true,
-                MaximumSize = new Size(280, 0),
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                MaximumSize = new Size(340, 0),
+                Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
                 ForeColor = Color.DarkOrange,
                 Margin = new Padding(0, 0, 0, 2)
             };
 
-            // Link xem đánh giá
             lnkXemDanhGia = new LinkLabel
             {
                 AutoSize = true,
-                Text = "(Xem đánh giá chi tiết)",
+                Text = "(Xem chi tiết)",
                 LinkColor = Color.FromArgb(24, 119, 242),
                 ActiveLinkColor = Color.DarkOrange,
                 VisitedLinkColor = Color.FromArgb(24, 119, 242),
-                Margin = new Padding(0, 0, 0, 8),
-                Visible = false
+                Margin = new Padding(0, 0, 0, 3),
+                Visible = false,
+                Font = new Font("Segoe UI", 8.5F)
             };
             lnkXemDanhGia.LinkClicked += LnkXemDanhGia_LinkClicked;
 
-            // Thông tin cá nhân (Giới tính - Năm sinh)
             lblThongTinCaNhan = new Label
             {
                 AutoSize = true,
-                MaximumSize = new Size(280, 0),
+                MaximumSize = new Size(340, 0),
                 Font = new Font("Segoe UI", 9F),
                 ForeColor = Color.DarkGray,
-                Margin = new Padding(0, 2, 0, 2)
+                Margin = new Padding(0, 1, 0, 1)
             };
 
-            // Học vấn (Trình độ - Năm - Trường)
             lblHocVan = new Label
             {
                 AutoSize = true,
-                MaximumSize = new Size(280, 0),
-                Font = new Font("Segoe UI", 9.5F),
+                MaximumSize = new Size(340, 0),
+                Font = new Font("Segoe UI", 9F),
                 ForeColor = Color.Black,
-                Margin = new Padding(0, 2, 0, 2)
+                Margin = new Padding(0, 1, 0, 1)
             };
 
-            // Chứng chỉ
             lblChungChi = new Label
             {
                 AutoSize = true,
-                MaximumSize = new Size(280, 0),
+                MaximumSize = new Size(340, 0),
                 Font = new Font("Segoe UI", 9F),
                 ForeColor = Color.DarkGreen,
-                Margin = new Padding(0, 2, 0, 2)
+                Margin = new Padding(0, 1, 0, 1)
             };
 
-            // Thành tích
             lblThanhTich = new Label
             {
                 AutoSize = true,
-                MaximumSize = new Size(280, 0),
+                MaximumSize = new Size(340, 0),
                 Font = new Font("Segoe UI", 9F),
                 ForeColor = Color.DarkRed,
-                Margin = new Padding(0, 2, 0, 2)
+                Margin = new Padding(0, 1, 0, 1)
             };
 
             flpThongTin.Controls.Add(lblHoTen);
@@ -186,24 +173,23 @@ namespace DoAnGiaSu_WinForms.GUI
 
             btnChonGiaSu = new Button
             {
-                Text = "Duyệt Gia Sư Này",
-                BackColor = Color.FromArgb(34, 177, 76),
+                Text = "Chọn",
+                Size = new Size(120, 40),
+                BackColor = Color.DodgerBlue,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
-                TabIndex = 0,
-                Anchor = AnchorStyles.Top | AnchorStyles.Left,
-                Location = new Point(10, 0),
-                Size = new Size(180, 35)
+                Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
+                Dock = DockStyle.Right,
+                Margin = new Padding(4)
             };
             btnChonGiaSu.FlatAppearance.BorderSize = 0;
             btnChonGiaSu.Click += (s, e) => ChonGiaSuClicked?.Invoke(this, EventArgs.Empty);
 
-            pnlRight.Controls.Add(btnChonGiaSu);
-            pnlRight.Controls.Add(flpThongTin);
+            tlpRoot.Controls.Add(picMinhChung, 0, 0);
+            tlpRoot.Controls.Add(flpThongTin, 1, 0);
+            tlpRoot.Controls.Add(btnChonGiaSu, 1, 1);
 
-            Controls.Add(pnlRight);
-            Controls.Add(pnlLeft);
+            Controls.Add(tlpRoot);
         }
 
         private void LnkXemDanhGia_LinkClicked(object? sender, LinkLabelLinkClickedEventArgs e)

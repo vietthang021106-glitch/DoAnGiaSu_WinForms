@@ -236,36 +236,13 @@ namespace DoAnGiaSu_WinForms.GUI
 
             if (trangThai == "ChoPhuHuynhDuyet")
             {
-                int maGsChon = ChonGiaSuChoPhuHuynh(dt);
-                if (maGsChon <= 0) return;
-
-                DialogResult quyetDinh = MessageBox.Show(
-                    "Bạn muốn DUYỆT gia sư đã chọn?\nYes = Duyệt\nNo = Từ chối\nCancel = Hủy",
-                    "Xác nhận",
-                    MessageBoxButtons.YesNoCancel,
-                    MessageBoxIcon.Question);
-
-                if (quyetDinh == DialogResult.Yes)
+                using FormDanhSachGiaSuUngVien frm = new FormDanhSachGiaSuUngVien(maBD);
+                DialogResult dr = frm.ShowDialog();
+                if (dr == DialogResult.OK)
                 {
-                    if (bdDal.PhuHuynhDuyetGiaSu(maBD, maGsChon))
-                    {
-                        MessageBox.Show("Đã duyệt thành công! Trạng thái chuyển sang Đang Giao Dịch, chờ Gia sư nộp phí.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LoadDataBaiDang();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Duyệt thất bại. Gia sư có thể đã nhận tối đa 4 lớp hoặc dữ liệu vừa thay đổi, vui lòng tải lại.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
+                    MessageBox.Show("Gia sư đã được chọn. Vui lòng chờ gia sư nộp phí.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LoadDataBaiDang();
                 }
-                else if (quyetDinh == DialogResult.No)
-                {
-                    if (bdDal.PhuHuynhTuChoiGiaSu(maBD, maGsChon))
-                    {
-                        MessageBox.Show("Đã từ chối gia sư đã chọn. Bạn có thể tiếp tục duyệt người khác.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LoadDataBaiDang();
-                    }
-                }
-
                 return;
             }
 
@@ -591,104 +568,6 @@ namespace DoAnGiaSu_WinForms.GUI
 
         private void btnDanhGia_Click(object sender, EventArgs e)
         {
-            // Tính năng đánh giá được thực hiện từ card event handler nếu cần thiết
-        }
-
-        private int ChonGiaSuChoPhuHuynh(DataTable dsDangKy)
-        {
-            DataTable dsChoDuyet = dsDangKy.Clone();
-            foreach (DataRow row in dsDangKy.Rows)
-            {
-                if ((row["TrangThaiDangKy"]?.ToString() ?? "") == "ChoDuyet")
-                    dsChoDuyet.ImportRow(row);
-            }
-
-            if (dsChoDuyet.Rows.Count == 0)
-            {
-                MessageBox.Show("Không còn gia sư nào ở trạng thái chờ duyệt.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return 0;
-            }
-
-            int maGsChon = 0;
-            using (Form frmChon = new Form())
-            {
-                frmChon.Text = "Chọn gia sư để duyệt";
-                frmChon.Size = new Size(1180, 670);
-                frmChon.StartPosition = FormStartPosition.CenterParent;
-                frmChon.FormBorderStyle = FormBorderStyle.FixedDialog;
-                frmChon.MaximizeBox = false;
-                frmChon.MinimizeBox = false;
-                frmChon.BackColor = Color.White;
-
-                Panel pnlHeader = new Panel { Dock = DockStyle.Top, Height = 58, BackColor = Color.FromArgb(24, 119, 242) };
-                Label lblHeader = new Label
-                {
-                    Dock = DockStyle.Fill,
-                    Text = $"Danh sách gia sư đăng ký (chờ duyệt) - {dsChoDuyet.Rows.Count} ứng viên",
-                    ForeColor = Color.White,
-                    Font = new Font("Segoe UI", 12F, FontStyle.Bold),
-                    TextAlign = ContentAlignment.MiddleCenter
-                };
-                pnlHeader.Controls.Add(lblHeader);
-
-                Panel pnlBody = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10) };
-
-                FlowLayoutPanel flpGiaSu = new FlowLayoutPanel
-                {
-                    Dock = DockStyle.Fill,
-                    AutoScroll = true,
-                    FlowDirection = FlowDirection.TopDown,
-                    WrapContents = false,
-                    Padding = new Padding(10),
-                    BackColor = Color.White
-                };
-
-                foreach (DataRow row in dsChoDuyet.Rows)
-                {
-                    int maGS = (int)row["MaGS"];
-                    string hoTen = row["HoTen"]?.ToString() ?? "";
-                    string tenGioiTinh = row["TenGioiTinh"]?.ToString() ?? "";
-                    string namSinh = row["NamSinh"]?.ToString() ?? "";
-                    string tenTrinhDo = row["TenTrinhDo"]?.ToString() ?? "";
-                    string tenTruong = row["TenTruong"]?.ToString() ?? "";
-                    string tenNamHoc = row["TenNamHoc"]?.ToString() ?? "";
-                    string tenChungChi = row["TenChungChi"]?.ToString() ?? "";
-                    string diemChungChi = row["DiemChungChi"]?.ToString() ?? "";
-                    string thanhTich = row["ThanhTich"]?.ToString() ?? "";
-                    string anhMinhChung = row["AnhMinhChung"]?.ToString() ?? "";
-                    double diemTB = row.Table.Columns.Contains("DiemTB") && row["DiemTB"] != DBNull.Value ? Convert.ToDouble(row["DiemTB"]) : 0;
-                    int luotDanhGia = row.Table.Columns.Contains("LuotDanhGia") && row["LuotDanhGia"] != DBNull.Value ? Convert.ToInt32(row["LuotDanhGia"]) : 0;
-
-                    ucCardGiaSu card = new ucCardGiaSu();
-                    card.LoadData(maGS, hoTen, tenGioiTinh, namSinh, tenTrinhDo, tenTruong,
-                                  tenNamHoc, tenChungChi, diemChungChi, thanhTich, anhMinhChung, diemTB, luotDanhGia);
-
-                    card.XemDanhGiaClicked += (s, e) =>
-                    {
-                        if (maGS <= 0) return;
-                        using Form frmChiTiet = new FormChiTietDanhGia(maGS);
-                        frmChiTiet.ShowDialog(frmChon);
-                    };
-
-                    card.ChonGiaSuClicked += (s, e) =>
-                    {
-                        maGsChon = (int)card.Tag;
-                        frmChon.DialogResult = DialogResult.OK;
-                        frmChon.Close();
-                    };
-
-                    flpGiaSu.Controls.Add(card);
-                }
-
-                pnlBody.Controls.Add(flpGiaSu);
-
-                frmChon.Controls.Add(pnlBody);
-                frmChon.Controls.Add(pnlHeader);
-
-                frmChon.ShowDialog();
-            }
-
-            return maGsChon;
         }
 
         private static string ChuanHoaHienThiDiemChungChi(string giaTri)

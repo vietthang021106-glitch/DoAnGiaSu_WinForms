@@ -24,6 +24,12 @@
             tabControl1 = new System.Windows.Forms.TabControl();
             tabPage1 = new System.Windows.Forms.TabPage();
             panelFilter = new System.Windows.Forms.Panel();
+            tlpFilter = new System.Windows.Forms.TableLayoutPanel();
+            lblLocMon = new System.Windows.Forms.Label();
+            lblLocLop = new System.Windows.Forms.Label();
+            lblLocHinhThuc = new System.Windows.Forms.Label();
+            lblLocKhuVuc = new System.Windows.Forms.Label();
+            lblSapXep = new System.Windows.Forms.Label();
             cbMonHoc = new System.Windows.Forms.ComboBox();
             cbLop = new System.Windows.Forms.ComboBox();
             cbKhuVuc = new System.Windows.Forms.ComboBox();
@@ -38,6 +44,7 @@
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
             panelFilter.SuspendLayout();
+            tlpFilter.SuspendLayout();
             tabPage2.SuspendLayout();
             SuspendLayout();
             // 
@@ -152,25 +159,110 @@
             // 
             panelFilter.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             panelFilter.BackColor = System.Drawing.Color.FromArgb(245, 248, 252);
-            panelFilter.Controls.Add(btnReset);
-            panelFilter.Controls.Add(cmbSapXepGia);
-            panelFilter.Controls.Add(cbHinhThuc);
-            panelFilter.Controls.Add(cbKhuVuc);
-            panelFilter.Controls.Add(cbLop);
-            panelFilter.Controls.Add(cbMonHoc);
+            panelFilter.Controls.Add(tlpFilter);
             panelFilter.Location = new System.Drawing.Point(30, 20);
             panelFilter.Name = "panelFilter";
-            panelFilter.Size = new System.Drawing.Size(880, 52);
+            panelFilter.Size = new System.Drawing.Size(880, 70);
             panelFilter.TabIndex = 2;
+            // 
+            // tlpFilter
+            // 
+            tlpFilter.ColumnCount = 6;
+            tlpFilter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
+            tlpFilter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 130F));
+            tlpFilter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 130F));
+            tlpFilter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 130F));
+            tlpFilter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 140F));
+            tlpFilter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            tlpFilter.Controls.Add(lblLocMon, 0, 0);
+            tlpFilter.Controls.Add(lblLocLop, 1, 0);
+            tlpFilter.Controls.Add(lblLocHinhThuc, 3, 0);
+            tlpFilter.Controls.Add(lblLocKhuVuc, 2, 0);
+            tlpFilter.Controls.Add(lblSapXep, 4, 0);
+            tlpFilter.Controls.Add(cbMonHoc, 0, 1);
+            tlpFilter.Controls.Add(cbLop, 1, 1);
+            tlpFilter.Controls.Add(cbKhuVuc, 2, 1);
+            tlpFilter.Controls.Add(cbHinhThuc, 3, 1);
+            tlpFilter.Controls.Add(cmbSapXepGia, 4, 1);
+            tlpFilter.Controls.Add(btnReset, 5, 0);
+            tlpFilter.Dock = System.Windows.Forms.DockStyle.Fill;
+            tlpFilter.Location = new System.Drawing.Point(0, 0);
+            tlpFilter.Margin = new System.Windows.Forms.Padding(10);
+            tlpFilter.Name = "tlpFilter";
+            tlpFilter.RowCount = 2;
+            tlpFilter.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            tlpFilter.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
+            tlpFilter.Size = new System.Drawing.Size(880, 70);
+            tlpFilter.TabIndex = 0;
+            // 
+            // lblLocMon
+            // 
+            lblLocMon.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            lblLocMon.AutoSize = true;
+            lblLocMon.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            lblLocMon.ForeColor = System.Drawing.Color.DarkSlateGray;
+            lblLocMon.Location = new System.Drawing.Point(3, 12);
+            lblLocMon.Name = "lblLocMon";
+            lblLocMon.Size = new System.Drawing.Size(62, 15);
+            lblLocMon.TabIndex = 0;
+            lblLocMon.Text = "Môn học";
+            // 
+            // lblLocLop
+            // 
+            lblLocLop.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            lblLocLop.AutoSize = true;
+            lblLocLop.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            lblLocLop.ForeColor = System.Drawing.Color.DarkSlateGray;
+            lblLocLop.Location = new System.Drawing.Point(163, 12);
+            lblLocLop.Name = "lblLocLop";
+            lblLocLop.Size = new System.Drawing.Size(68, 15);
+            lblLocLop.TabIndex = 1;
+            lblLocLop.Text = "Lớp học";
+            // 
+            // lblLocHinhThuc
+            // 
+            lblLocHinhThuc.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            lblLocHinhThuc.AutoSize = true;
+            lblLocHinhThuc.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            lblLocHinhThuc.ForeColor = System.Drawing.Color.DarkSlateGray;
+            lblLocHinhThuc.Location = new System.Drawing.Point(423, 12);
+            lblLocHinhThuc.Name = "lblLocHinhThuc";
+            lblLocHinhThuc.Size = new System.Drawing.Size(63, 15);
+            lblLocHinhThuc.TabIndex = 3;
+            lblLocHinhThuc.Text = "Hình thức";
+            // 
+            // lblLocKhuVuc
+            // 
+            lblLocKhuVuc.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            lblLocKhuVuc.AutoSize = true;
+            lblLocKhuVuc.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            lblLocKhuVuc.ForeColor = System.Drawing.Color.DarkSlateGray;
+            lblLocKhuVuc.Location = new System.Drawing.Point(293, 12);
+            lblLocKhuVuc.Name = "lblLocKhuVuc";
+            lblLocKhuVuc.Size = new System.Drawing.Size(63, 15);
+            lblLocKhuVuc.TabIndex = 2;
+            lblLocKhuVuc.Text = "Khu vực";
+            // 
+            // lblSapXep
+            // 
+            lblSapXep.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            lblSapXep.AutoSize = true;
+            lblSapXep.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            lblSapXep.ForeColor = System.Drawing.Color.DarkSlateGray;
+            lblSapXep.Location = new System.Drawing.Point(553, 12);
+            lblSapXep.Name = "lblSapXep";
+            lblSapXep.Size = new System.Drawing.Size(89, 15);
+            lblSapXep.TabIndex = 4;
+            lblSapXep.Text = "Sắp xếp theo";
             // 
             // cbMonHoc
             // 
             cbMonHoc.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             cbMonHoc.Font = new System.Drawing.Font("Segoe UI", 10F);
             cbMonHoc.FormattingEnabled = true;
-            cbMonHoc.Location = new System.Drawing.Point(10, 10);
+            cbMonHoc.Location = new System.Drawing.Point(3, 28);
             cbMonHoc.Name = "cbMonHoc";
-            cbMonHoc.Size = new System.Drawing.Size(160, 31);
+            cbMonHoc.Size = new System.Drawing.Size(154, 28);
             cbMonHoc.TabIndex = 0;
             // 
             // cbLop
@@ -178,9 +270,9 @@
             cbLop.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             cbLop.Font = new System.Drawing.Font("Segoe UI", 10F);
             cbLop.FormattingEnabled = true;
-            cbLop.Location = new System.Drawing.Point(180, 10);
+            cbLop.Location = new System.Drawing.Point(163, 28);
             cbLop.Name = "cbLop";
-            cbLop.Size = new System.Drawing.Size(130, 31);
+            cbLop.Size = new System.Drawing.Size(124, 28);
             cbLop.TabIndex = 1;
             // 
             // cbKhuVuc
@@ -188,9 +280,9 @@
             cbKhuVuc.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             cbKhuVuc.Font = new System.Drawing.Font("Segoe UI", 10F);
             cbKhuVuc.FormattingEnabled = true;
-            cbKhuVuc.Location = new System.Drawing.Point(320, 10);
+            cbKhuVuc.Location = new System.Drawing.Point(293, 28);
             cbKhuVuc.Name = "cbKhuVuc";
-            cbKhuVuc.Size = new System.Drawing.Size(130, 31);
+            cbKhuVuc.Size = new System.Drawing.Size(124, 28);
             cbKhuVuc.TabIndex = 2;
             // 
             // cbHinhThuc
@@ -198,9 +290,9 @@
             cbHinhThuc.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             cbHinhThuc.Font = new System.Drawing.Font("Segoe UI", 10F);
             cbHinhThuc.FormattingEnabled = true;
-            cbHinhThuc.Location = new System.Drawing.Point(460, 10);
+            cbHinhThuc.Location = new System.Drawing.Point(423, 28);
             cbHinhThuc.Name = "cbHinhThuc";
-            cbHinhThuc.Size = new System.Drawing.Size(130, 31);
+            cbHinhThuc.Size = new System.Drawing.Size(124, 28);
             cbHinhThuc.TabIndex = 3;
             // 
             // cmbSapXepGia
@@ -208,34 +300,35 @@
             cmbSapXepGia.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             cmbSapXepGia.Font = new System.Drawing.Font("Segoe UI", 10F);
             cmbSapXepGia.FormattingEnabled = true;
-            cmbSapXepGia.Location = new System.Drawing.Point(600, 10);
+            cmbSapXepGia.Location = new System.Drawing.Point(553, 28);
             cmbSapXepGia.Name = "cmbSapXepGia";
-            cmbSapXepGia.Size = new System.Drawing.Size(140, 31);
+            cmbSapXepGia.Size = new System.Drawing.Size(134, 28);
             cmbSapXepGia.TabIndex = 4;
             // 
             // btnReset
             // 
-            btnReset.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            btnReset.Anchor = System.Windows.Forms.AnchorStyles.Left;
             btnReset.BackColor = System.Drawing.Color.FromArgb(108, 117, 125);
             btnReset.FlatAppearance.BorderSize = 0;
             btnReset.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             btnReset.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             btnReset.ForeColor = System.Drawing.Color.White;
-            btnReset.Location = new System.Drawing.Point(750, 10);
+            btnReset.Location = new System.Drawing.Point(703, 13);
             btnReset.Name = "btnReset";
-            btnReset.Size = new System.Drawing.Size(120, 31);
+            btnReset.Size = new System.Drawing.Size(120, 45);
             btnReset.TabIndex = 5;
             btnReset.Text = "Reset";
             btnReset.UseVisualStyleBackColor = false;
+            tlpFilter.SetRowSpan(btnReset, 2);
             // 
             // flpTimLop
             // 
             flpTimLop.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             flpTimLop.AutoScroll = true;
             flpTimLop.BackColor = System.Drawing.Color.White;
-            flpTimLop.Location = new System.Drawing.Point(30, 82);
+            flpTimLop.Location = new System.Drawing.Point(30, 100);
             flpTimLop.Name = "flpTimLop";
-            flpTimLop.Size = new System.Drawing.Size(880, 600);
+            flpTimLop.Size = new System.Drawing.Size(880, 580);
             flpTimLop.TabIndex = 0;
             // 
             // tabPage2
@@ -274,6 +367,8 @@
             tabControl1.ResumeLayout(false);
             tabPage1.ResumeLayout(false);
             panelFilter.ResumeLayout(false);
+            tlpFilter.ResumeLayout(false);
+            tlpFilter.PerformLayout();
             tabPage2.ResumeLayout(false);
             ResumeLayout(false);
         }
@@ -290,6 +385,12 @@
         private System.Windows.Forms.FlowLayoutPanel flpLopDaNhan;
         private System.Windows.Forms.Button btnDangXuat;
         private System.Windows.Forms.Panel panelFilter;
+        private System.Windows.Forms.TableLayoutPanel tlpFilter;
+        private System.Windows.Forms.Label lblLocMon;
+        private System.Windows.Forms.Label lblLocLop;
+        private System.Windows.Forms.Label lblLocHinhThuc;
+        private System.Windows.Forms.Label lblLocKhuVuc;
+        private System.Windows.Forms.Label lblSapXep;
         private System.Windows.Forms.ComboBox cbMonHoc;
         private System.Windows.Forms.ComboBox cbLop;
         private System.Windows.Forms.ComboBox cbKhuVuc;
