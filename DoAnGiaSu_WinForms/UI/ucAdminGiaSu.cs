@@ -1,7 +1,6 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
 
@@ -9,6 +8,7 @@ namespace DoAnGiaSu_WinForms.GUI
 {
     public class ucAdminGiaSu : UserControl
     {
+        private readonly TableLayoutPanel tlpRoot;
         private readonly Label lblMaGS;
         private readonly Label lblHoTen;
         private readonly Label lblSDT;
@@ -31,6 +31,7 @@ namespace DoAnGiaSu_WinForms.GUI
         private readonly FlowLayoutPanel flpMainContent;
         private readonly TableLayoutPanel tblBody;
         private readonly Panel pnlImageStack;
+        private readonly Panel pnlContent;
         private readonly Label[] infoLabels;
 
         public event EventHandler DuyetClicked;
@@ -44,10 +45,42 @@ namespace DoAnGiaSu_WinForms.GUI
             Margin = new Padding(10);
             Padding = new Padding(0);
             AutoSize = false;
-            MinimumSize = new Size(330, 350);
-            Size = new Size(330, 350);
+            MinimumSize = new Size(330, 380);
+            Size = new Size(330, 380);
             DoubleBuffered = true;
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
+
+            tlpRoot = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 3,
+                Margin = new Padding(0),
+                Padding = new Padding(0),
+                BackColor = Color.White
+            };
+            tlpRoot.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
+            tlpRoot.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tlpRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 45F));
+
+            lblMaGS = new Label
+            {
+                Text = "Mã GS: ",
+                AutoSize = false,
+                ForeColor = Color.Gray,
+                Font = new Font("Segoe UI", 9F),
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(10, 3, 10, 3)
+            };
+
+            pnlContent = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.White,
+                Padding = new Padding(10, 5, 10, 5),
+                Margin = new Padding(0)
+            };
 
             flpMainContent = new FlowLayoutPanel
             {
@@ -56,31 +89,28 @@ namespace DoAnGiaSu_WinForms.GUI
                 WrapContents = false,
                 AutoScroll = true,
                 AutoSize = false,
-                AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 BackColor = Color.White,
-                Padding = new Padding(10, 5, 10, 5),
+                Padding = new Padding(0),
                 Margin = new Padding(0)
             };
 
-            lblMaGS = CreateLabel(9F, FontStyle.Regular, Color.Gray, 22, false);
-            lblHoTen = CreateLabel(10F, FontStyle.Bold, Color.FromArgb(35, 45, 60), 24, false);
-            lblSDT = CreateLabel(9F, FontStyle.Regular, Color.DimGray, 22, false);
-            lblCCCD = CreateLabel(9F, FontStyle.Regular, Color.DimGray, 22, false);
-            lblGioiTinh = CreateLabel(9F, FontStyle.Regular, Color.DimGray, 22, false);
-            lblNamSinh = CreateLabel(9F, FontStyle.Regular, Color.DimGray, 22, false);
-            lblThanhTich = CreateLabel(9F, FontStyle.Regular, Color.DimGray, 24, true);
-            lblNamHoc = CreateLabel(9F, FontStyle.Regular, Color.DimGray, 24, true);
-            lblTruong = CreateLabel(9F, FontStyle.Regular, Color.DimGray, 24, true);
-            lblTrinhDo = CreateLabel(9F, FontStyle.Regular, Color.DimGray, 24, true);
-            lblChungChi = CreateLabel(9F, FontStyle.Regular, Color.DimGray, 24, true);
+            lblHoTen = CreateLabel(10F, FontStyle.Bold, Color.FromArgb(35, 45, 60), false);
+            lblSDT = CreateLabel(9F, FontStyle.Regular, Color.DimGray, false);
+            lblCCCD = CreateLabel(9F, FontStyle.Regular, Color.DimGray, false);
+            lblGioiTinh = CreateLabel(9F, FontStyle.Regular, Color.DimGray, false);
+            lblNamSinh = CreateLabel(9F, FontStyle.Regular, Color.DimGray, false);
+            lblThanhTich = CreateLabel(9F, FontStyle.Regular, Color.DimGray, true);
+            lblNamHoc = CreateLabel(9F, FontStyle.Regular, Color.DimGray, true);
+            lblTruong = CreateLabel(9F, FontStyle.Regular, Color.DimGray, true);
+            lblTrinhDo = CreateLabel(9F, FontStyle.Regular, Color.DimGray, true);
+            lblChungChi = CreateLabel(9F, FontStyle.Regular, Color.DimGray, true);
 
             infoLabels = new[]
             {
-                lblMaGS, lblHoTen, lblSDT, lblCCCD, lblGioiTinh, lblNamSinh,
+                lblHoTen, lblSDT, lblCCCD, lblGioiTinh, lblNamSinh,
                 lblThanhTich, lblNamHoc, lblTruong, lblTrinhDo, lblChungChi
             };
 
-            flpMainContent.Controls.Add(lblMaGS);
             flpMainContent.Controls.Add(lblHoTen);
             flpMainContent.Controls.Add(lblSDT);
             flpMainContent.Controls.Add(lblCCCD);
@@ -138,9 +168,11 @@ namespace DoAnGiaSu_WinForms.GUI
             tblBody.Controls.Add(flpMainContent, 0, 0);
             tblBody.Controls.Add(pnlImageStack, 1, 0);
 
+            pnlContent.Controls.Add(tblBody);
+
             pnlFooter = new Panel
             {
-                Dock = DockStyle.Bottom,
+                Dock = DockStyle.Fill,
                 Height = 45,
                 BackColor = Color.White,
                 Margin = new Padding(0),
@@ -160,9 +192,9 @@ namespace DoAnGiaSu_WinForms.GUI
             tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
             tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.34F));
 
-            btnDuyet = CreateButton("Duyệt", Color.FromArgb(40, 167, 69), Color.White);
-            btnTuChoi = CreateButton("Từ chối", Color.FromArgb(255, 193, 7), Color.Black);
-            btnXoa = CreateButton("Xóa", Color.FromArgb(220, 53, 69), Color.White);
+            btnDuyet = CreateButton("Duyệt", Color.DodgerBlue, Color.White);
+            btnTuChoi = CreateButton("Từ chối", Color.Goldenrod, Color.White);
+            btnXoa = CreateButton("Xóa", Color.Crimson, Color.White);
 
             btnDuyet.Click += (_, _) => DuyetClicked?.Invoke(this, EventArgs.Empty);
             btnTuChoi.Click += (_, _) => TuChoiClicked?.Invoke(this, EventArgs.Empty);
@@ -173,18 +205,20 @@ namespace DoAnGiaSu_WinForms.GUI
             tblFooter.Controls.Add(btnXoa, 2, 0);
             pnlFooter.Controls.Add(tblFooter);
 
-            Controls.Add(tblBody);
-            Controls.Add(pnlFooter);
+            tlpRoot.Controls.Add(lblMaGS, 0, 0);
+            tlpRoot.Controls.Add(pnlContent, 0, 1);
+            tlpRoot.Controls.Add(pnlFooter, 0, 2);
 
+            Controls.Add(tlpRoot);
             UpdateContentLayout();
         }
 
-        private static Label CreateLabel(float size, FontStyle style, Color foreColor, int height, bool ellipsis)
+        private static Label CreateLabel(float size, FontStyle style, Color foreColor, bool ellipsis)
         {
             return new Label
             {
                 AutoSize = true,
-                MaximumSize = new Size(270, 0),
+                MaximumSize = new Size(240, 0),
                 Font = new Font("Segoe UI", size, style),
                 ForeColor = foreColor,
                 BackColor = Color.Transparent,
@@ -216,7 +250,7 @@ namespace DoAnGiaSu_WinForms.GUI
                 BackColor = backColor,
                 ForeColor = foreColor,
                 FlatStyle = FlatStyle.Flat,
-                Margin = new Padding(6, 4, 6, 4)
+                Margin = new Padding(6, 0, 6, 0)
             };
             btn.FlatAppearance.BorderSize = 0;
             return btn;
@@ -247,47 +281,26 @@ namespace DoAnGiaSu_WinForms.GUI
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            ApplyRoundedRegion();
             UpdateContentLayout();
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            ApplyRoundedRegion();
-            using Pen pen = new Pen(Color.LightGray, 1);
-            var rect = ClientRectangle;
-            rect.Width -= 1;
-            rect.Height -= 1;
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            using var path = CreateRoundPath(rect, 8);
-            e.Graphics.DrawPath(pen, path);
-        }
-
-        private void ApplyRoundedRegion()
-        {
-            if (Width <= 0 || Height <= 0) return;
-            using var path = CreateRoundPath(new Rectangle(0, 0, Width - 1, Height - 1), 8);
-            Region?.Dispose();
-            Region = new Region(path);
-        }
-
-        private static GraphicsPath CreateRoundPath(Rectangle rect, int radius)
-        {
-            int diameter = radius * 2;
-            var path = new GraphicsPath();
-            path.StartFigure();
-            path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
-            path.AddArc(rect.Right - diameter, rect.Y, diameter, diameter, 270, 90);
-            path.AddArc(rect.Right - diameter, rect.Bottom - diameter, diameter, diameter, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - diameter, diameter, diameter, 90, 90);
-            path.CloseFigure();
-            return path;
+            e.Graphics.DrawRectangle(Pens.LightGray, 0, 0, Width - 1, Height - 1);
         }
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public int MaGS { get; set; }
+        public int MaGS
+        {
+            get;
+            set
+            {
+                field = value;
+                lblMaGS.Text = $"Mã GS: {value}";
+            }
+        }
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]

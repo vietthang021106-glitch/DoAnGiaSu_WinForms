@@ -24,6 +24,8 @@ namespace DoAnGiaSu_WinForms.GUI
             typeof(FlowLayoutPanel).GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(flpGiaSu, true);
             typeof(FlowLayoutPanel).GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(flpBaiDang, true);
             flpBaiDang.SizeChanged += (_, _) => UpdateBaiDangLayout();
+            flpGiaSu.SizeChanged += (_, _) => UpdateGiaSuLayout();
+            flpHoaHong.SizeChanged += (_, _) => UpdateHoaHongLayout();
             ApplySameBackgroundAsLogin();
             Resize += FormMainAdmin_Resize;
             Shown += FormMainAdmin_Shown;
@@ -241,6 +243,7 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             try
             {
+                flpHoaHong.SuspendLayout();
                 flpHoaHong.Controls.Clear();
                 DataTable dt = bdDal.LayBaiChoDuyetPhi();
                 foreach (DataRow row in dt.Rows)
@@ -263,13 +266,47 @@ namespace DoAnGiaSu_WinForms.GUI
                     card.XemAnhClicked += (_, _) => XemAnhChuyenKhoan(card.MaBaiDang);
                     card.TuChoiBillClicked += (_, _) => TuChoiHoaHong(card.MaBaiDang);
                     card.XacNhanClicked += (_, _) => XacNhanHoaHong(card.MaBaiDang);
+                    card.MinimumSize = new Size(330, 300);
+                    card.Margin = new Padding(10);
                     flpHoaHong.Controls.Add(card);
                 }
+
+                UpdateHoaHongLayout();
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi Tab 3: " + ex.Message);
             }
+            finally
+            {
+                flpHoaHong.ResumeLayout();
+            }
+        }
+
+        private void UpdateHoaHongLayout()
+        {
+            if (flpHoaHong == null || flpHoaHong.Controls.Count == 0) return;
+
+            const int fixedColumns = 5;
+            int cardMargin = 10;
+            var sample = flpHoaHong.Controls[0];
+            cardMargin = sample.Margin.Horizontal / 2;
+
+            int usableWidth = flpHoaHong.ClientSize.Width - flpHoaHong.Padding.Horizontal;
+            if (usableWidth <= 0) return;
+
+            int targetWidth = (usableWidth / fixedColumns) - (cardMargin * 2);
+            targetWidth = Math.Max(120, targetWidth);
+
+            flpHoaHong.SuspendLayout();
+            foreach (Control control in flpHoaHong.Controls)
+            {
+                int targetHeight = control.MinimumSize.Height > 0 ? control.MinimumSize.Height : control.Height;
+                control.MinimumSize = new Size(targetWidth, targetHeight);
+                control.MaximumSize = new Size(targetWidth, 0);
+                control.Width = targetWidth;
+            }
+            flpHoaHong.ResumeLayout();
         }
 
         private void XemAnhChuyenKhoan(int maBD)
@@ -383,12 +420,13 @@ namespace DoAnGiaSu_WinForms.GUI
                     card.DuyetClicked += (_, _) => DuyetGiaSu(card.MaGS);
                     card.TuChoiClicked += (_, _) => TuChoiGiaSu(card.MaGS);
                     card.XoaClicked += (_, _) => XoaGiaSu(card.MaGS);
-                    card.MinimumSize = new Size(330, 350);
+                    card.MinimumSize = new Size(330, 380);
                     card.Margin = new Padding(10);
                     cards.Add(card);
                 }
 
                 flpGiaSu.Controls.AddRange(cards.ToArray());
+                UpdateGiaSuLayout();
             }
             catch (Exception ex)
             {
@@ -398,6 +436,32 @@ namespace DoAnGiaSu_WinForms.GUI
             {
                 flpGiaSu.ResumeLayout();
             }
+        }
+
+        private void UpdateGiaSuLayout()
+        {
+            if (flpGiaSu == null || flpGiaSu.Controls.Count == 0) return;
+
+            const int fixedColumns = 5;
+            int cardMargin = 10;
+            var sample = flpGiaSu.Controls[0];
+            cardMargin = sample.Margin.Horizontal / 2;
+
+            int usableWidth = flpGiaSu.ClientSize.Width - flpGiaSu.Padding.Horizontal;
+            if (usableWidth <= 0) return;
+
+            int targetWidth = (usableWidth / fixedColumns) - (cardMargin * 2);
+            targetWidth = Math.Max(120, targetWidth);
+
+            flpGiaSu.SuspendLayout();
+            foreach (Control control in flpGiaSu.Controls)
+            {
+                int targetHeight = control.MinimumSize.Height > 0 ? control.MinimumSize.Height : control.Height;
+                control.MinimumSize = new Size(targetWidth, targetHeight);
+                control.MaximumSize = new Size(targetWidth, 0);
+                control.Width = targetWidth;
+            }
+            flpGiaSu.ResumeLayout();
         }
 
         private void DuyetGiaSu(int maGS)

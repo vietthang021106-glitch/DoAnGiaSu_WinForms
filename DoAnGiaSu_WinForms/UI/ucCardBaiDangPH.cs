@@ -10,6 +10,7 @@ namespace DoAnGiaSu_WinForms.GUI
         private Label lblTrangThai;
         private Label lblMonHoc;
         private Label lblLop;
+        private Label lblTrinhDo;
         private Label lblHinhThuc;
         private Label lblMucLuong;
         private Label lblDiaChi;
@@ -25,6 +26,7 @@ namespace DoAnGiaSu_WinForms.GUI
         // Private storage fields
         private string _tenMonHoc;
         private string _tenLop;
+        private string _tenTrinhDo;
         private string _tenHinhThuc;
         private string _mucLuong;
         private string _soNhaDuong;
@@ -35,6 +37,7 @@ namespace DoAnGiaSu_WinForms.GUI
         // Public properties
         public string TenMonHoc => _tenMonHoc;
         public string TenLop => _tenLop;
+        public string TenTrinhDo => _tenTrinhDo;
         public string TenHinhThuc => _tenHinhThuc;
         public string MucLuong => _mucLuong;
         public string SoNhaDuong => _soNhaDuong;
@@ -117,6 +120,15 @@ namespace DoAnGiaSu_WinForms.GUI
                 Margin = new Padding(0, 3, 0, 3)
             };
 
+            lblTrinhDo = new Label
+            {
+                AutoSize = true,
+                MaximumSize = new Size(270, 0),
+                Font = new Font("Segoe UI", 10F),
+                ForeColor = Color.Black,
+                Margin = new Padding(0, 3, 0, 3)
+            };
+
             lblHinhThuc = new Label
             {
                 AutoSize = true,
@@ -164,6 +176,7 @@ namespace DoAnGiaSu_WinForms.GUI
 
             flpBody.Controls.Add(lblMonHoc);
             flpBody.Controls.Add(lblLop);
+            flpBody.Controls.Add(lblTrinhDo);
             flpBody.Controls.Add(lblHinhThuc);
             flpBody.Controls.Add(lblMucLuong);
             flpBody.Controls.Add(lblDiaChi);
@@ -260,7 +273,7 @@ namespace DoAnGiaSu_WinForms.GUI
             XoaClicked?.Invoke(this, EventArgs.Empty);
         }
 
-        public void LoadData(int maBaiDang, string tenMon, string tenLop, string tenHinhThuc, 
+        public void LoadData(int maBaiDang, string tenMon, string tenLop, string tenTrinhDo, string tenHinhThuc, 
                             string mucLuong, string soNhaDuong, string yeuCauThem, string trangThai, string tenQuan = "")
         {
             try
@@ -268,6 +281,7 @@ namespace DoAnGiaSu_WinForms.GUI
                 // Lưu dữ liệu vào field
                 _tenMonHoc = tenMon;
                 _tenLop = tenLop;
+                _tenTrinhDo = tenTrinhDo;
                 _tenHinhThuc = tenHinhThuc;
                 _mucLuong = mucLuong;
                 _soNhaDuong = soNhaDuong;
@@ -318,6 +332,7 @@ namespace DoAnGiaSu_WinForms.GUI
                 // Gán giá trị cho từng Label
                 lblMonHoc.Text = $"Môn học: {tenMon}";
                 lblLop.Text = $"Lớp: {tenLop}";
+                lblTrinhDo.Text = $"Trình độ: {tenTrinhDo}";
                 lblHinhThuc.Text = $"Hình thức: {tenHinhThuc}";
 
                 if (decimal.TryParse(mucLuong, out decimal ml))

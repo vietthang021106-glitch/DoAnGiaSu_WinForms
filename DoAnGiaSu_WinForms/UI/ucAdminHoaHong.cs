@@ -1,7 +1,6 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
 
@@ -9,6 +8,7 @@ namespace DoAnGiaSu_WinForms.GUI
 {
     public class ucAdminHoaHong : UserControl
     {
+        private readonly TableLayoutPanel tlpRoot;
         private readonly Label lblMaBaiDang;
         private readonly Label lblPhuHuynh;
         private readonly Label lblMonHoc;
@@ -25,6 +25,8 @@ namespace DoAnGiaSu_WinForms.GUI
         private readonly FlowLayoutPanel flpMainContent;
         private readonly TableLayoutPanel tblBody;
         private readonly Panel pnlImage;
+        private readonly Panel pnlContent;
+        private readonly Label[] contentLabels;
 
         public event EventHandler XemAnhClicked;
         public event EventHandler TuChoiBillClicked;
@@ -37,35 +39,65 @@ namespace DoAnGiaSu_WinForms.GUI
             Margin = new Padding(10);
             Padding = new Padding(0);
             AutoSize = false;
-            AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            Width = 380;
+            Width = 330;
             Height = 300;
-            MinimumSize = new Size(380, 300);
+            MinimumSize = new Size(330, 300);
             DoubleBuffered = true;
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
+
+            tlpRoot = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 3,
+                Margin = new Padding(0),
+                Padding = new Padding(0),
+                BackColor = Color.White
+            };
+            tlpRoot.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
+            tlpRoot.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tlpRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 45F));
+
+            lblMaBaiDang = new Label
+            {
+                Text = "Mã bài: ",
+                AutoSize = false,
+                ForeColor = Color.Gray,
+                Font = new Font("Segoe UI", 9F),
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(10, 3, 10, 3)
+            };
+
+            pnlContent = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.White,
+                Padding = new Padding(10, 5, 10, 5),
+                Margin = new Padding(0)
+            };
 
             flpMainContent = new FlowLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 FlowDirection = FlowDirection.TopDown,
                 WrapContents = false,
-                AutoScroll = false,
+                AutoScroll = true,
                 AutoSize = false,
-                AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 BackColor = Color.White,
-                Padding = new Padding(10, 5, 10, 5),
+                Padding = new Padding(0),
                 Margin = new Padding(0)
             };
 
-            lblMaBaiDang = CreateLabel(9F, FontStyle.Regular, Color.Gray, 22, false);
-            lblPhuHuynh = CreateLabel(10F, FontStyle.Bold, Color.FromArgb(35, 45, 60), 24, false);
-            lblMonHoc = CreateLabel(10F, FontStyle.Regular, Color.Black, 22, false);
-            lblMucLuong = CreateLabel(10F, FontStyle.Regular, Color.Black, 22, false);
-            lblHoaHong = CreateLabel(12F, FontStyle.Bold, Color.Red, 24, false);
-            lblTrangThai = CreateLabel(10F, FontStyle.Regular, Color.DimGray, 22, false);
-            lblMaGS = CreateLabel(10F, FontStyle.Regular, Color.DimGray, 22, false);
+            lblPhuHuynh = CreateLabel(10F, FontStyle.Bold, Color.FromArgb(35, 45, 60));
+            lblMonHoc = CreateLabel(10F, FontStyle.Regular, Color.Black);
+            lblMucLuong = CreateLabel(10F, FontStyle.Regular, Color.Black);
+            lblHoaHong = CreateLabel(12F, FontStyle.Bold, Color.Red);
+            lblTrangThai = CreateLabel(10F, FontStyle.Regular, Color.DimGray);
+            lblMaGS = CreateLabel(10F, FontStyle.Regular, Color.DimGray);
 
-            flpMainContent.Controls.Add(lblMaBaiDang);
+            contentLabels = new[] { lblPhuHuynh, lblMonHoc, lblMucLuong, lblHoaHong, lblTrangThai, lblMaGS };
+
             flpMainContent.Controls.Add(lblPhuHuynh);
             flpMainContent.Controls.Add(lblMonHoc);
             flpMainContent.Controls.Add(lblMucLuong);
@@ -88,7 +120,7 @@ namespace DoAnGiaSu_WinForms.GUI
                 SizeMode = PictureBoxSizeMode.Zoom,
                 BackColor = Color.WhiteSmoke,
                 Dock = DockStyle.Fill,
-                Margin = new Padding(5)
+                Margin = new Padding(4)
             };
             pnlImage.Controls.Add(picBill);
 
@@ -106,9 +138,11 @@ namespace DoAnGiaSu_WinForms.GUI
             tblBody.Controls.Add(flpMainContent, 0, 0);
             tblBody.Controls.Add(pnlImage, 1, 0);
 
+            pnlContent.Controls.Add(tblBody);
+
             pnlFooter = new Panel
             {
-                Dock = DockStyle.Bottom,
+                Dock = DockStyle.Fill,
                 Height = 45,
                 BackColor = Color.White,
                 Margin = new Padding(0),
@@ -129,8 +163,8 @@ namespace DoAnGiaSu_WinForms.GUI
             tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.34F));
 
             btnXemAnh = CreateButton("Xem bill", Color.FromArgb(108, 117, 125), Color.White);
-            btnTuChoiBill = CreateButton("Từ chối", Color.FromArgb(255, 193, 7), Color.Black);
-            btnXacNhan = CreateButton("Xác nhận", Color.FromArgb(24, 119, 242), Color.White);
+            btnTuChoiBill = CreateButton("Từ chối", Color.Goldenrod, Color.White);
+            btnXacNhan = CreateButton("Xác nhận", Color.DodgerBlue, Color.White);
 
             btnXemAnh.Click += (_, _) => XemAnhClicked?.Invoke(this, EventArgs.Empty);
             btnTuChoiBill.Click += (_, _) => TuChoiBillClicked?.Invoke(this, EventArgs.Empty);
@@ -141,21 +175,24 @@ namespace DoAnGiaSu_WinForms.GUI
             tblFooter.Controls.Add(btnXacNhan, 2, 0);
             pnlFooter.Controls.Add(tblFooter);
 
-            Controls.Add(tblBody);
-            Controls.Add(pnlFooter);
+            tlpRoot.Controls.Add(lblMaBaiDang, 0, 0);
+            tlpRoot.Controls.Add(pnlContent, 0, 1);
+            tlpRoot.Controls.Add(pnlFooter, 0, 2);
+
+            Controls.Add(tlpRoot);
+            UpdateContentLayout();
         }
 
-        private static Label CreateLabel(float size, FontStyle style, Color foreColor, int height, bool ellipsis)
+        private static Label CreateLabel(float size, FontStyle style, Color foreColor)
         {
             return new Label
             {
                 AutoSize = true,
-                MaximumSize = new Size(340, 0),
+                MaximumSize = new Size(240, 0),
                 Font = new Font("Segoe UI", size, style),
                 ForeColor = foreColor,
                 BackColor = Color.Transparent,
                 Margin = new Padding(0, 3, 0, 3),
-                AutoEllipsis = ellipsis,
                 TextAlign = ContentAlignment.MiddleLeft
             };
         }
@@ -170,55 +207,57 @@ namespace DoAnGiaSu_WinForms.GUI
                 BackColor = backColor,
                 ForeColor = foreColor,
                 FlatStyle = FlatStyle.Flat,
-                Margin = new Padding(6, 4, 6, 4)
+                Margin = new Padding(6, 0, 6, 0)
             };
             btn.FlatAppearance.BorderSize = 0;
             return btn;
         }
 
+        private void UpdateContentLayout()
+        {
+            if (flpMainContent == null || flpMainContent.IsDisposed || contentLabels == null)
+            {
+                return;
+            }
+
+            int contentWidth = Math.Max(120,
+                flpMainContent.ClientSize.Width
+                - flpMainContent.Padding.Left
+                - flpMainContent.Padding.Right
+                - SystemInformation.VerticalScrollBarWidth);
+
+            foreach (var label in contentLabels)
+            {
+                if (label != null && !label.IsDisposed)
+                {
+                    label.MaximumSize = new Size(contentWidth, 0);
+                }
+            }
+        }
+
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            ApplyRoundedRegion();
+            UpdateContentLayout();
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            ApplyRoundedRegion();
-            using Pen pen = new Pen(Color.LightGray, 1);
-            var rect = ClientRectangle;
-            rect.Width -= 1;
-            rect.Height -= 1;
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            using var path = CreateRoundPath(rect, 8);
-            e.Graphics.DrawPath(pen, path);
-        }
-
-        private void ApplyRoundedRegion()
-        {
-            if (Width <= 0 || Height <= 0) return;
-            using var path = CreateRoundPath(new Rectangle(0, 0, Width - 1, Height - 1), 8);
-            Region?.Dispose();
-            Region = new Region(path);
-        }
-
-        private static GraphicsPath CreateRoundPath(Rectangle rect, int radius)
-        {
-            int diameter = radius * 2;
-            var path = new GraphicsPath();
-            path.StartFigure();
-            path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
-            path.AddArc(rect.Right - diameter, rect.Y, diameter, diameter, 270, 90);
-            path.AddArc(rect.Right - diameter, rect.Bottom - diameter, diameter, diameter, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - diameter, diameter, diameter, 90, 90);
-            path.CloseFigure();
-            return path;
+            e.Graphics.DrawRectangle(Pens.LightGray, 0, 0, Width - 1, Height - 1);
         }
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public int MaBaiDang { get; set; }
+        public int MaBaiDang
+        {
+            get;
+            set
+            {
+                field = value;
+                lblMaBaiDang.Text = $"Mã bài: {value}";
+            }
+        }
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -293,11 +332,13 @@ namespace DoAnGiaSu_WinForms.GUI
             using FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
             using Image image = Image.FromStream(fs);
             pictureBox.Image = new Bitmap(image);
+            pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
         }
 
         private static void SetPictureFromImage(PictureBox pictureBox, Image image)
         {
             pictureBox.Image = image == null ? null : new Bitmap(image);
+            pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
         }
     }
 }

@@ -159,11 +159,12 @@ namespace DoAnGiaSu_WinForms.GUI
                 using (SqlConnection conn = new DBConnection().GetConnection())
                 {
                     conn.Open();
-                    const string sql = @"SELECT bd.MaBaiDang, m.TenMon, l.TenLop, ht.TenHinhThuc, 
+                    const string sql = @"SELECT bd.MaBaiDang, m.TenMon, l.TenLop, td.TenTrinhDo, ht.TenHinhThuc, 
                                                 bd.MucLuong, bd.SoNhaDuong, bd.YeuCauThem, bd.TrangThai, q.TenQuan
                                          FROM BAIDANG bd
                                          JOIN DM_MONHOC m ON bd.MaMon = m.MaMon
                                          JOIN DM_LOPHOC l ON bd.MaLop = l.MaLop
+                                         LEFT JOIN DM_TRINHDO td ON bd.YeuCauTrinhDo = td.MaTrinhDo
                                          LEFT JOIN DM_HINHTHUC ht ON bd.MaHinhThuc = ht.MaHinhThuc
                                          LEFT JOIN DM_QUANHUYEN q ON bd.MaQuan = q.MaQuan
                                          WHERE bd.MaPH = @maPH
@@ -179,6 +180,7 @@ namespace DoAnGiaSu_WinForms.GUI
                             int maBaiDang = (int)reader["MaBaiDang"];
                             string tenMon = reader["TenMon"]?.ToString() ?? "";
                             string tenLop = reader["TenLop"]?.ToString() ?? "";
+                            string tenTrinhDo = reader["TenTrinhDo"]?.ToString() ?? "";
                             string tenHinhThuc = reader["TenHinhThuc"]?.ToString() ?? "";
                             string mucLuong = reader["MucLuong"]?.ToString() ?? "";
                             string soNhaDuong = reader["SoNhaDuong"]?.ToString() ?? "";
@@ -190,7 +192,7 @@ namespace DoAnGiaSu_WinForms.GUI
                                 mucLuong = Math.Round(luongDec, 0).ToString();
 
                             ucCardBaiDangPH card = new ucCardBaiDangPH();
-                            card.LoadData(maBaiDang, tenMon, tenLop, tenHinhThuc, mucLuong, soNhaDuong, yeuCauThem, trangThai, tenQuan);
+                            card.LoadData(maBaiDang, tenMon, tenLop, tenTrinhDo, tenHinhThuc, mucLuong, soNhaDuong, yeuCauThem, trangThai, tenQuan);
 
                             card.XemDuyetClicked += Card_XemDuyetClicked;
                             card.SuaClicked += Card_SuaClicked;
