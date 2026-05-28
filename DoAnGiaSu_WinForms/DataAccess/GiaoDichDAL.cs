@@ -116,14 +116,30 @@ namespace DoAnGiaSu_WinForms.DataAccess
             object result = cmd.ExecuteScalar();
             if (result != null && result != DBNull.Value)
             {
-                try
+                if (result is byte[] bytesRes)
                 {
-                    string base64 = result.ToString();
-                    return Convert.FromBase64String(base64);
+                    return bytesRes;
                 }
-                catch
+                string s = result as string;
+                if (!string.IsNullOrWhiteSpace(s))
                 {
-                    return null;
+                    int comma = s.IndexOf(',');
+                    if (comma >= 0 && comma + 1 < s.Length) s = s.Substring(comma + 1);
+                    try
+                    {
+                        return Convert.FromBase64String(s);
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            return System.Text.Encoding.Default.GetBytes(s);
+                        }
+                        catch
+                        {
+                            return null;
+                        }
+                    }
                 }
             }
 

@@ -237,10 +237,32 @@ namespace DoAnGiaSu_WinForms.GUI
                         TrangThai = row["TrangThai"]?.ToString() ?? "",
                         MaGS = row.Table.Columns.Contains("MaGS") && row["MaGS"] != DBNull.Value ? row["MaGS"].ToString() : ""
                     };
-                    if (row.Table.Columns.Contains("AnhChuyenKhoan") && row["AnhChuyenKhoan"] is byte[] bytes && bytes.Length > 0)
+                    if (row.Table.Columns.Contains("AnhChuyenKhoan") && row["AnhChuyenKhoan"] != DBNull.Value)
                     {
-                        using var ms = new MemoryStream(bytes);
-                        card.AnhBillImage = Image.FromStream(ms);
+                        var val = row["AnhChuyenKhoan"];
+                        if (val is byte[] bytes && bytes.Length > 0)
+                        {
+                            using var ms = new MemoryStream(bytes);
+                            card.AnhBillImage = Image.FromStream(ms);
+                        }
+                        else
+                        {
+                            string s = val as string;
+                            if (!string.IsNullOrWhiteSpace(s))
+                            {
+                                int comma = s.IndexOf(',');
+                                if (comma >= 0 && comma + 1 < s.Length) s = s.Substring(comma + 1);
+                                try
+                                {
+                                    byte[] decoded = Convert.FromBase64String(s);
+                                    using var ms2 = new MemoryStream(decoded);
+                                    card.AnhBillImage = Image.FromStream(ms2);
+                                }
+                                catch
+                                {
+                                }
+                            }
+                        }
                     }
                     card.XemAnhClicked += (_, _) => XemAnhChuyenKhoan(card.MaBaiDang);
                     card.TuChoiBillClicked += (_, _) => TuChoiHoaHong(card.MaBaiDang);
@@ -341,7 +363,7 @@ namespace DoAnGiaSu_WinForms.GUI
                         SDT = reader["SDT"]?.ToString() ?? "",
                         CCCD = reader["CCCD"]?.ToString() ?? "",
                         GioiTinh = reader["TenGioiTinh"]?.ToString() ?? "",
-                        NamSinh = reader["Nam"]?.ToString() ?? "",
+                        NamSinh = reader["NamSinh"]?.ToString() ?? "",
                         ThanhTich = reader["ThanhTich"]?.ToString() ?? "",
                         NamHoc = reader["TenNamHoc"]?.ToString() ?? "",
                         Truong = reader["TenTruong"]?.ToString() ?? "",

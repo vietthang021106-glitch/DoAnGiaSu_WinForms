@@ -36,7 +36,7 @@
         public const string LayTatCaGiaSuAdmin = @"SELECT GS.MaGS, GS.HoTen, GS.SDT, GS.CCCD,
                                 GS.AnhMinhChung, GS.AnhBangDiem, GS.AnhChungChi,
                                 ISNULL('GPA: ' + GS.DiemGPA, XL.TenXepLoai) AS ThanhTich,
-                                GT.TenGioiTinh, NS.Nam, NH.TenNamHoc,
+                                GT.TenGioiTinh, NS.Nam AS NamSinh, NH.TenNamHoc,
                                 ISNULL(CC.TenChungChi + ': ' + GS.DiemChungChi, '') AS ThongTinChungChi,
                                 GS.MaNamHoc, GS.MaChungChi, GS.DiemChungChi, DMCC.TenChungChi,
                                 T.TenTruong, TD.TenTrinhDo, GS.TrangThaiDuyet,

@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using DoAnGiaSu_WinForms.Models;
+using System.Collections.Generic;
 
 namespace DoAnGiaSu_WinForms.DataAccess
 {
@@ -417,29 +418,30 @@ namespace DoAnGiaSu_WinForms.DataAccess
             }
         }
 
-        public DataTable LayBaiChoDuyetPhi()
+        public List<DangKyNhanLop> LayDangKyNhanLopTheoBai(int maBD)
         {
+            var list = new List<DangKyNhanLop>();
             using (SqlConnection conn = db.GetConnection())
             {
-                conn.Open();
-                XuLyQuaHanNopLaiBill(conn);
-
-                string query = @"SELECT bd.MaBaiDang, ph.HoTen AS TenPhuHuynh, m.TenMon, bd.MucLuong, CAST(bd.MucLuong * 2 AS INT) AS HoaHong, bd.TrangThai, gd.AnhMinhChung AS AnhChuyenKhoan, bd.MaGS 
-                                FROM BAIDANG bd
-                                JOIN PHUHUYNH ph ON bd.MaPH = ph.MaPH
-                                JOIN DM_MONHOC m ON bd.MaMon = m.MaMon
-                                OUTER APPLY (
-                                    SELECT TOP 1 g.AnhMinhChung
-                                    FROM GIAODICH g
-                                    WHERE g.MaBaiDang = bd.MaBaiDang AND g.AnhMinhChung IS NOT NULL
-                                    ORDER BY DATALENGTH(g.AnhMinhChung) DESC
-                                ) gd
-                                WHERE bd.TrangThai = 'DangGiaoDich'";
-                SqlDataAdapter da = new SqlDataAdapter(query, conn);
+                string sql = @"SELECT MaDangKy, MaBaiDang, MaGS, TrangThai, NgayDangKy FROM DANGKYNHANLOP WHERE MaBaiDang = @ma";
+                using SqlDataAdapter da = new SqlDataAdapter(sql, conn);
+                da.SelectCommand.Parameters.AddWithValue("@ma", maBD);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
-                return dt;
+                foreach (DataRow r in dt.Rows)
+                {
+                    var dk = new DangKyNhanLop
+                    {
+                        MaDangKy = r.Table.Columns.Contains("MaDangKy") && r["MaDangKy"] != DBNull.Value ? Convert.ToInt32(r["MaDangKy"]) : 0,
+                        MaBaiDang = r.Table.Columns.Contains("MaBaiDang") && r["MaBaiDang"] != DBNull.Value ? Convert.ToInt32(r["MaBaiDang"]) : 0,
+                        MaGS = r.Table.Columns.Contains("MaGS") && r["MaGS"] != DBNull.Value ? Convert.ToInt32(r["MaGS"]) : 0,
+                        TrangThai = r.Table.Columns.Contains("TrangThai") ? r["TrangThai"]?.ToString() ?? "" : "",
+                        NgayDangKy = r.Table.Columns.Contains("NgayDangKy") && r["NgayDangKy"] != DBNull.Value ? Convert.ToDateTime(r["NgayDangKy"]) : DateTime.MinValue
+                    };
+                    list.Add(dk);
+                }
             }
+            return list;
         }
 
         public bool XacNhanHoaHong(int maBD)
@@ -627,9 +629,33 @@ namespace DoAnGiaSu_WinForms.DataAccess
                 cmd.Parameters.AddWithValue("@ma", maBD);
                 conn.Open();
                 object result = cmd.ExecuteScalar();
-                if (result != null && result != DBNull.Value && result is byte[] bytes)
+                if (result != null && result != DBNull.Value)
                 {
-                    return bytes;
+                    if (result is byte[] bytes)
+                    {
+                        return bytes;
+                    }
+                    string s = result as string;
+                    if (!string.IsNullOrWhiteSpace(s))
+                    {
+                        int comma = s.IndexOf(',');
+                        if (comma >= 0 && comma + 1 < s.Length) s = s.Substring(comma + 1);
+                        try
+                        {
+                            return Convert.FromBase64String(s);
+                        }
+                        catch
+                        {
+                            try
+                            {
+                                return System.Text.Encoding.Default.GetBytes(s);
+                            }
+                            catch
+                            {
+                                return null;
+                            }
+                        }
+                    }
                 }
 
                 return null;
@@ -716,13 +742,17 @@ namespace DoAnGiaSu_WinForms.DataAccess
                 string query = @"SELECT gs.MaGS, gs.HoTen, gs.SDT, gs.CCCD,
                                        gs.AnhMinhChung, gs.AnhBangDiem, gs.AnhChungChi,
                                        ISNULL('GPA: ' + gs.DiemGPA, xl.TenXepLoai) AS ThanhTich,
-                                       gt.TenGioiTinh, ns.Nam AS NamSinh,
-                                       tr.TenTruong
+                                       gt.TenGioiTinh, ns.Nam AS NamSinh, nh.TenNamHoc,
+                                       ISNULL(CC.TenChungChi + ': ' + gs.DiemChungChi, '') AS ThongTinChungChi,
+                                       tr.TenTruong, td.TenTrinhDo
                                 FROM GIASU gs
                                 LEFT JOIN DM_XEPLOAI xl ON gs.MaXepLoai = xl.MaXepLoai
                                 LEFT JOIN DM_GIOITINH gt ON gs.MaGioiTinh = gt.MaGioiTinh
-                                LEFT JOIN DM_NAMSINH ns ON gs.MaNamHoc = ns.MaNam
+                                LEFT JOIN DM_NAMSINH ns ON gs.MaNamSinh = ns.MaNamSinh
+                                LEFT JOIN DM_NAMHOC nh ON gs.MaNamHoc = nh.MaNamHoc
                                 LEFT JOIN DM_TRUONG tr ON gs.MaTruong = tr.MaTruong
+                                LEFT JOIN DM_TRINHDO td ON gs.MaTrinhDo = td.MaTrinhDo
+                                LEFT JOIN DM_CHUNGCHI CC ON gs.MaChungChi = CC.MaChungChi
                                 ORDER BY gs.MaGS DESC";
 
                 using SqlDataAdapter da = new SqlDataAdapter(query, conn);
@@ -730,6 +760,12 @@ namespace DoAnGiaSu_WinForms.DataAccess
                 da.Fill(dt);
                 return dt;
             }
+        }
+
+        public DataTable LayBaiChoDuyetPhi()
+        {
+            var gdDal = new GiaoDichDAL();
+            return gdDal.LayBaiChoDuyetPhi();
         }
     }
 }

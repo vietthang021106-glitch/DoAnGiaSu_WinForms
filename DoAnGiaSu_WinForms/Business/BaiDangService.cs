@@ -49,5 +49,7 @@ namespace DoAnGiaSu_WinForms.Business
         public DataTable LayThongTinGiaSuTuBaiDangKhiThieuDangKy(int maBD) => repository.LayThongTinGiaSuTuBaiDangKhiThieuDangKy(maBD);
 
         public DataTable LayTatCaGiaSuAdmin() => repository.LayTatCaGiaSuAdmin();
+
+        public List<DangKyNhanLop> LayDangKyNhanLopTheoBai(int maBD) => repository.LayDangKyNhanLopTheoBai(maBD);
     }
 }
