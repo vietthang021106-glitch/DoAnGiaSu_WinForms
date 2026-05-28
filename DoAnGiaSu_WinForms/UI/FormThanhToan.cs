@@ -60,14 +60,17 @@ namespace DoAnGiaSu_WinForms.GUI
 
             if (MessageBox.Show("Bạn có chắc chắn muốn xác nhận đã chuyển thanh toán và gửi ảnh minh chứng này?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                if (giaoDichService.CapNhatAnhChuyenKhoan(_maBaiDang, _anhChuyenKhoan))
+                int maTK = new DoAnGiaSu_WinForms.DataAccess.TaiKhoanDAL().LayMaTKTuTen(_tenGiaSu);
+                int maGS = new DoAnGiaSu_WinForms.DataAccess.GiaSuDAL().LayMaGSMoiNhatTheoMaTK(maTK);
+                decimal phiHoaHong = _hocPhi * 2m;
+                if (giaoDichService.CapNhatAnhChuyenKhoan(_maBaiDang, maGS, phiHoaHong, _anhChuyenKhoan))
                 {
-                    MessageBox.Show("Hệ thống đã ghi nhận giao dịch và ảnh minh chứng. Vui lòng đợi Admin phê duyệt để xem địa chỉ lớp học!");
+                    MessageBox.Show("Hệ thống đã ghi nhận giao dịch và ảnh minh chứng. Vui lòng đợi Admin phê duyệt để xem địa chỉ lớp học!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     this.Close();
                 }
                 else
                 {
-                    MessageBox.Show("Có lỗi xảy ra khi lưu ảnh minh chứng!");
+                    MessageBox.Show("Có lỗi xảy ra khi lưu ảnh minh chứng!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }

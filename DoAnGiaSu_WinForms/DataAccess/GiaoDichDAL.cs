@@ -19,26 +19,6 @@ namespace DoAnGiaSu_WinForms.DataAccess
             }
         }
 
-        private void DamBaoCotTrangThaiGiaoDich(SqlConnection conn)
-        {
-            using SqlCommand cmdCheck = new SqlCommand("SELECT COL_LENGTH('GIAODICH', 'TrangThai')", conn);
-            if (cmdCheck.ExecuteScalar() == DBNull.Value)
-            {
-                using SqlCommand cmdAlter = new SqlCommand("ALTER TABLE GIAODICH ADD TrangThai NVARCHAR(50) NULL DEFAULT 'ChuaNop'", conn);
-                cmdAlter.ExecuteNonQuery();
-            }
-        }
-
-        private void DamBaoCotNgayXacNhanGiaoDich(SqlConnection conn)
-        {
-            using SqlCommand cmdCheck = new SqlCommand("SELECT COL_LENGTH('GIAODICH', 'NgayXacNhan')", conn);
-            if (cmdCheck.ExecuteScalar() == DBNull.Value)
-            {
-                using SqlCommand cmdAlter = new SqlCommand("ALTER TABLE GIAODICH ADD NgayXacNhan DATETIME NULL", conn);
-                cmdAlter.ExecuteNonQuery();
-            }
-        }
-
         private void XuLyQuaHanNopLaiBill(SqlConnection conn)
         {
             DamBaoCotHanNopLaiBill(conn);
@@ -78,18 +58,21 @@ namespace DoAnGiaSu_WinForms.DataAccess
             cmd.ExecuteNonQuery();
         }
 
-        public bool CapNhatAnhChuyenKhoan(int maBD, byte[] anhCK)
+        public bool CapNhatAnhChuyenKhoan(int maBD, int maGS, decimal soTienPhi, byte[] anhCK)
         {
             using SqlConnection conn = db.GetConnection();
             try
             {
                 conn.Open();
                 DamBaoCotHanNopLaiBill(conn);
-                DamBaoCotTrangThaiGiaoDich(conn);
 
-                using SqlCommand updateCmd = new SqlCommand("UPDATE GIAODICH SET AnhMinhChung = @anh, TrangThai = 'ChoAdminDuyet' WHERE MaBaiDang = @ma", conn);
-                updateCmd.Parameters.Add("@anh", SqlDbType.VarBinary, -1).Value = anhCK;
+                string base64 = Convert.ToBase64String(anhCK);
+
+                using SqlCommand updateCmd = new SqlCommand("UPDATE GIAODICH SET MaGS = @maGS, SoTienPhi = @soTien, AnhMinhChung = @anh, TrangThaiDongPhi = 'ChoAdminDuyet' WHERE MaBaiDang = @ma", conn);
+                updateCmd.Parameters.AddWithValue("@maGS", maGS);
+                updateCmd.Parameters.AddWithValue("@soTien", soTienPhi);
                 updateCmd.Parameters.AddWithValue("@ma", maBD);
+                updateCmd.Parameters.Add("@anh", SqlDbType.NVarChar, -1).Value = base64;
                 int soDongCapNhat = updateCmd.ExecuteNonQuery();
 
                 if (soDongCapNhat > 0)
@@ -100,9 +83,11 @@ namespace DoAnGiaSu_WinForms.DataAccess
                     return true;
                 }
 
-                using SqlCommand insertCmd = new SqlCommand("INSERT INTO GIAODICH (MaBaiDang, AnhMinhChung, TrangThai) VALUES (@ma, @anh, 'ChoAdminDuyet')", conn);
+                using SqlCommand insertCmd = new SqlCommand("INSERT INTO GIAODICH (MaBaiDang, MaGS, SoTienPhi, AnhMinhChung, TrangThaiDongPhi) VALUES (@ma, @maGS, @soTien, @anh, 'ChoAdminDuyet')", conn);
                 insertCmd.Parameters.AddWithValue("@ma", maBD);
-                insertCmd.Parameters.Add("@anh", SqlDbType.VarBinary, -1).Value = anhCK;
+                insertCmd.Parameters.AddWithValue("@maGS", maGS);
+                insertCmd.Parameters.AddWithValue("@soTien", soTienPhi);
+                insertCmd.Parameters.Add("@anh", SqlDbType.NVarChar, -1).Value = base64;
                 bool insertOk = insertCmd.ExecuteNonQuery() > 0;
                 if (insertOk)
                 {
@@ -125,13 +110,21 @@ namespace DoAnGiaSu_WinForms.DataAccess
             using SqlCommand cmd = new SqlCommand(@"SELECT TOP 1 AnhMinhChung
                                                     FROM GIAODICH
                                                     WHERE MaBaiDang = @ma AND AnhMinhChung IS NOT NULL
-                                                    ORDER BY DATALENGTH(AnhMinhChung) DESC", conn);
+                                                    ORDER BY LEN(AnhMinhChung) DESC", conn);
             cmd.Parameters.AddWithValue("@ma", maBD);
             conn.Open();
             object result = cmd.ExecuteScalar();
-            if (result is byte[] bytes)
+            if (result != null && result != DBNull.Value)
             {
-                return bytes;
+                try
+                {
+                    string base64 = result.ToString();
+                    return Convert.FromBase64String(base64);
+                }
+                catch
+                {
+                    return null;
+                }
             }
 
             return null;
@@ -142,21 +135,18 @@ namespace DoAnGiaSu_WinForms.DataAccess
             using SqlConnection conn = db.GetConnection();
             conn.Open();
             XuLyQuaHanNopLaiBill(conn);
-            DamBaoCotTrangThaiGiaoDich(conn);
 
-            using SqlDataAdapter da = new SqlDataAdapter(@"SELECT bd.MaBaiDang, ph.HoTen AS TenPhuHuynh, m.TenMon, bd.MucLuong, CAST(bd.MucLuong * 2 AS INT) AS HoaHong, 
-                                                             COALESCE(gd.TrangThai, bd.TrangThai) AS TrangThai, 
-                                                             gd.AnhMinhChung AS AnhChuyenKhoan, bd.MaGS
-                                                             FROM BAIDANG bd
-                                                             JOIN PHUHUYNH ph ON bd.MaPH = ph.MaPH
-                                                             JOIN DM_MONHOC m ON bd.MaMon = m.MaMon
-                                                             LEFT JOIN (
-                                                                 SELECT TOP 1 g.MaBaiDang, g.AnhMinhChung, g.TrangThai
-                                                                 FROM GIAODICH g
-                                                                 WHERE g.AnhMinhChung IS NOT NULL
-                                                                 ORDER BY DATALENGTH(g.AnhMinhChung) DESC
-                                                             ) gd ON bd.MaBaiDang = gd.MaBaiDang
-                                                             WHERE bd.TrangThai = N'DangGiaoDich' OR gd.TrangThai = N'ChoAdminDuyet'", conn);
+            using SqlDataAdapter da = new SqlDataAdapter(@"SELECT bd.MaBaiDang, ph.HoTen AS TenPhuHuynh, m.TenMon, bd.MucLuong, CAST(bd.MucLuong * 2 AS INT) AS HoaHong, bd.TrangThai, gd.AnhMinhChung AS AnhChuyenKhoan, bd.MaGS 
+                                                            FROM BAIDANG bd
+                                                            JOIN PHUHUYNH ph ON bd.MaPH = ph.MaPH
+                                                            JOIN DM_MONHOC m ON bd.MaMon = m.MaMon
+                                                            OUTER APPLY (
+                                                                SELECT TOP 1 g.AnhMinhChung
+                                                                FROM GIAODICH g
+                                                                WHERE g.MaBaiDang = bd.MaBaiDang AND g.AnhMinhChung IS NOT NULL
+                                                                ORDER BY DATALENGTH(g.AnhMinhChung) DESC
+                                                            ) gd
+                                                            WHERE bd.TrangThai = 'DangGiaoDich'", conn);
             DataTable dt = new DataTable();
             da.Fill(dt);
             return dt;
@@ -165,50 +155,28 @@ namespace DoAnGiaSu_WinForms.DataAccess
         public bool XacNhanHoaHong(int maBD)
         {
             using SqlConnection conn = db.GetConnection();
-            try
-            {
-                conn.Open();
-                DamBaoCotHanNopLaiBill(conn);
-                DamBaoCotTrangThaiGiaoDich(conn);
-                DamBaoCotNgayXacNhanGiaoDich(conn);
-
-                using SqlCommand cmdGiaoDich = new SqlCommand("UPDATE GIAODICH SET TrangThai = 'DaGiao', NgayXacNhan = GETDATE() WHERE MaBaiDang = @ma", conn);
-                cmdGiaoDich.Parameters.AddWithValue("@ma", maBD);
-                cmdGiaoDich.ExecuteNonQuery();
-
-                using SqlCommand cmdBaiDang = new SqlCommand("UPDATE BAIDANG SET TrangThai = 'DaGiao', HanNopLaiBill = NULL WHERE MaBaiDang = @ma", conn);
-                cmdBaiDang.Parameters.AddWithValue("@ma", maBD);
-                return cmdBaiDang.ExecuteNonQuery() > 0;
-            }
-            catch
-            {
-                return false;
-            }
+            conn.Open();
+            DamBaoCotHanNopLaiBill(conn);
+            using SqlCommand cmd = new SqlCommand("UPDATE BAIDANG SET TrangThai = 'DaGiao', HanNopLaiBill = NULL WHERE MaBaiDang = @ma", conn);
+            cmd.Parameters.AddWithValue("@ma", maBD);
+            return cmd.ExecuteNonQuery() > 0;
         }
 
         public bool TuChoiHoaHong(int maBD)
         {
             using SqlConnection conn = db.GetConnection();
-            try
-            {
-                conn.Open();
-                DamBaoCotHanNopLaiBill(conn);
-                DamBaoCotTrangThaiGiaoDich(conn);
+            conn.Open();
+            DamBaoCotHanNopLaiBill(conn);
 
-                using SqlCommand cmdTrangThai = new SqlCommand("UPDATE BAIDANG SET TrangThai = 'DangGiaoDich', HanNopLaiBill = DATEADD(DAY, 2, GETDATE()) WHERE MaBaiDang = @ma", conn);
-                cmdTrangThai.Parameters.AddWithValue("@ma", maBD);
-                int soDong = cmdTrangThai.ExecuteNonQuery();
+            using SqlCommand cmdTrangThai = new SqlCommand("UPDATE BAIDANG SET TrangThai = 'DangGiaoDich', HanNopLaiBill = DATEADD(DAY, 2, GETDATE()) WHERE MaBaiDang = @ma", conn);
+            cmdTrangThai.Parameters.AddWithValue("@ma", maBD);
+            int soDong = cmdTrangThai.ExecuteNonQuery();
 
-                using SqlCommand cmdXoaAnh = new SqlCommand("UPDATE GIAODICH SET AnhMinhChung = NULL, TrangThai = 'ChuaNop' WHERE MaBaiDang = @ma", conn);
-                cmdXoaAnh.Parameters.AddWithValue("@ma", maBD);
-                cmdXoaAnh.ExecuteNonQuery();
+            using SqlCommand cmdXoaAnh = new SqlCommand("UPDATE GIAODICH SET AnhMinhChung = NULL WHERE MaBaiDang = @ma", conn);
+            cmdXoaAnh.Parameters.AddWithValue("@ma", maBD);
+            cmdXoaAnh.ExecuteNonQuery();
 
-                return soDong > 0;
-            }
-            catch
-            {
-                return false;
-            }
+            return soDong > 0;
         }
     }
 }

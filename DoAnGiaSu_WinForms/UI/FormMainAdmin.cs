@@ -17,7 +17,6 @@ namespace DoAnGiaSu_WinForms.GUI
         private bool _isFormLoaded = false;
         private readonly BaiDangService baiDangService = new BaiDangService();
         private readonly GiaSuDAL gsDal = new GiaSuDAL();
-        private readonly GiaoDichService giaoDichService = new GiaoDichService();
 
         public FormMainAdmin()
         {
@@ -228,40 +227,29 @@ namespace DoAnGiaSu_WinForms.GUI
                 DataTable dt = baiDangService.LayBaiChoDuyetPhi();
                 foreach (DataRow row in dt.Rows)
                 {
-                    try
+                    var card = new ucAdminHoaHong
                     {
-                        string trangThaiGiaoDich = row.Table.Columns.Contains("TrangThai") ? row["TrangThai"]?.ToString() ?? "" : "";
-
-                        var card = new ucAdminHoaHong
-                        {
-                            MaBaiDang = row["MaBaiDang"] == DBNull.Value ? 0 : Convert.ToInt32(row["MaBaiDang"]),
-                            PhuHuynh = row.Table.Columns.Contains("TenPhuHuynh") ? row["TenPhuHuynh"]?.ToString() ?? "" : "",
-                            MonHoc = row["TenMon"]?.ToString() ?? "",
-                            MucLuong = row["MucLuong"]?.ToString() ?? "",
-                            HoaHong = row.Table.Columns.Contains("HoaHong") ? row["HoaHong"]?.ToString() ?? "" : "",
-                            TrangThai = trangThaiGiaoDich,
-                            MaGS = row.Table.Columns.Contains("MaGS") && row["MaGS"] != DBNull.Value ? row["MaGS"].ToString() : ""
-                        };
-                        if (row.Table.Columns.Contains("AnhChuyenKhoan") && row["AnhChuyenKhoan"] is byte[] bytes && bytes.Length > 0)
-                        {
-                            using var ms = new MemoryStream(bytes);
-                            card.AnhBillImage = Image.FromStream(ms);
-                        }
-                        card.XemAnhClicked += (_, _) => XemAnhChuyenKhoan(card.MaBaiDang);
-                        card.TuChoiBillClicked += (_, _) => TuChoiHoaHong(card.MaBaiDang);
-                        card.XacNhanClicked += (_, _) => XacNhanHoaHong(card.MaBaiDang);
-                        card.MinimumSize = new Size(330, 300);
-                        card.Margin = new Padding(10);
-                        flpHoaHong.Controls.Add(card);
-                    }
-                    catch (Exception ex)
+                        MaBaiDang = row["MaBaiDang"] == DBNull.Value ? 0 : Convert.ToInt32(row["MaBaiDang"]),
+                        PhuHuynh = row.Table.Columns.Contains("TenPhuHuynh") ? row["TenPhuHuynh"]?.ToString() ?? "" : "",
+                        MonHoc = row["TenMon"]?.ToString() ?? "",
+                        MucLuong = row["MucLuong"]?.ToString() ?? "",
+                        HoaHong = row.Table.Columns.Contains("HoaHong") ? row["HoaHong"]?.ToString() ?? "" : "",
+                        TrangThai = row["TrangThai"]?.ToString() ?? "",
+                        MaGS = row.Table.Columns.Contains("MaGS") && row["MaGS"] != DBNull.Value ? row["MaGS"].ToString() : ""
+                    };
+                    if (row.Table.Columns.Contains("AnhChuyenKhoan") && row["AnhChuyenKhoan"] is byte[] bytes && bytes.Length > 0)
                     {
-                        MessageBox.Show("Lỗi vẽ thẻ: " + ex.Message);
+                        using var ms = new MemoryStream(bytes);
+                        card.AnhBillImage = Image.FromStream(ms);
                     }
+                    card.XemAnhClicked += (_, _) => XemAnhChuyenKhoan(card.MaBaiDang);
+                    card.TuChoiBillClicked += (_, _) => TuChoiHoaHong(card.MaBaiDang);
+                    card.XacNhanClicked += (_, _) => XacNhanHoaHong(card.MaBaiDang);
+                    card.MinimumSize = new Size(330, 300);
+                    card.Margin = new Padding(10);
+                    flpHoaHong.Controls.Add(card);
                 }
 
-                flpHoaHong.Visible = true;
-                flpHoaHong.BringToFront();
                 UpdateHoaHongLayout();
             }
             catch (Exception ex)
@@ -302,7 +290,7 @@ namespace DoAnGiaSu_WinForms.GUI
 
         private void XemAnhChuyenKhoan(int maBD)
         {
-            byte[] anh = giaoDichService.LayAnhChuyenKhoanTheoBaiDang(maBD);
+            byte[] anh = baiDangService.LayAnhChuyenKhoanTheoBaiDang(maBD);
             if (anh == null || anh.Length == 0)
             {
                 MessageBox.Show("Gia sư chưa tải ảnh chuyển khoản lên!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);

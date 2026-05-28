@@ -12,6 +12,8 @@ namespace DoAnGiaSu_WinForms.Business
 
         public DataTable LayBaiDangCuaPhuHuynh(int maPH) => repository.LayBaiDangCuaPhuHuynh(maPH);
 
+        public DataTable LayBaiDangCuaPhuHuynhChiTiet(int maPH) => repository.LayBaiDangCuaPhuHuynhChiTiet(maPH);
+
         public DataTable LayTatCaBaiAdmin() => repository.LayTatCaBaiAdmin();
 
         public DataTable LayTatCaBaiAdmin(string trangThai) => repository.LayTatCaBaiAdmin(trangThai);
@@ -26,24 +28,26 @@ namespace DoAnGiaSu_WinForms.Business
 
         public DataTable LayThongTinGiaSuDangKy(int maBD) => repository.LayThongTinGiaSuDangKy(maBD);
 
-        public DataTable LayLopDaGiaoChoGiaSu(int maGS) => repository.LayLopDaGiaoChoGiaSu(maGS);
+        public DataTable LayBaiChoDuyetPhi() => repository.LayBaiChoDuyetPhi();
+
+        public bool XacNhanHoaHong(int maBD) => repository.XacNhanHoaHong(maBD);
+
+        public bool TuChoiHoaHong(int maBD) => repository.TuChoiHoaHong(maBD);
 
         public bool XoaBaiDang(int maBD) => repository.XoaBaiDang(maBD);
 
         public bool SuaBaiDang(BaiDang bd) => repository.SuaBaiDang(bd);
 
-        public DataTable LayBaiDangCuaPhuHuynhChiTiet(int maPH) => repository.LayBaiDangCuaPhuHuynhChiTiet(maPH);
+        public DataTable LayLopDaGiaoChoGiaSu(int maGS) => repository.LayLopDaGiaoChoGiaSu(maGS);
+
+        public bool CapNhatAnhChuyenKhoan(int maBD, byte[] anhCK) => repository.CapNhatAnhChuyenKhoan(maBD, anhCK);
+
+        public byte[] LayAnhChuyenKhoanTheoBaiDang(int maBD) => repository.LayAnhChuyenKhoanTheoBaiDang(maBD);
+
+        public bool CapNhatNhanh(int maBD, string cot, string giaTri) => repository.CapNhatNhanh(maBD, cot, giaTri);
 
         public DataTable LayThongTinGiaSuTuBaiDangKhiThieuDangKy(int maBD) => repository.LayThongTinGiaSuTuBaiDangKhiThieuDangKy(maBD);
 
         public DataTable LayTatCaGiaSuAdmin() => repository.LayTatCaGiaSuAdmin();
-
-        public DataTable LayBaiChoDuyetPhi() => new GiaoDichDAL().LayBaiChoDuyetPhi();
-
-        public bool XacNhanHoaHong(int maBD) => new GiaoDichDAL().XacNhanHoaHong(maBD);
-
-        public bool TuChoiHoaHong(int maBD) => new GiaoDichDAL().TuChoiHoaHong(maBD);
-
-        public byte[] LayAnhChuyenKhoanTheoBaiDang(int maBD) => new GiaoDichDAL().LayAnhChuyenKhoanTheoBaiDang(maBD);
     }
 }

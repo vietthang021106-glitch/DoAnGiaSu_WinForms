@@ -7,7 +7,7 @@ namespace DoAnGiaSu_WinForms.Business
     {
         private readonly GiaoDichDAL repository = new GiaoDichDAL();
 
-        public bool CapNhatAnhChuyenKhoan(int maBD, byte[] anhCK) => repository.CapNhatAnhChuyenKhoan(maBD, anhCK);
+        public bool CapNhatAnhChuyenKhoan(int maBD, int maGS, decimal soTienPhi, byte[] anhCK) => repository.CapNhatAnhChuyenKhoan(maBD, maGS, soTienPhi, anhCK);
 
         public byte[] LayAnhChuyenKhoanTheoBaiDang(int maBD) => repository.LayAnhChuyenKhoanTheoBaiDang(maBD);
 

@@ -23,6 +23,7 @@ namespace DoAnGiaSu_WinForms.GUI
         private int maGS_HienTai;
         private int maBaiDang_HienTai;
         private string trangThaiDangKy_HienTai;
+        private bool hasAnhChuyenKho_HienTai;
 
         public int MaLop { get; private set; }
         public string TrangThaiStr { get; private set; }
@@ -125,7 +126,7 @@ namespace DoAnGiaSu_WinForms.GUI
             };
         }
 
-        public void LoadData(int maLop, string trangThai, string monHoc, string lop, string tenPH, string sdt, string hinhThuc, string diaChiChiTiet, string khuVuc, string yeuCauThem, string hocPhi, string trangThaiDongPhi = null, int maGS = 0, string trangThaiDangKy = null)
+        public void LoadData(int maLop, string trangThai, string monHoc, string lop, string tenPH, string sdt, string hinhThuc, string diaChiChiTiet, string khuVuc, string yeuCauThem, string hocPhi, string trangThaiDongPhi = null, int maGS = 0, string trangThaiDangKy = null, int coAnhChuyenKhoan = 0)
         {
             try
             {
@@ -135,57 +136,19 @@ namespace DoAnGiaSu_WinForms.GUI
                 maGS_HienTai = maGS;
                 trangThaiDongPhi_HienTai = trangThaiDongPhi;
                 trangThaiDangKy_HienTai = trangThaiDangKy ?? string.Empty;
+                hasAnhChuyenKho_HienTai = coAnhChuyenKhoan == 1;
 
                 lblMaLop.Text = $"Mã: {maLop}";
-                
-                if (trangThaiDongPhi == "ChoAdminDuyet")
-                {
-                    lblTrangThai.Text = "Chờ Admin duyệt";
-                    lblTrangThai.ForeColor = Color.FromArgb(255, 165, 0);
-                    this.DoubleClick -= UcCardLopDaNhan_DoubleClick;
-                }
-                else if (trangThaiDongPhi == "DaThanhToan")
-                {
-                    lblTrangThai.Text = "Đã Thanh Toán";
-                    lblTrangThai.ForeColor = Color.Green;
-                    this.DoubleClick -= UcCardLopDaNhan_DoubleClick;
-                }
-                else if (trangThai == "Chờ Admin duyệt phí")
-                {
-                    lblTrangThai.Text = "Chờ Admin duyệt";
-                    lblTrangThai.ForeColor = Color.FromArgb(255, 165, 0);
-                    this.DoubleClick -= UcCardLopDaNhan_DoubleClick;
-                }
-                else if (trangThai == "ChuaGiao" || trangThai == "ChoDuyet" || trangThai == "ChoPhuHuynhDuyet")
-                {
-                    lblTrangThai.Text = trangThai;
+                lblTrangThai.Text = trangThai;
+
+                if (trangThai == "ChuaGiao" || trangThai == "ChoDuyet" || trangThai == "ChoPhuHuynhDuyet")
                     lblTrangThai.ForeColor = Color.Orange;
-                    this.DoubleClick += UcCardLopDaNhan_DoubleClick;
-                }
-                else if (trangThai == "DangGiaoDich" || trangThai == "DaDuyet" || trangThai == "Nhấp đúp để thanh toán")
-                {
-                    lblTrangThai.Text = "Nhấp đúp để thanh toán";
+                else if (trangThai == "DangGiaoDich" || trangThai == "DaDuyet")
                     lblTrangThai.ForeColor = Color.Blue;
-                    this.DoubleClick += UcCardLopDaNhan_DoubleClick;
-                }
-                else if (trangThai == "DaGiao" || trangThai == "Đã Thanh Toán")
-                {
-                    lblTrangThai.Text = "Đã Thanh Toán";
+                else if (trangThai == "DaGiao")
                     lblTrangThai.ForeColor = Color.Green;
-                    this.DoubleClick -= UcCardLopDaNhan_DoubleClick;
-                }
-                else if (trangThai == "Đã đăng ký - chờ PH duyệt")
-                {
-                    lblTrangThai.Text = trangThai;
-                    lblTrangThai.ForeColor = Color.Orange;
-                    this.DoubleClick -= UcCardLopDaNhan_DoubleClick;
-                }
                 else
-                {
-                    lblTrangThai.Text = trangThai;
                     lblTrangThai.ForeColor = Color.Black;
-                    this.DoubleClick += UcCardLopDaNhan_DoubleClick;
-                }
 
                 lblMonHoc.Text = $"Môn học: {monHoc}";
                 lblLop.Text = $"Lớp: {lop}";
@@ -212,13 +175,19 @@ namespace DoAnGiaSu_WinForms.GUI
 
         private void UcCardLopDaNhan_DoubleClick(object? sender, EventArgs e)
         {
-            if (trangThaiDongPhi_HienTai == "DaDong")
+            if (TrangThaiStr == "DaGiao" || trangThaiDongPhi_HienTai == "DaDong")
             {
                 MessageBox.Show("Bạn đã thanh toán phí cho lớp này rồi! Vui lòng liên hệ Phụ huynh theo SĐT trên thẻ.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            if (trangThaiDongPhi_HienTai == "ChuaDong" || string.IsNullOrEmpty(trangThaiDongPhi_HienTai))
+            if (TrangThaiStr == "DangGiaoDich" && hasAnhChuyenKho_HienTai)
+            {
+                MessageBox.Show("Bạn đã nộp phí, vui lòng chờ Admin xác nhận. Nếu cần liên hệ Phụ huynh theo SĐT trên thẻ.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (trangThaiDongPhi_HienTai == "ChuaDong" || string.IsNullOrEmpty(trangThaiDongPhi_HienTai) || (TrangThaiStr == "DangGiaoDich" && !hasAnhChuyenKho_HienTai))
             {
                 if (MessageBox.Show("Phụ huynh đã duyệt! Đóng phí nhận thông tin?", "Thanh toán", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {

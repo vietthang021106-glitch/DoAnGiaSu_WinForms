@@ -530,148 +530,40 @@ namespace DoAnGiaSu_WinForms.DataAccess
             }
         }
 
-        public DataTable LayBaiDangCuaPhuHuynhChiTiet(int maPH)
-        {
-            using (SqlConnection conn = db.GetConnection())
-            {
-                conn.Open();
-                XuLyQuaHanNopLaiBill(conn);
-
-                string query = @"SELECT bd.MaBaiDang, m.TenMon, l.TenLop, ht.TenHinhThuc, bd.MucLuong, bd.SoNhaDuong, bd.YeuCauThem, bd.TrangThai 
-                                FROM BAIDANG bd
-                                JOIN DM_MONHOC m ON bd.MaMon = m.MaMon
-                                JOIN DM_LOPHOC l ON bd.MaLop = l.MaLop
-                                LEFT JOIN DM_HINHTHUC ht ON bd.MaHinhThuc = ht.MaHinhThuc
-                                WHERE bd.MaPH = @maph
-                                ORDER BY bd.MaBaiDang DESC";
-                SqlDataAdapter da = new SqlDataAdapter(query, conn);
-                da.SelectCommand.Parameters.AddWithValue("@maph", maPH);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-                return dt;
-            }
-        }
-
-        public DataTable LayThongTinGiaSuTuBaiDangKhiThieuDangKy(int maBD)
-        {
-            using (SqlConnection conn = db.GetConnection())
-            {
-                string query = @"SELECT dk.MaGS, gs.HoTen, gs.SDT, gs.CCCD,
-                                tr.TenTruong, td.TenTrinhDo,
-                                gs.AnhMinhChung, gs.AnhBangDiem,
-                                ISNULL('GPA: ' + gs.DiemGPA, xl.TenXepLoai) AS ThanhTich, gs.MaNamHoc,
-                                gs.MaChungChi, dmcc.TenChungChi, gs.DiemChungChi,
-                                gt.TenGioiTinh, ns.Nam AS NamSinh, nh.TenNamHoc,
-                                ISNULL(AVG(CAST(dg.SoSao AS FLOAT)), 0) AS DiemTB,
-                                COUNT(dg.MaDanhGia) AS LuotDanhGia,
-                                dk.TrangThai AS TrangThaiDangKy
-                                FROM DANGKYNHANLOP dk
-                                JOIN GIASU gs ON dk.MaGS = gs.MaGS
-                                LEFT JOIN DM_TRUONG tr ON gs.MaTruong = tr.MaTruong
-                                LEFT JOIN DM_TRINHDO td ON gs.MaTrinhDo = td.MaTrinhDo
-                                LEFT JOIN DM_GIOITINH gt ON gs.MaGioiTinh = gt.MaGioiTinh
-                                LEFT JOIN DM_NAMSINH ns ON gs.MaNamSinh = ns.MaNamSinh
-                                LEFT JOIN DM_CHUNGCHI dmcc ON gs.MaChungChi = dmcc.MaChungChi
-                                LEFT JOIN DM_NAMHOC nh ON gs.MaNamHoc = nh.MaNamHoc
-                                LEFT JOIN DM_XEPLOAI xl ON gs.MaXepLoai = xl.MaXepLoai
-                                LEFT JOIN DANHGIA dg ON gs.MaGS = dg.MaGS
-                                WHERE dk.MaBaiDang = @ma
-                                GROUP BY dk.MaGS, gs.HoTen, gs.SDT, gs.CCCD,
-                                         tr.TenTruong, td.TenTrinhDo, gs.AnhMinhChung, gs.AnhBangDiem,
-                                         gs.DiemGPA, xl.TenXepLoai, gs.MaNamHoc, gs.MaChungChi, dmcc.TenChungChi,
-                                         gs.DiemChungChi, gt.TenGioiTinh, ns.Nam, nh.TenNamHoc, dk.TrangThai
-                                ORDER BY CASE dk.TrangThai
-                                            WHEN 'DaDuyet' THEN 1
-                                            WHEN 'ChoDuyet' THEN 2
-                                            ELSE 3
-                                         END, dk.MaGS";
-                SqlDataAdapter da = new SqlDataAdapter(query, conn);
-                da.SelectCommand.Parameters.AddWithValue("@ma", maBD);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-                return dt;
-            }
-        }
-
-        public DataTable LayTatCaGiaSuAdmin()
-        {
-            using (SqlConnection conn = db.GetConnection())
-            {
-                conn.Open();
-                string query = @"SELECT GS.MaGS, GS.HoTen, GS.SDT, GS.CCCD,
-                                GS.AnhMinhChung, GS.AnhBangDiem, GS.AnhChungChi,
-                                ISNULL('GPA: ' + GS.DiemGPA, XL.TenXepLoai) AS ThanhTich,
-                                GT.TenGioiTinh, NS.Nam, NH.TenNamHoc,
-                                ISNULL(CC.TenChungChi + ': ' + GS.DiemChungChi, '') AS ThongTinChungChi,
-                                GS.MaNamHoc, GS.MaChungChi, GS.DiemChungChi, DMCC.TenChungChi,
-                                T.TenTruong, TD.TenTrinhDo, GS.TrangThaiDuyet,
-                                AVG(CAST(DG.SoSao AS FLOAT)) AS DiemTrungBinh,
-                                COUNT(DG.MaDanhGia) AS SoLuotDanhGia,
-                                CASE
-                                    WHEN COUNT(DG.MaDanhGia) > 0 THEN
-                                        CONVERT(NVARCHAR(10), CAST(ROUND(AVG(CAST(DG.SoSao AS FLOAT)), 1) AS DECIMAL(10,1)))
-                                        + N' ⭐ (' + CAST(COUNT(DG.MaDanhGia) AS NVARCHAR(20)) + N' đánh giá)'
-                                    ELSE N'Chưa có đánh giá'
-                                END AS colRating
-                                FROM GIASU GS
-                                LEFT JOIN DM_GIOITINH GT ON GS.MaGioiTinh = GT.MaGioiTinh
-                                LEFT JOIN DM_NAMSINH NS ON GS.MaNamSinh = NS.MaNamSinh
-                                LEFT JOIN DM_NAMHOC NH ON GS.MaNamHoc = NH.MaNamHoc
-                                LEFT JOIN DM_TRUONG T ON GS.MaTruong = T.MaTruong
-                                LEFT JOIN DM_TRINHDO TD ON GS.MaTrinhDo = TD.MaTrinhDo
-                                LEFT JOIN DM_CHUNGCHI DMCC ON GS.MaChungChi = DMCC.MaChungChi
-                                LEFT JOIN DM_CHUNGCHI CC ON GS.MaChungChi = CC.MaChungChi
-                                LEFT JOIN DM_XEPLOAI XL ON GS.MaXepLoai = XL.MaXepLoai
-                                LEFT JOIN DANHGIA DG ON DG.MaGS = GS.MaGS
-                                GROUP BY GS.MaGS, GS.HoTen, GS.SDT, GS.CCCD,
-                                         GS.AnhMinhChung, GS.AnhBangDiem, GS.AnhChungChi,
-                                         GS.DiemGPA, XL.TenXepLoai,
-                                         GT.TenGioiTinh, NS.Nam, NH.TenNamHoc,
-                                         CC.TenChungChi, GS.DiemChungChi, DMCC.TenChungChi,
-                                         GS.MaNamHoc, GS.MaChungChi, 
-                                         T.TenTruong, TD.TenTrinhDo, GS.TrangThaiDuyet
-                                ORDER BY GS.MaGS";
-                SqlDataAdapter da = new SqlDataAdapter(query, conn);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-                return dt;
-            }
-        }
-
         public DataTable LayLopDaGiaoChoGiaSu(int maGS)
         {
             using (SqlConnection conn = db.GetConnection())
             {
                 conn.Open();
                 XuLyQuaHanNopLaiBill(conn);
-                DamBaoCotTrangThaiGiaoDich(conn);
 
                 string query = @"SELECT bd.MaBaiDang, m.TenMon, l.TenLop, ph.HoTen AS TenPH, 
-                                CASE WHEN bd.TrangThai = 'DaGiao' THEN ph.SDT ELSE N'*** (Chờ TTCK)' END AS SDT,
-                                ht.TenHinhThuc, q.TenQuan, 
-                                CASE WHEN bd.TrangThai = 'DaGiao' THEN bd.SoNhaDuong ELSE '***' END AS SoNhaDuong, 
-                                bd.MucLuong, bd.YeuCauThem,
-                                ISNULL(gd.TrangThai, 'ChuaDong') AS TrangThaiDongPhi,
-                                ISNULL(dk.TrangThai, '') AS TrangThaiDangKy,
-                                CASE 
-                                    WHEN dk.TrangThai = 'ChoDuyet' AND bd.TrangThai = 'ChoPhuHuynhDuyet' THEN N'Đã đăng ký - chờ PH duyệt'
-                                    WHEN bd.TrangThai = 'DangGiaoDich' AND bd.MaGS = @maGS AND gd.TrangThai = 'ChoAdminDuyet' THEN N'Chờ Admin duyệt phí'
-                                    WHEN bd.TrangThai = 'DangGiaoDich' AND bd.MaGS = @maGS THEN N'Nhấp đúp để thanh toán'
-                                    WHEN bd.TrangThai = 'DaGiao' THEN N'Đã Thanh Toán'
-                                    ELSE bd.TrangThai 
-                                END AS TrangThaiHienThi,
-                                bd.TrangThai
-                                FROM BAIDANG bd
-                                LEFT JOIN DANGKYNHANLOP dk ON bd.MaBaiDang = dk.MaBaiDang AND dk.MaGS = @maGS
-                                JOIN DM_MONHOC m ON bd.MaMon = m.MaMon
-                                JOIN DM_LOPHOC l ON bd.MaLop = l.MaLop
-                                JOIN PHUHUYNH ph ON bd.MaPH = ph.MaPH
-                                LEFT JOIN DM_HINHTHUC ht ON bd.MaHinhThuc = ht.MaHinhThuc
-                                LEFT JOIN DM_QUANHUYEN q ON bd.MaQuan = q.MaQuan
-                                LEFT JOIN GIAODICH gd ON bd.MaBaiDang = gd.MaBaiDang
-                                WHERE (bd.MaGS = @maGS AND bd.TrangThai IN ('DangGiaoDich', 'DaGiao'))
-                                   OR (dk.TrangThai = 'ChoDuyet' AND bd.TrangThai = 'ChoPhuHuynhDuyet' AND bd.MaGS IS NULL)
-                                ORDER BY bd.MaBaiDang DESC";
+                                 CASE WHEN bd.TrangThai = 'DaGiao' THEN ph.SDT ELSE N'*** (Chờ TTCK)' END AS SDT,
+                                 ht.TenHinhThuc, q.TenQuan, 
+                                 CASE WHEN bd.TrangThai = 'DaGiao' THEN bd.SoNhaDuong ELSE '***' END AS SoNhaDuong, 
+                                 bd.MucLuong, bd.YeuCauThem,
+                                 gd.TrangThaiDongPhi,
+                                 ISNULL(dk.TrangThai, '') AS TrangThaiDangKy,
+                                 CASE 
+                                     WHEN dk.TrangThai = 'ChoDuyet' AND bd.TrangThai = 'ChoPhuHuynhDuyet' THEN N'Đã đăng ký - chờ PH duyệt'
+                                     WHEN bd.TrangThai = 'DaGiao' THEN N'Đã Thanh Toán'
+                                     WHEN gd.AnhMinhChung IS NOT NULL AND bd.TrangThai = 'DangGiaoDich' THEN N'Đợi admin duyệt'
+                                     WHEN bd.TrangThai = 'DangGiaoDich' AND bd.MaGS = @maGS AND gd.AnhMinhChung IS NULL THEN N'Nhấp đúp để thanh toán'
+                                     ELSE bd.TrangThai 
+                                 END AS TrangThaiHienThi,
+                                 bd.TrangThai,
+                                 CASE WHEN gd.AnhMinhChung IS NOT NULL THEN 1 ELSE 0 END AS CoAnhChuyenKhoan
+                                 FROM BAIDANG bd
+                                 LEFT JOIN DANGKYNHANLOP dk ON bd.MaBaiDang = dk.MaBaiDang AND dk.MaGS = @maGS
+                                 JOIN DM_MONHOC m ON bd.MaMon = m.MaMon
+                                 JOIN DM_LOPHOC l ON bd.MaLop = l.MaLop
+                                 JOIN PHUHUYNH ph ON bd.MaPH = ph.MaPH
+                                 LEFT JOIN DM_HINHTHUC ht ON bd.MaHinhThuc = ht.MaHinhThuc
+                                 LEFT JOIN DM_QUANHUYEN q ON bd.MaQuan = q.MaQuan
+                                 LEFT JOIN GIAODICH gd ON bd.MaBaiDang = gd.MaBaiDang AND gd.MaGS = @maGS
+                                 WHERE (bd.MaGS = @maGS AND bd.TrangThai IN ('DangGiaoDich', 'DaGiao'))
+                                    OR (dk.TrangThai = 'ChoDuyet' AND bd.TrangThai = 'ChoPhuHuynhDuyet' AND bd.MaGS IS NULL)
+                                 ORDER BY bd.MaBaiDang DESC";
                 SqlDataAdapter da = new SqlDataAdapter(query, conn);
                 da.SelectCommand.Parameters.AddWithValue("@maGS", maGS);
                 DataTable dt = new DataTable();
@@ -680,13 +572,163 @@ namespace DoAnGiaSu_WinForms.DataAccess
             }
         }
 
-        private void DamBaoCotTrangThaiGiaoDich(SqlConnection conn)
+        public bool CapNhatAnhChuyenKhoan(int maBD, byte[] anhCK)
         {
-            using SqlCommand cmdCheck = new SqlCommand("SELECT COL_LENGTH('GIAODICH', 'TrangThai')", conn);
-            if (cmdCheck.ExecuteScalar() == DBNull.Value)
+            using (SqlConnection conn = db.GetConnection())
             {
-                using SqlCommand cmdAlter = new SqlCommand("ALTER TABLE GIAODICH ADD TrangThai NVARCHAR(50) NULL DEFAULT 'ChuaNop'", conn);
-                cmdAlter.ExecuteNonQuery();
+                try
+                {
+                    conn.Open();
+                    DamBaoCotHanNopLaiBill(conn);
+
+                    string update = "UPDATE GIAODICH SET AnhMinhChung = @anh WHERE MaBaiDang = @ma";
+                    SqlCommand updateCmd = new SqlCommand(update, conn);
+                    updateCmd.Parameters.Add("@anh", SqlDbType.VarBinary, -1).Value = anhCK;
+                    updateCmd.Parameters.AddWithValue("@ma", maBD);
+                    int soDongCapNhat = updateCmd.ExecuteNonQuery();
+
+                    if (soDongCapNhat > 0)
+                    {
+                        SqlCommand clearDeadlineCmd = new SqlCommand("UPDATE BAIDANG SET HanNopLaiBill = NULL WHERE MaBaiDang = @ma", conn);
+                        clearDeadlineCmd.Parameters.AddWithValue("@ma", maBD);
+                        clearDeadlineCmd.ExecuteNonQuery();
+                        return true;
+                    }
+
+                    string insert = "INSERT INTO GIAODICH (MaBaiDang, AnhMinhChung) VALUES (@ma, @anh)";
+                    SqlCommand insertCmd = new SqlCommand(insert, conn);
+                    insertCmd.Parameters.AddWithValue("@ma", maBD);
+                    insertCmd.Parameters.Add("@anh", SqlDbType.VarBinary, -1).Value = anhCK;
+                    bool insertOk = insertCmd.ExecuteNonQuery() > 0;
+                    if (insertOk)
+                    {
+                        SqlCommand clearDeadlineCmd = new SqlCommand("UPDATE BAIDANG SET HanNopLaiBill = NULL WHERE MaBaiDang = @ma", conn);
+                        clearDeadlineCmd.Parameters.AddWithValue("@ma", maBD);
+                        clearDeadlineCmd.ExecuteNonQuery();
+                    }
+                    return insertOk;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
+        public byte[] LayAnhChuyenKhoanTheoBaiDang(int maBD)
+        {
+            using (SqlConnection conn = db.GetConnection())
+            {
+                string query = @"SELECT TOP 1 AnhMinhChung
+                                FROM GIAODICH
+                                WHERE MaBaiDang = @ma AND AnhMinhChung IS NOT NULL
+                                ORDER BY DATALENGTH(AnhMinhChung) DESC";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@ma", maBD);
+                conn.Open();
+                object result = cmd.ExecuteScalar();
+                if (result != null && result != DBNull.Value && result is byte[] bytes)
+                {
+                    return bytes;
+                }
+
+                return null;
+            }
+        }
+
+        public bool CapNhatNhanh(int maBD, string cot, string giaTri)
+        {
+            if (cot != "MucLuong") return false;
+
+            using (SqlConnection conn = db.GetConnection())
+            {
+                string query = $"UPDATE BAIDANG SET {cot} = @val WHERE MaBaiDang = @ma";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@val", giaTri);
+                cmd.Parameters.AddWithValue("@ma", maBD);
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public DataTable LayBaiDangCuaPhuHuynhChiTiet(int maPH)
+        {
+            using (SqlConnection conn = db.GetConnection())
+            {
+                conn.Open();
+                const string sql = @"SELECT bd.MaBaiDang, m.TenMon, l.TenLop, td.TenTrinhDo, ht.TenHinhThuc, 
+                                                bd.MucLuong, bd.SoNhaDuong, bd.YeuCauThem, bd.TrangThai, q.TenQuan
+                                         FROM BAIDANG bd
+                                         JOIN DM_MONHOC m ON bd.MaMon = m.MaMon
+                                         JOIN DM_LOPHOC l ON bd.MaLop = l.MaLop
+                                         LEFT JOIN DM_TRINHDO td ON bd.YeuCauTrinhDo = td.MaTrinhDo
+                                         LEFT JOIN DM_HINHTHUC ht ON bd.MaHinhThuc = ht.MaHinhThuc
+                                         LEFT JOIN DM_QUANHUYEN q ON bd.MaQuan = q.MaQuan
+                                         WHERE bd.MaPH = @maPH
+                                         ORDER BY bd.MaBaiDang DESC";
+
+                using SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.Add(new SqlParameter("@maPH", SqlDbType.Int) { Value = maPH });
+
+                using SqlDataReader reader = cmd.ExecuteReader();
+                System.Data.DataTable dt = new System.Data.DataTable();
+                dt.Load(reader);
+                return dt;
+            }
+        }
+
+        public DataTable LayThongTinGiaSuTuBaiDangKhiThieuDangKy(int maBD)
+        {
+            DataTable dt = new DataTable();
+
+            using (SqlConnection conn = db.GetConnection())
+            {
+                const string sql = @"SELECT bd.MaGS, gs.HoTen, gs.SDT, gs.CCCD,
+                                     tr.TenTruong, td.TenTrinhDo,
+                                     gs.AnhMinhChung, gs.AnhBangDiem,
+                                     ISNULL('GPA: ' + gs.DiemGPA, xl.TenXepLoai) AS ThanhTich, gs.MaNamHoc,
+                                     gs.MaChungChi, dmcc.TenChungChi, gs.DiemChungChi,
+                                     gt.TenGioiTinh, ns.Nam AS NamSinh,
+                                     CAST('DaDuyet' AS NVARCHAR(20)) AS TrangThaiDangKy
+                                     FROM BAIDANG bd
+                                     JOIN GIASU gs ON bd.MaGS = gs.MaGS
+                                     LEFT JOIN DM_TRUONG tr ON gs.MaTruong = tr.MaTruong
+                                     LEFT JOIN DM_TRINHDO td ON gs.MaTrinhDo = td.MaTrinhDo
+                                     LEFT JOIN DM_GIOITINH gt ON gs.MaGioiTinh = gt.MaGioiTinh
+                                     LEFT JOIN DM_NAMSINH ns ON gs.MaNamSinh = ns.MaNamSinh
+                                     LEFT JOIN DM_CHUNGCHI dmcc ON gs.MaChungChi = dmcc.MaChungChi
+                                     LEFT JOIN DM_XEPLOAI xl ON gs.MaXepLoai = xl.MaXepLoai
+                                     WHERE bd.MaBaiDang = @ma";
+
+                using SqlDataAdapter da = new SqlDataAdapter(sql, conn);
+                da.SelectCommand.Parameters.Add(new SqlParameter("@ma", SqlDbType.Int) { Value = maBD });
+                da.Fill(dt);
+            }
+
+            return dt;
+        }
+
+        public DataTable LayTatCaGiaSuAdmin()
+        {
+            using (SqlConnection conn = db.GetConnection())
+            {
+                conn.Open();
+                string query = @"SELECT gs.MaGS, gs.HoTen, gs.SDT, gs.CCCD,
+                                       gs.AnhMinhChung, gs.AnhBangDiem, gs.AnhChungChi,
+                                       ISNULL('GPA: ' + gs.DiemGPA, xl.TenXepLoai) AS ThanhTich,
+                                       gt.TenGioiTinh, ns.Nam AS NamSinh,
+                                       tr.TenTruong
+                                FROM GIASU gs
+                                LEFT JOIN DM_XEPLOAI xl ON gs.MaXepLoai = xl.MaXepLoai
+                                LEFT JOIN DM_GIOITINH gt ON gs.MaGioiTinh = gt.MaGioiTinh
+                                LEFT JOIN DM_NAMSINH ns ON gs.MaNamHoc = ns.MaNam
+                                LEFT JOIN DM_TRUONG tr ON gs.MaTruong = tr.MaTruong
+                                ORDER BY gs.MaGS DESC";
+
+                using SqlDataAdapter da = new SqlDataAdapter(query, conn);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                return dt;
             }
         }
     }
