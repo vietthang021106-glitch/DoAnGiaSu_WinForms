@@ -6,8 +6,11 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
+using System.Linq;
+using System.Collections.Generic;
 using DoAnGiaSu_WinForms.Business;
 using DoAnGiaSu_WinForms.DataAccess;
+using DoAnGiaSu_WinForms.Models;
 
 namespace DoAnGiaSu_WinForms.GUI
 {
@@ -203,270 +206,467 @@ namespace DoAnGiaSu_WinForms.GUI
                 return;
             }
 
-            DataTable dt = baiDangService.LayThongTinGiaSuDangKy(maBD);
-
-            if (dt.Rows.Count == 0 && (trangThai == "DangGiaoDich" || trangThai == "DaGiao"))
-            {
-                dt = baiDangService.LayThongTinGiaSuTuBaiDangKhiThieuDangKy(maBD);
-            }
-
-            if (dt.Rows.Count == 0)
-            {
-                MessageBox.Show("Bài đăng này chưa có gia sư đăng ký.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            if (trangThai == "ChoPhuHuynhDuyet")
-            {
-                using FormDanhSachGiaSuUngVien frm = new FormDanhSachGiaSuUngVien(maBD);
-                DialogResult dr = frm.ShowDialog();
-                if (dr == DialogResult.OK)
-                {
-                    MessageBox.Show("Gia sư đã được chọn. Vui lòng chờ gia sư nộp phí.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    LoadDataBaiDang();
-                }
-                return;
-            }
-
-            DataRow rDaDuyet = null;
-            foreach (DataRow row in dt.Rows)
-            {
-                if ((row["TrangThaiDangKy"]?.ToString() ?? "") == "DaDuyet")
-                {
-                    rDaDuyet = row;
-                    break;
-                }
-            }
-
-            DataRow r = rDaDuyet ?? dt.Rows[0];
-            string hoTen = r["HoTen"]?.ToString() ?? "";
-            string sdt = r["SDT"]?.ToString() ?? "";
-            string trinhDo = r["TenTrinhDo"]?.ToString() ?? "";
-            string truong = r["TenTruong"]?.ToString() ?? "";
-            string gioiTinh = r.Table.Columns.Contains("TenGioiTinh") ? r["TenGioiTinh"]?.ToString() ?? "" : "";
-            string namSinh = r.Table.Columns.Contains("NamSinh") ? r["NamSinh"]?.ToString() ?? "" : "";
-            string thanhTich = r.Table.Columns.Contains("ThanhTich") ? r["ThanhTich"]?.ToString() ?? "" : "";
-            string namHoc = r.Table.Columns.Contains("TenNamHoc") ? r["TenNamHoc"]?.ToString() ?? "" : (r.Table.Columns.Contains("MaNamHoc") ? r["MaNamHoc"]?.ToString() ?? "" : "");
-            string maChungChi = r.Table.Columns.Contains("TenChungChi")
-                ? r["TenChungChi"]?.ToString() ?? ""
-                : (r.Table.Columns.Contains("MaChungChi") ? r["MaChungChi"]?.ToString() ?? "" : "");
-            string diemChungChi = r.Table.Columns.Contains("DiemChungChi") ? ChuanHoaHienThiDiemChungChi(r["DiemChungChi"]?.ToString() ?? "") : "";
-            string anhMinhChungPath = r.Table.Columns.Contains("AnhMinhChung") ? r["AnhMinhChung"]?.ToString() ?? "" : "";
-            string trangThaiDongPhi = r.Table.Columns.Contains("TrangThaiDongPhi") ? r["TrangThaiDongPhi"]?.ToString() ?? "" : "";
-            int maGS = r.Table.Columns.Contains("MaGS") && r["MaGS"] != DBNull.Value ? Convert.ToInt32(r["MaGS"]) : 0;
-
-            double diemTB = 0;
-            int luotDanhGia = 0;
             try
             {
-                DataTable dtDanhGia = phService.LayThongKeDanhGiaGiaSu(maGS);
-                if (dtDanhGia.Rows.Count > 0)
-                {
-                    DataRow rowDanhGia = dtDanhGia.Rows[0];
-                    if (rowDanhGia["DiemTB"] != DBNull.Value) diemTB = Convert.ToDouble(rowDanhGia["DiemTB"]);
-                    if (rowDanhGia["LuotDanhGia"] != DBNull.Value) luotDanhGia = Convert.ToInt32(rowDanhGia["LuotDanhGia"]);
-                }
-            }
-            catch
-            {
-                diemTB = 0;
-                luotDanhGia = 0;
-            }
+                List<DangKyNhanLop> listDangKy = baiDangService.LayDangKyNhanLopTheoBaiList(maBD);
 
-            using (Form frmProfile = new Form())
-            {
-                frmProfile.Text = "Thông tin gia sư đã duyệt";
-                frmProfile.Size = new Size(500, 300);
-                frmProfile.StartPosition = FormStartPosition.CenterParent;
-                frmProfile.FormBorderStyle = FormBorderStyle.FixedDialog;
-                frmProfile.MaximizeBox = false;
-                frmProfile.MinimizeBox = false;
-                frmProfile.BackColor = Color.White;
-                frmProfile.Padding = new Padding(0);
-
-                Panel pnlRoot = new Panel
+                if ((listDangKy == null || listDangKy.Count == 0) && (trangThai == "DangGiaoDich" || trangThai == "DaGiao"))
                 {
-                    Dock = DockStyle.Fill,
-                    BackColor = Color.White,
-                    Padding = new Padding(12)
-                };
-
-                Panel pnlBottom = new Panel
-                {
-                    Dock = DockStyle.Bottom,
-                    Height = 50,
-                    BackColor = Color.White,
-                    Padding = new Padding(0, 8, 0, 0)
-                };
-
-                Panel pnlImage = new Panel
-                {
-                    Dock = DockStyle.Right,
-                    Width = 160,
-                    BackColor = Color.White,
-                    Padding = new Padding(0)
-                };
-
-                PictureBox picMinhChung = new PictureBox
-                {
-                    Dock = DockStyle.Fill,
-                    BorderStyle = BorderStyle.FixedSingle,
-                    SizeMode = PictureBoxSizeMode.Zoom,
-                    BackColor = Color.WhiteSmoke,
-                    Margin = new Padding(0)
-                };
-                TaiAnhGiaSu(picMinhChung, anhMinhChungPath);
-                pnlImage.Controls.Add(picMinhChung);
-
-                Panel pnlInfo = new Panel
-                {
-                    Dock = DockStyle.Fill,
-                    BackColor = Color.White,
-                    Padding = new Padding(0, 0, 12, 0)
-                };
-
-                FlowLayoutPanel flpInfo = new FlowLayoutPanel
-                {
-                    Dock = DockStyle.Fill,
-                    FlowDirection = FlowDirection.TopDown,
-                    AutoScroll = true,
-                    AutoSize = false,
-                    AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                    WrapContents = false,
-                    BackColor = Color.White,
-                    Margin = new Padding(0),
-                    Padding = new Padding(0)
-                };
-
-                Label lblHoTen = new Label
-                {
-                    AutoSize = true,
-                    MaximumSize = new Size(300, 0),
-                    Font = new Font("Segoe UI", 14F, FontStyle.Bold),
-                    ForeColor = Color.FromArgb(24, 33, 53),
-                    Margin = new Padding(0, 0, 0, 6),
-                    Text = hoTen
-                };
-
-                Label lblSDT = new Label
-                {
-                    AutoSize = true,
-                    MaximumSize = new Size(300, 0),
-                    Font = new Font("Segoe UI", 10.5F, FontStyle.Bold),
-                    Margin = new Padding(0, 0, 0, 2)
-                };
-
-                if (string.Equals(trangThaiDongPhi, "DaDong", StringComparison.OrdinalIgnoreCase))
-                {
-                    lblSDT.Text = "SĐT Liên Hệ: " + sdt;
-                    lblSDT.ForeColor = Color.Red;
-                }
-                else
-                {
-                    lblSDT.Text = "SĐT Liên Hệ: (Vui lòng thanh toán phí hoa hồng để xem)";
-                    lblSDT.ForeColor = Color.Gray;
-                }
-
-                LinkLabel lnkXemDanhGia = new LinkLabel
-                {
-                    AutoSize = true,
-                    Text = luotDanhGia > 0 ? "(Xem đánh giá chi tiết)" : "",
-                    LinkColor = Color.FromArgb(24, 119, 242),
-                    ActiveLinkColor = Color.DarkOrange,
-                    VisitedLinkColor = Color.FromArgb(24, 119, 242),
-                    Margin = new Padding(0, 0, 0, 8),
-                    Visible = luotDanhGia > 0
-                };
-                lnkXemDanhGia.LinkClicked += (s, ev) =>
-                {
-                    if (maGS > 0)
+                    DataTable dtFallback = baiDangService.LayThongTinGiaSuTuBaiDangKhiThieuDangKy(maBD);
+                    if (dtFallback == null || dtFallback.Rows.Count == 0)
                     {
-                        using Form frmChiTiet = new FormChiTietDanhGia(maGS);
-                        frmChiTiet.ShowDialog(frmProfile);
+                        MessageBox.Show("Bài đăng này chưa có gia sư đăng ký.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
                     }
-                };
+                    DataRow rFallback = dtFallback.Rows[0];
+                    string hoTenF = rFallback["HoTen"]?.ToString() ?? ""
+;
+                    string sdtF = rFallback["SDT"]?.ToString() ?? "";
+                    string trinhDoF = rFallback["TenTrinhDo"]?.ToString() ?? "";
+                    string truongF = rFallback["TenTruong"]?.ToString() ?? "";
+                    string gioiTinhF = rFallback.Table.Columns.Contains("TenGioiTinh") ? rFallback["TenGioiTinh"]?.ToString() ?? "" : "";
+                    string namSinhF = rFallback.Table.Columns.Contains("NamSinh") ? rFallback["NamSinh"]?.ToString() ?? "" : "";
+                    string thanhTichF = rFallback.Table.Columns.Contains("ThanhTich") ? rFallback["ThanhTich"]?.ToString() ?? "" : "";
+                    string namHocF = rFallback.Table.Columns.Contains("TenNamHoc") ? rFallback["TenNamHoc"]?.ToString() ?? "" : (rFallback.Table.Columns.Contains("MaNamHoc") ? rFallback["MaNamHoc"]?.ToString() ?? "" : "");
+                    string maChungChiF = rFallback.Table.Columns.Contains("TenChungChi") ? rFallback["TenChungChi"]?.ToString() ?? "" : (rFallback.Table.Columns.Contains("MaChungChi") ? rFallback["MaChungChi"]?.ToString() ?? "" : "");
+                    string diemChungChiF = rFallback.Table.Columns.Contains("DiemChungChi") ? ChuanHoaHienThiDiemChungChi(rFallback["DiemChungChi"]?.ToString() ?? "") : "";
+                    string anhMinhChungPathF = rFallback.Table.Columns.Contains("AnhMinhChung") ? rFallback["AnhMinhChung"]?.ToString() ?? "" : "";
+                    string trangThaiDongPhiF = rFallback.Table.Columns.Contains("TrangThaiDongPhi") ? rFallback["TrangThaiDongPhi"]?.ToString() ?? "" : "";
+                    int maGSf = rFallback.Table.Columns.Contains("MaGS") && rFallback["MaGS"] != DBNull.Value ? Convert.ToInt32(rFallback["MaGS"]) : 0;
 
-                Label lblThongTinCaNhan = new Label
+                    double diemTBF = 0;
+                    int luotDanhGiaF = 0;
+                    try
+                    {
+                        DataTable dtDanhGia = phService.LayThongKeDanhGiaGiaSu(maGSf);
+                        if (dtDanhGia.Rows.Count > 0)
+                        {
+                            DataRow rowDanhGia = dtDanhGia.Rows[0];
+                            if (rowDanhGia["DiemTB"] != DBNull.Value) diemTBF = Convert.ToDouble(rowDanhGia["DiemTB"]);
+                            if (rowDanhGia["LuotDanhGia"] != DBNull.Value) luotDanhGiaF = Convert.ToInt32(rowDanhGia["LuotDanhGia"]);
+                        }
+                    }
+                    catch
+                    {
+                        diemTBF = 0;
+                        luotDanhGiaF = 0;
+                    }
+
+                    using Form frmProfile = new Form();
+                    frmProfile.Text = "Thông tin gia sư đã duyệt";
+                    frmProfile.Size = new Size(500, 300);
+                    frmProfile.StartPosition = FormStartPosition.CenterParent;
+                    frmProfile.FormBorderStyle = FormBorderStyle.FixedDialog;
+                    frmProfile.MaximizeBox = false;
+                    frmProfile.MinimizeBox = false;
+                    frmProfile.BackColor = Color.White;
+                    frmProfile.Padding = new Padding(0);
+
+                    Panel pnlRoot = new Panel
+                    {
+                        Dock = DockStyle.Fill,
+                        BackColor = Color.White,
+                        Padding = new Padding(12)
+                    };
+
+                    Panel pnlBottom = new Panel
+                    {
+                        Dock = DockStyle.Bottom,
+                        Height = 50,
+                        BackColor = Color.White,
+                        Padding = new Padding(0, 8, 0, 0)
+                    };
+
+                    Panel pnlImage = new Panel
+                    {
+                        Dock = DockStyle.Right,
+                        Width = 160,
+                        BackColor = Color.White,
+                        Padding = new Padding(0)
+                    };
+
+                    PictureBox picMinhChung = new PictureBox
+                    {
+                        Dock = DockStyle.Fill,
+                        BorderStyle = BorderStyle.FixedSingle,
+                        SizeMode = PictureBoxSizeMode.Zoom,
+                        BackColor = Color.WhiteSmoke,
+                        Margin = new Padding(0)
+                    };
+                    TaiAnhGiaSu(picMinhChung, anhMinhChungPathF);
+                    pnlImage.Controls.Add(picMinhChung);
+
+                    Panel pnlInfo = new Panel
+                    {
+                        Dock = DockStyle.Fill,
+                        BackColor = Color.White,
+                        Padding = new Padding(0, 0, 12, 0)
+                    };
+
+                    FlowLayoutPanel flpInfo = new FlowLayoutPanel
+                    {
+                        Dock = DockStyle.Fill,
+                        FlowDirection = FlowDirection.TopDown,
+                        AutoScroll = true,
+                        AutoSize = false,
+                        AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                        WrapContents = false,
+                        BackColor = Color.White,
+                        Margin = new Padding(0),
+                        Padding = new Padding(0)
+                    };
+
+                    Label lblHoTen = new Label
+                    {
+                        AutoSize = true,
+                        MaximumSize = new Size(300, 0),
+                        Font = new Font("Segoe UI", 14F, FontStyle.Bold),
+                        ForeColor = Color.FromArgb(24, 33, 53),
+                        Margin = new Padding(0, 0, 0, 6),
+                        Text = hoTenF
+                    };
+
+                    Label lblSDT = new Label
+                    {
+                        AutoSize = true,
+                        MaximumSize = new Size(300, 0),
+                        Font = new Font("Segoe UI", 10.5F, FontStyle.Bold),
+                        Margin = new Padding(0, 0, 0, 2)
+                    };
+
+                    if (string.Equals(trangThaiDongPhiF, "DaDong", StringComparison.OrdinalIgnoreCase))
+                    {
+                        lblSDT.Text = "SĐT Liên Hệ: " + sdtF;
+                        lblSDT.ForeColor = Color.Red;
+                    }
+                    else
+                    {
+                        lblSDT.Text = "SĐT Liên Hệ: (Vui lòng thanh toán phí hoa hồng để xem)";
+                        lblSDT.ForeColor = Color.Gray;
+                    }
+
+                    LinkLabel lnkXemDanhGia = new LinkLabel
+                    {
+                        AutoSize = true,
+                        Text = luotDanhGiaF > 0 ? "(Xem đánh giá chi tiết)" : "",
+                        LinkColor = Color.FromArgb(24, 119, 242),
+                        ActiveLinkColor = Color.DarkOrange,
+                        VisitedLinkColor = Color.FromArgb(24, 119, 242),
+                        Margin = new Padding(0, 0, 0, 8),
+                        Visible = luotDanhGiaF > 0
+                    };
+                    lnkXemDanhGia.LinkClicked += (s, ev) =>
+                    {
+                        if (maGSf > 0)
+                        {
+                            using Form frmChiTiet = new FormChiTietDanhGia(maGSf);
+                            frmChiTiet.ShowDialog(frmProfile);
+                        }
+                    };
+
+                    Label lblThongTinCaNhan = new Label
+                    {
+                        AutoSize = true,
+                        MaximumSize = new Size(300, 0),
+                        Font = new Font("Segoe UI", 10F),
+                        ForeColor = Color.Black,
+                        Margin = new Padding(0, 2, 0, 2),
+                        Text = $"Giới tính: {gioiTinhF} - Sinh năm: {namSinhF}"
+                    };
+
+                    Label lblHocVan = new Label
+                    {
+                        AutoSize = true,
+                        MaximumSize = new Size(300, 0),
+                        Font = new Font("Segoe UI", 10F),
+                        ForeColor = Color.Black,
+                        Margin = new Padding(0, 2, 0, 2),
+                        Text = $"{trinhDoF} - Trường: {truongF}"
+                    };
+
+                    Label lblChungChi = new Label
+                    {
+                        AutoSize = true,
+                        MaximumSize = new Size(300, 0),
+                        Font = new Font("Segoe UI", 10F),
+                        ForeColor = Color.DarkGreen,
+                        Margin = new Padding(0, 2, 0, 2),
+                        Text = $"Chứng chỉ: {(string.IsNullOrWhiteSpace(maChungChiF) ? "-" : maChungChiF)} - Điểm: {(string.IsNullOrWhiteSpace(diemChungChiF) ? "-" : diemChungChiF)}"
+                    };
+                    lblChungChi.Visible = !(string.IsNullOrWhiteSpace(maChungChiF) && string.IsNullOrWhiteSpace(diemChungChiF));
+
+                    Label lblThanhTich = new Label
+                    {
+                        AutoSize = true,
+                        MaximumSize = new Size(300, 0),
+                        Font = new Font("Segoe UI", 10F),
+                        ForeColor = Color.Black,
+                        Margin = new Padding(0, 2, 0, 2),
+                        Text = string.IsNullOrWhiteSpace(thanhTichF) ? "-" : thanhTichF
+                    };
+
+                    flpInfo.Controls.Add(lblHoTen);
+                    flpInfo.Controls.Add(lblSDT);
+                    flpInfo.Controls.Add(lnkXemDanhGia);
+                    flpInfo.Controls.Add(lblThongTinCaNhan);
+                    flpInfo.Controls.Add(lblHocVan);
+                    flpInfo.Controls.Add(lblChungChi);
+                    flpInfo.Controls.Add(lblThanhTich);
+
+                    pnlInfo.Controls.Add(flpInfo);
+
+                    frmProfile.Controls.Add(pnlRoot);
+                    pnlRoot.Controls.Add(pnlInfo);
+                    pnlRoot.Controls.Add(pnlImage);
+                    pnlRoot.Controls.Add(pnlBottom);
+
+                    frmProfile.ShowDialog();
+                    return;
+                }
+
+                if (trangThai == "ChoPhuHuynhDuyet")
                 {
-                    AutoSize = true,
-                    MaximumSize = new Size(300, 0),
-                    Font = new Font("Segoe UI", 10F),
-                    ForeColor = Color.Black,
-                    Margin = new Padding(0, 2, 0, 2),
-                    Text = $"Giới tính: {gioiTinh} - Sinh năm: {namSinh}"
-                };
+                    using FormDanhSachGiaSuUngVien frm = new FormDanhSachGiaSuUngVien(maBD);
+                    DialogResult dr = frm.ShowDialog();
+                    if (dr == DialogResult.OK)
+                    {
+                        MessageBox.Show("Gia sư đã được chọn. Vui lòng chờ gia sư nộp phí.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadDataBaiDang();
+                    }
+                    return;
+                }
 
-                Label lblHocVan = new Label
+                DangKyNhanLop dk = listDangKy.FirstOrDefault(x => string.Equals(x.TrangThai, "DaDuyet", StringComparison.OrdinalIgnoreCase)) ?? listDangKy.FirstOrDefault();
+                if (dk == null)
                 {
-                    AutoSize = true,
-                    MaximumSize = new Size(300, 0),
-                    Font = new Font("Segoe UI", 10F),
-                    ForeColor = Color.Black,
-                    Margin = new Padding(0, 2, 0, 2),
-                    Text = $"{trinhDo} - Trường: {truong}"
-                };
+                    MessageBox.Show("Bài đăng này chưa có gia sư đăng ký.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
 
-                Label lblChungChi = new Label
+                int maGS = dk.MaGS;
+
+                DataTable dtDetails = baiDangService.LayThongTinGiaSuDangKy(maBD);
+                DataRow rDaDuyet = null;
+                if (dtDetails != null && dtDetails.Rows.Count > 0)
                 {
-                    AutoSize = true,
-                    MaximumSize = new Size(300, 0),
-                    Font = new Font("Segoe UI", 10F),
-                    ForeColor = Color.DarkGreen,
-                    Margin = new Padding(0, 2, 0, 2),
-                    Text = $"Chứng chỉ: {(string.IsNullOrWhiteSpace(maChungChi) ? "-" : maChungChi)} - Điểm: {(string.IsNullOrWhiteSpace(diemChungChi) ? "-" : diemChungChi)}"
-                };
-                lblChungChi.Visible = !(string.IsNullOrWhiteSpace(maChungChi) && string.IsNullOrWhiteSpace(diemChungChi));
+                    foreach (DataRow row in dtDetails.Rows)
+                    {
+                        if (row.Table.Columns.Contains("MaGS") && row["MaGS"] != DBNull.Value && Convert.ToInt32(row["MaGS"]) == maGS)
+                        {
+                            rDaDuyet = row;
+                            break;
+                        }
+                    }
+                }
 
-                Label lblThanhTich = new Label
+                DataRow r = rDaDuyet ?? (dtDetails != null && dtDetails.Rows.Count > 0 ? dtDetails.Rows[0] : null);
+                string hoTen = r != null ? r["HoTen"]?.ToString() ?? "" : "";
+                string sdt = r != null ? r["SDT"]?.ToString() ?? "" : "";
+                string trinhDo = r != null ? r["TenTrinhDo"]?.ToString() ?? "" : "";
+                string truong = r != null ? r["TenTruong"]?.ToString() ?? "" : "";
+                string gioiTinh = r != null && r.Table.Columns.Contains("TenGioiTinh") ? r["TenGioiTinh"]?.ToString() ?? "" : "";
+                string namSinh = r != null && r.Table.Columns.Contains("NamSinh") ? r["NamSinh"]?.ToString() ?? "" : "";
+                string thanhTich = r != null && r.Table.Columns.Contains("ThanhTich") ? r["ThanhTich"]?.ToString() ?? "" : "";
+                string namHoc = r != null && r.Table.Columns.Contains("TenNamHoc") ? r["TenNamHoc"]?.ToString() ?? "" : (r != null && r.Table.Columns.Contains("MaNamHoc") ? r["MaNamHoc"]?.ToString() ?? "" : "");
+                string maChungChi = r != null && r.Table.Columns.Contains("TenChungChi") ? r["TenChungChi"]?.ToString() ?? "" : (r != null && r.Table.Columns.Contains("MaChungChi") ? r["MaChungChi"]?.ToString() ?? "" : "");
+                string diemChungChi = r != null && r.Table.Columns.Contains("DiemChungChi") ? ChuanHoaHienThiDiemChungChi(r["DiemChungChi"]?.ToString() ?? "") : "";
+                string anhMinhChungPath = r != null && r.Table.Columns.Contains("AnhMinhChung") ? r["AnhMinhChung"]?.ToString() ?? "" : "";
+                string trangThaiDongPhi = r != null && r.Table.Columns.Contains("TrangThaiDongPhi") ? r["TrangThaiDongPhi"]?.ToString() ?? "" : "";
+                int maGSFromRow = r != null && r.Table.Columns.Contains("MaGS") && r["MaGS"] != DBNull.Value ? Convert.ToInt32(r["MaGS"]) : 0;
+
+                double diemTB = 0;
+                int luotDanhGia = 0;
+                try
                 {
-                    AutoSize = true,
-                    MaximumSize = new Size(300, 0),
-                    Font = new Font("Segoe UI", 10F),
-                    ForeColor = Color.DarkRed,
-                    Margin = new Padding(0, 2, 0, 2),
-                    Text = $"Thành tích: {(string.IsNullOrWhiteSpace(thanhTich) ? "-" : thanhTich)}"
-                };
-                lblThanhTich.Visible = !string.IsNullOrWhiteSpace(thanhTich);
-
-                Label lblDiemTB = new Label
+                    DataTable dtDanhGia = phService.LayThongKeDanhGiaGiaSu(maGSFromRow);
+                    if (dtDanhGia.Rows.Count > 0)
+                    {
+                        DataRow rowDanhGia = dtDanhGia.Rows[0];
+                        if (rowDanhGia["DiemTB"] != DBNull.Value) diemTB = Convert.ToDouble(rowDanhGia["DiemTB"]);
+                        if (rowDanhGia["LuotDanhGia"] != DBNull.Value) luotDanhGia = Convert.ToInt32(rowDanhGia["LuotDanhGia"]);
+                    }
+                }
+                catch
                 {
-                    AutoSize = true,
-                    MaximumSize = new Size(300, 0),
-                    Font = new Font("Segoe UI", 10F, FontStyle.Bold),
-                    ForeColor = Color.FromArgb(120, 60, 0),
-                    Margin = new Padding(0, 2, 0, 2),
-                    Text = $"Đánh giá trung bình: {Math.Round(diemTB, 1):0.0}/5"
-                };
+                    diemTB = 0;
+                    luotDanhGia = 0;
+                }
 
-                flpInfo.Controls.Add(lblHoTen);
-                flpInfo.Controls.Add(lblSDT);
-                flpInfo.Controls.Add(lnkXemDanhGia);
-                flpInfo.Controls.Add(lblThongTinCaNhan);
-                flpInfo.Controls.Add(lblHocVan);
-                flpInfo.Controls.Add(lblChungChi);
-                flpInfo.Controls.Add(lblThanhTich);
-                flpInfo.Controls.Add(lblDiemTB);
-
-                pnlInfo.Controls.Add(flpInfo);
-
-                Button btnDong = new Button
+                using (Form frmProfile = new Form())
                 {
-                    Text = "Đóng",
-                    Dock = DockStyle.Fill,
-                    BackColor = Color.FromArgb(24, 119, 242),
-                    ForeColor = Color.White,
-                    FlatStyle = FlatStyle.Flat,
-                    Font = new Font("Segoe UI", 10F, FontStyle.Bold)
-                };
-                btnDong.FlatAppearance.BorderSize = 0;
-                btnDong.Click += (s, ev) => frmProfile.Close();
+                    frmProfile.Text = "Thông tin gia sư đã duyệt";
+                    frmProfile.Size = new Size(500, 300);
+                    frmProfile.StartPosition = FormStartPosition.CenterParent;
+                    frmProfile.FormBorderStyle = FormBorderStyle.FixedDialog;
+                    frmProfile.MaximizeBox = false;
+                    frmProfile.MinimizeBox = false;
+                    frmProfile.BackColor = Color.White;
+                    frmProfile.Padding = new Padding(0);
 
-                pnlBottom.Controls.Add(btnDong);
-                pnlRoot.Controls.Add(pnlInfo);
-                pnlRoot.Controls.Add(pnlImage);
-                frmProfile.Controls.Add(pnlRoot);
-                frmProfile.Controls.Add(pnlBottom);
-                frmProfile.ShowDialog();
+                    Panel pnlRoot = new Panel
+                    {
+                        Dock = DockStyle.Fill,
+                        BackColor = Color.White,
+                        Padding = new Padding(12)
+                    };
+
+                    Panel pnlBottom = new Panel
+                    {
+                        Dock = DockStyle.Bottom,
+                        Height = 50,
+                        BackColor = Color.White,
+                        Padding = new Padding(0, 8, 0, 0)
+                    };
+
+                    Panel pnlImage = new Panel
+                    {
+                        Dock = DockStyle.Right,
+                        Width = 160,
+                        BackColor = Color.White,
+                        Padding = new Padding(0)
+                    };
+
+                    PictureBox picMinhChung = new PictureBox
+                    {
+                        Dock = DockStyle.Fill,
+                        BorderStyle = BorderStyle.FixedSingle,
+                        SizeMode = PictureBoxSizeMode.Zoom,
+                        BackColor = Color.WhiteSmoke,
+                        Margin = new Padding(0)
+                    };
+                    TaiAnhGiaSu(picMinhChung, anhMinhChungPath);
+                    pnlImage.Controls.Add(picMinhChung);
+
+                    Panel pnlInfo = new Panel
+                    {
+                        Dock = DockStyle.Fill,
+                        BackColor = Color.White,
+                        Padding = new Padding(0, 0, 12, 0)
+                    };
+
+                    FlowLayoutPanel flpInfo = new FlowLayoutPanel
+                    {
+                        Dock = DockStyle.Fill,
+                        FlowDirection = FlowDirection.TopDown,
+                        AutoScroll = true,
+                        AutoSize = false,
+                        AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                        WrapContents = false,
+                        BackColor = Color.White,
+                        Margin = new Padding(0),
+                        Padding = new Padding(0)
+                    };
+
+                    Label lblHoTen = new Label
+                    {
+                        AutoSize = true,
+                        MaximumSize = new Size(300, 0),
+                        Font = new Font("Segoe UI", 14F, FontStyle.Bold),
+                        ForeColor = Color.FromArgb(24, 33, 53),
+                        Margin = new Padding(0, 0, 0, 6),
+                        Text = hoTen
+                    };
+
+                    Label lblSDT = new Label
+                    {
+                        AutoSize = true,
+                        MaximumSize = new Size(300, 0),
+                        Font = new Font("Segoe UI", 10.5F, FontStyle.Bold),
+                        Margin = new Padding(0, 0, 0, 2)
+                    };
+
+                    if (string.Equals(trangThaiDongPhi, "DaDong", StringComparison.OrdinalIgnoreCase))
+                    {
+                        lblSDT.Text = "SĐT Liên Hệ: " + sdt;
+                        lblSDT.ForeColor = Color.Red;
+                    }
+                    else
+                    {
+                        lblSDT.Text = "SĐT Liên Hệ: (Vui lòng thanh toán phí hoa hồng để xem)";
+                        lblSDT.ForeColor = Color.Gray;
+                    }
+
+                    LinkLabel lnkXemDanhGia = new LinkLabel
+                    {
+                        AutoSize = true,
+                        Text = luotDanhGia > 0 ? "(Xem đánh giá chi tiết)" : "",
+                        LinkColor = Color.FromArgb(24, 119, 242),
+                        ActiveLinkColor = Color.DarkOrange,
+                        VisitedLinkColor = Color.FromArgb(24, 119, 242),
+                        Margin = new Padding(0, 0, 0, 8),
+                        Visible = luotDanhGia > 0
+                    };
+                    lnkXemDanhGia.LinkClicked += (s, ev) =>
+                    {
+                        if (maGS > 0)
+                        {
+                            using Form frmChiTiet = new FormChiTietDanhGia(maGS);
+                            frmChiTiet.ShowDialog(frmProfile);
+                        }
+                    };
+
+                    Label lblThongTinCaNhan = new Label
+                    {
+                        AutoSize = true,
+                        MaximumSize = new Size(300, 0),
+                        Font = new Font("Segoe UI", 10F),
+                        ForeColor = Color.Black,
+                        Margin = new Padding(0, 2, 0, 2),
+                        Text = $"Giới tính: {gioiTinh} - Sinh năm: {namSinh}"
+                    };
+
+                    Label lblHocVan = new Label
+                    {
+                        AutoSize = true,
+                        MaximumSize = new Size(300, 0),
+                        Font = new Font("Segoe UI", 10F),
+                        ForeColor = Color.Black,
+                        Margin = new Padding(0, 2, 0, 2),
+                        Text = $"{trinhDo} - Trường: {truong}"
+                    };
+
+                    Label lblChungChi = new Label
+                    {
+                        AutoSize = true,
+                        MaximumSize = new Size(300, 0),
+                        Font = new Font("Segoe UI", 10F),
+                        ForeColor = Color.DarkGreen,
+                        Margin = new Padding(0, 2, 0, 2),
+                        Text = $"Chứng chỉ: {(string.IsNullOrWhiteSpace(maChungChi) ? "-" : maChungChi)} - Điểm: {(string.IsNullOrWhiteSpace(diemChungChi) ? "-" : diemChungChi)}"
+                    };
+                    lblChungChi.Visible = !(string.IsNullOrWhiteSpace(maChungChi) && string.IsNullOrWhiteSpace(diemChungChi));
+
+                    Label lblThanhTich = new Label
+                    {
+                        AutoSize = true,
+                        MaximumSize = new Size(300, 0),
+                        Font = new Font("Segoe UI", 10F),
+                        ForeColor = Color.Black,
+                        Margin = new Padding(0, 2, 0, 2),
+                        Text = string.IsNullOrWhiteSpace(thanhTich) ? "-" : thanhTich
+                    };
+
+                    flpInfo.Controls.Add(lblHoTen);
+                    flpInfo.Controls.Add(lblSDT);
+                    flpInfo.Controls.Add(lnkXemDanhGia);
+                    flpInfo.Controls.Add(lblThongTinCaNhan);
+                    flpInfo.Controls.Add(lblHocVan);
+                    flpInfo.Controls.Add(lblChungChi);
+                    flpInfo.Controls.Add(lblThanhTich);
+
+                    pnlInfo.Controls.Add(flpInfo);
+
+                    frmProfile.Controls.Add(pnlRoot);
+                    pnlRoot.Controls.Add(pnlInfo);
+                    pnlRoot.Controls.Add(pnlImage);
+                    pnlRoot.Controls.Add(pnlBottom);
+
+                    frmProfile.ShowDialog();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

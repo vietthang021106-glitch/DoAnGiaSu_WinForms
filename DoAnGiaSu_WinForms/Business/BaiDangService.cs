@@ -7,6 +7,7 @@ namespace DoAnGiaSu_WinForms.Business
     public class BaiDangService
     {
         private readonly BaiDangRepository repository = new BaiDangRepository();
+        private readonly DangKyNhanLopService dangKyService = new DangKyNhanLopService();
 
         public bool ThemBaiDang(BaiDang bd) => repository.ThemBaiDang(bd);
 
@@ -20,11 +21,11 @@ namespace DoAnGiaSu_WinForms.Business
 
         public DataTable LayLopMoiChoGiaSu(int maGS, string orderByClause) => repository.LayLopMoiChoGiaSu(maGS, orderByClause);
 
-        public bool GiaSuNhanLop(int maBD, int maGS) => repository.GiaSuNhanLop(maBD, maGS);
+        public bool GiaSuNhanLop(int maBD, int maGS) => dangKyService.GiaSuNhanLop(maBD, maGS);
 
-        public bool PhuHuynhDuyetGiaSu(int maBD, int maGS) => repository.PhuHuynhDuyetGiaSu(maBD, maGS);
+        public bool PhuHuynhDuyetGiaSu(int maBD, int maGS) => dangKyService.PhuHuynhDuyetGiaSu(maBD, maGS);
 
-        public bool PhuHuynhTuChoiGiaSu(int maBD, int maGS) => repository.PhuHuynhTuChoiGiaSu(maBD, maGS);
+        public bool PhuHuynhTuChoiGiaSu(int maBD, int maGS) => dangKyService.PhuHuynhTuChoiGiaSu(maBD, maGS);
 
         public DataTable LayThongTinGiaSuDangKy(int maBD) => repository.LayThongTinGiaSuDangKy(maBD);
 
@@ -50,6 +51,6 @@ namespace DoAnGiaSu_WinForms.Business
 
         public DataTable LayTatCaGiaSuAdmin() => repository.LayTatCaGiaSuAdmin();
 
-        public List<DangKyNhanLop> LayDangKyNhanLopTheoBai(int maBD) => repository.LayDangKyNhanLopTheoBai(maBD);
+        public List<DangKyNhanLop> LayDangKyNhanLopTheoBaiList(int maBD) => dangKyService.LayDangKyNhanLopTheoBai(maBD);
     }
 }
