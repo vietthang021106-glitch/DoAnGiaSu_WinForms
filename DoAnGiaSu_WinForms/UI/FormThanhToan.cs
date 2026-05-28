@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
-using DoAnGiaSu_WinForms.DAL;
+using DoAnGiaSu_WinForms.Business;
 
 namespace DoAnGiaSu_WinForms.GUI
 {
@@ -11,6 +11,7 @@ namespace DoAnGiaSu_WinForms.GUI
         private int _maBaiDang;
         private string _tenGiaSu;
         private byte[] _anhChuyenKhoan = null;
+        private readonly GiaoDichService giaoDichService = new GiaoDichService();
 
         public FormThanhToan(decimal hocPhi, int maBD, string tenGS)
         {
@@ -20,28 +21,21 @@ namespace DoAnGiaSu_WinForms.GUI
             this._tenGiaSu = tenGS;
         }
 
-        // Hàm chính để hiện mã QR
         private void FormThanhToan_Load(object sender, EventArgs e)
         {
-            // Tính phí theo công thức mới: mức lương x2
             decimal phiHoaHong = _hocPhi * 2m;
 
-            // THÔNG TIN NGÂN HÀNG ADMIN
-            string bankID = "MB"; // Mã ngân hàng (MB, VCB, ICB...)
-            string accountNo = "0123456789"; // SỐ TÀI KHOẢN CỦA BẠN
-            string accountName = "NGUYEN VAN ADMIN"; // TÊN CỦA BẠN
+            string bankID = "MB";
+            string accountNo = "0123456789";
+            string accountName = "NGUYEN VAN ADMIN";
 
-            // Nội dung chuyển khoản
             string description = $"PHI_LOP_{_maBaiDang}_{_tenGiaSu}";
 
-            // Hiển thị lên Label
             lblSoTien.Text = $"Số tiền phí (Mức lương x2): {phiHoaHong:N0} VNĐ";
             lblNoiDung.Text = $"Nội dung: {description}";
 
-            // API VietQR động
             string qrUrl = $"https://img.vietqr.io/image/{bankID}-{accountNo}-compact.png?amount={phiHoaHong}&addInfo={description}&accountName={accountName}";
 
-            // Load QR vào ảnh
             picQR.ImageLocation = qrUrl;
         }
 
@@ -56,7 +50,6 @@ namespace DoAnGiaSu_WinForms.GUI
             }
         }
 
-        // Nút bấm đóng Form
         private void btnDong_Click(object sender, EventArgs e)
         {
             if (_anhChuyenKhoan == null)
@@ -67,8 +60,7 @@ namespace DoAnGiaSu_WinForms.GUI
 
             if (MessageBox.Show("Bạn có chắc chắn muốn xác nhận đã chuyển thanh toán và gửi ảnh minh chứng này?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                BaiDangDAL bdDal = new BaiDangDAL();
-                if (bdDal.CapNhatAnhChuyenKhoan(_maBaiDang, _anhChuyenKhoan))
+                if (giaoDichService.CapNhatAnhChuyenKhoan(_maBaiDang, _anhChuyenKhoan))
                 {
                     MessageBox.Show("Hệ thống đã ghi nhận giao dịch và ảnh minh chứng. Vui lòng đợi Admin phê duyệt để xem địa chỉ lớp học!");
                     this.Close();

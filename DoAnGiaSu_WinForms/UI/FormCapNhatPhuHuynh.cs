@@ -3,22 +3,19 @@ using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using DoAnGiaSu_WinForms.DAL; // Thêm dòng này để gọi người vận chuyển
-using DoAnGiaSu_WinForms.Model; // Thêm dòng này để gọi xe chở hàng
+using DoAnGiaSu_WinForms.Business;
+using DoAnGiaSu_WinForms.DataAccess;
+using DoAnGiaSu_WinForms.Models;
 
 namespace DoAnGiaSu_WinForms.GUI
 {
     public partial class FormCapNhatPhuHuynh : Form
     {
-        // 1. Biến để giữ tài khoản truyền từ Form Đăng ký sang
         private TaiKhoan _tkDangKy;
 
-        // Khởi tạo các lớp xử lý
-        GiaSuDAL gsDal = new GiaSuDAL();
-        TaiKhoanDAL tkDal = new TaiKhoanDAL();
-        PhuHuynhDAL phDal = new PhuHuynhDAL();
+        private readonly PhuHuynhService phService = new PhuHuynhService();
+        private readonly TaiKhoanDAL tkDal = new TaiKhoanDAL();
 
-        // 2. Sửa hàm khởi tạo để nhận TaiKhoan
         public FormCapNhatPhuHuynh(TaiKhoan tk)
         {
             InitializeComponent();
@@ -125,10 +122,9 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             this.Text = "Cập nhật hồ sơ Phụ huynh: " + _tkDangKy.TenDangNhap;
 
-            // 3. Nạp danh sách Quận/Huyện vào ComboBox khi mở Form
             try
             {
-                cboQuan.DataSource = gsDal.LayDanhMuc("DM_QUANHUYEN");
+                cboQuan.DataSource = phService.LayDanhSachQuan();
                 cboQuan.DisplayMember = "TenQuan";
                 cboQuan.ValueMember = "MaQuan";
             }
@@ -138,12 +134,10 @@ namespace DoAnGiaSu_WinForms.GUI
             }
         }
 
-        // 4. Sự kiện khi nhấn nút Lưu (Bạn nhớ nhấp đúp nút Lưu ở Design để tạo hàm này nhé)
         private void btnLuu_Click(object sender, EventArgs e)
         {
             try
             {
-                // Kiểm tra nhập liệu cơ bản
                 if (string.IsNullOrWhiteSpace(txtHoTen.Text) || string.IsNullOrWhiteSpace(txtSDT.Text))
                 {
                     MessageBox.Show("Vui lòng nhập Họ tên và Số điện thoại!");
@@ -151,7 +145,7 @@ namespace DoAnGiaSu_WinForms.GUI
                 }
 
                 string sdt = txtSDT.Text.Trim();
-                string loiTonTai = phDal.KiemTraSoDienThoai(sdt);
+                string loiTonTai = phService.KiemTraSoDienThoai(sdt);
                 if (!string.IsNullOrEmpty(loiTonTai))
                 {
                     MessageBox.Show(loiTonTai, "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -161,7 +155,6 @@ namespace DoAnGiaSu_WinForms.GUI
                 int maTK = tkDal.LayMaTKTuTen(_tkDangKy.TenDangNhap);
                 if (maTK == 0)
                 {
-                    // Thêm tài khoản vào DB trước
                     if (!tkDal.DangKy(_tkDangKy))
                     {
                         MessageBox.Show("Lỗi: Không thể tạo tài khoản!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -176,7 +169,6 @@ namespace DoAnGiaSu_WinForms.GUI
                     return;
                 }
 
-                // Đổ dữ liệu vào xe chở hàng (Model)
                 PhuHuynh ph = new PhuHuynh();
                 ph.HoTen = txtHoTen.Text.Trim();
                 ph.SDT = sdt;
@@ -184,8 +176,7 @@ namespace DoAnGiaSu_WinForms.GUI
                 ph.MaQuan = Convert.ToInt32(cboQuan.SelectedValue);
                 ph.MaTK = maTK;
 
-                // Ra lệnh cho DAL mang đi nộp vào SQL
-                if (phDal.ThemPhuHuynh(ph))
+                if (phService.ThemPhuHuynh(ph))
                 {
                     MessageBox.Show("Đăng ký tài khoản và cập nhật thông tin thành công!", "Thông báo");
 
@@ -205,7 +196,7 @@ namespace DoAnGiaSu_WinForms.GUI
                         formDangKy.Close();
                     }
 
-                    this.Hide(); 
+                    this.Hide();
                 }
                 else
                 {

@@ -1,4 +1,4 @@
-﻿namespace DoAnGiaSu_WinForms.Model
+﻿namespace DoAnGiaSu_WinForms.Models
 {
     public class TaiKhoan
     {

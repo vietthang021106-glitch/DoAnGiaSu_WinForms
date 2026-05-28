@@ -1,14 +1,14 @@
-﻿namespace DoAnGiaSu_WinForms.Model
+﻿namespace DoAnGiaSu_WinForms.Models
 {
     public class BaiDang
     {
         public int MaBaiDang { get; set; }
         public int MaPH { get; set; }
-        public string YeuCauThem { get; set; } // Thay cho GhiChu
-        public decimal MucLuong { get; set; }  // Thay cho HocPhi
+        public string YeuCauThem { get; set; }
+        public decimal MucLuong { get; set; }
         public string TrangThai { get; set; }
-        public int MaMon { get; set; }         // Thay cho MaMonHoc
-        public int MaLop { get; set; }         // Thay cho MaLopHoc
+        public int MaMon { get; set; }
+        public int MaLop { get; set; }
         public int MaHinhThuc { get; set; }
         public int MaQuan { get; set; }
         public int YeuCauTrinhDo { get; set; }

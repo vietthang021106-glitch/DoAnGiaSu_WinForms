@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 
-namespace DoAnGiaSu_WinForms.DAL
+namespace DoAnGiaSu_WinForms.DataAccess
 {
     public class DBConnection
     {

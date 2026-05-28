@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Data;
 using Microsoft.Data.SqlClient;
-using DoAnGiaSu_WinForms.Model;
+using DoAnGiaSu_WinForms.Models;
 
-namespace DoAnGiaSu_WinForms.DAL
+namespace DoAnGiaSu_WinForms.DataAccess
 {
     public class GiaSuDAL
     {
         DBConnection db = new DBConnection();
 
-        // Lấy dữ liệu các bảng DM_... đổ vào ComboBox
         public DataTable LayDanhMuc(string tableName)
         {
             using (SqlConnection conn = db.GetConnection())
             {
-                string query = $"SELECT * FROM {tableName}";
+                string query = string.Format(GiaSuSql.LayDanhMuc, tableName);
                 SqlDataAdapter da = new SqlDataAdapter(query, conn);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
@@ -22,15 +21,11 @@ namespace DoAnGiaSu_WinForms.DAL
             }
         }
 
-        // Gửi hồ sơ mới vào bảng GIASU
         public bool ThemGiaSu(GiaSu gs)
         {
             using (SqlConnection conn = db.GetConnection())
             {
-                string query = @"INSERT INTO GIASU (HoTen, SDT, CCCD, MaGioiTinh, MaNamSinh, MaTruong, MaTrinhDo, TrangThaiDuyet, MaTK, AnhMinhChung, AnhBangDiem, AnhChungChi, MaNamHoc, MaChungChi, DiemChungChi, DiemGPA, MaXepLoai) 
-                                VALUES (@hoten, @sdt, @cccd, @magt, @mans, @matruong, @matd, 'ChoDuyet', @matk, @anh, @anhbangdiem, @anhchungchi, @manamhoc, @machungchi, @diemchungchi, @diemgpa, @maxeploai)";
-
-                SqlCommand cmd = new SqlCommand(query, conn);
+                SqlCommand cmd = new SqlCommand(GiaSuSql.ThemGiaSu, conn);
                 cmd.Parameters.AddWithValue("@hoten", gs.HoTen);
                 cmd.Parameters.AddWithValue("@sdt", gs.SDT);
                 cmd.Parameters.AddWithValue("@cccd", gs.CCCD);
@@ -38,6 +33,7 @@ namespace DoAnGiaSu_WinForms.DAL
                 cmd.Parameters.AddWithValue("@mans", gs.MaNamSinh);
                 cmd.Parameters.AddWithValue("@matruong", gs.MaTruong);
                 cmd.Parameters.AddWithValue("@matd", gs.MaTrinhDo);
+                cmd.Parameters.AddWithValue("@trangthai", string.IsNullOrWhiteSpace(gs.TrangThaiDuyet) ? "ChoDuyet" : gs.TrangThaiDuyet);
                 cmd.Parameters.AddWithValue("@matk", gs.MaTK);
                 cmd.Parameters.AddWithValue("@anh", (object)gs.AnhMinhChung ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@anhbangdiem", (object)gs.AnhBangDiem ?? DBNull.Value);
@@ -57,8 +53,7 @@ namespace DoAnGiaSu_WinForms.DAL
         {
             using (SqlConnection conn = db.GetConnection())
             {
-                string query = "SELECT TOP 1 MaGS FROM GIASU WHERE MaTK = @matk ORDER BY MaGS DESC";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                SqlCommand cmd = new SqlCommand(GiaSuSql.LayMaGSMoiNhatTheoMaTK, conn);
                 cmd.Parameters.AddWithValue("@matk", maTK);
                 conn.Open();
                 object result = cmd.ExecuteScalar();
@@ -72,9 +67,7 @@ namespace DoAnGiaSu_WinForms.DAL
         {
             using (SqlConnection conn = db.GetConnection())
             {
-                string query = @"INSERT INTO CHITIET_CHUNGCHI_GS (MaGS, MaChungChi, DiemChungChi, AnhChungChi)
-                                 VALUES (@maGS, @maCC, @diem, @anh)";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                SqlCommand cmd = new SqlCommand(GiaSuSql.ThemChiTietChungChiGiaSu, conn);
                 cmd.Parameters.AddWithValue("@maGS", maGS);
                 cmd.Parameters.AddWithValue("@maCC", maChungChi);
                 cmd.Parameters.AddWithValue("@diem", (object)diemChungChi ?? DBNull.Value);
@@ -88,8 +81,7 @@ namespace DoAnGiaSu_WinForms.DAL
         {
             using (SqlConnection conn = db.GetConnection())
             {
-                string query = "SELECT CCCD, SDT FROM GIASU WHERE CCCD = @cccd OR SDT = @sdt";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                SqlCommand cmd = new SqlCommand(GiaSuSql.KiemTraTonTai, conn);
                 cmd.Parameters.AddWithValue("@cccd", cccd);
                 cmd.Parameters.AddWithValue("@sdt", sdt);
                 conn.Open();
@@ -111,44 +103,7 @@ namespace DoAnGiaSu_WinForms.DAL
         {
             using (SqlConnection conn = db.GetConnection())
             {
-                string query = @"SELECT GS.MaGS, GS.HoTen, GS.SDT, GS.CCCD,
-                                GS.AnhMinhChung, GS.AnhBangDiem, GS.AnhChungChi,
-                                ISNULL('GPA: ' + GS.DiemGPA, XL.TenXepLoai) AS ThanhTich,
-                                GT.TenGioiTinh, NS.Nam, NH.TenNamHoc,
-                                ISNULL(CC.TenChungChi + ': ' + GS.DiemChungChi, '') AS ThongTinChungChi,
-                                GS.MaNamHoc, GS.MaChungChi, GS.DiemChungChi, DMCC.TenChungChi,
-                                T.TenTruong, TD.TenTrinhDo, GS.TrangThaiDuyet,
-                                AVG(CAST(DG.SoSao AS FLOAT)) AS DiemTrungBinh,
-                                COUNT(DG.MaDanhGia) AS SoLuotDanhGia,
-                                CASE
-                                    WHEN COUNT(DG.MaDanhGia) > 0 THEN
-                                        CONVERT(NVARCHAR(10), CAST(ROUND(AVG(CAST(DG.SoSao AS FLOAT)), 1) AS DECIMAL(10,1)))
-                                        + N' ⭐ (' + CAST(COUNT(DG.MaDanhGia) AS NVARCHAR(20)) + N' đánh giá)'
-                                    ELSE N'Chưa có đánh giá'
-                                END AS colRating
-                                FROM GIASU GS
-                                LEFT JOIN DM_GIOITINH GT ON GS.MaGioiTinh = GT.MaGioiTinh
-                                LEFT JOIN DM_NAMSINH NS ON GS.MaNamSinh = NS.MaNamSinh
-                                LEFT JOIN DM_NAMHOC NH ON GS.MaNamHoc = NH.MaNamHoc
-                                LEFT JOIN DM_TRUONG T ON GS.MaTruong = T.MaTruong
-                                LEFT JOIN DM_TRINHDO TD ON GS.MaTrinhDo = TD.MaTrinhDo
-                                LEFT JOIN DM_CHUNGCHI DMCC ON GS.MaChungChi = DMCC.MaChungChi
-                                LEFT JOIN DM_CHUNGCHI CC ON GS.MaChungChi = CC.MaChungChi
-                                LEFT JOIN DM_XEPLOAI XL ON GS.MaXepLoai = XL.MaXepLoai
-                                LEFT JOIN DANHGIA DG ON DG.MaGS = GS.MaGS
-                                GROUP BY GS.MaGS, GS.HoTen, GS.SDT, GS.CCCD,
-                                         GS.AnhMinhChung, GS.AnhBangDiem, GS.AnhChungChi,
-                                         GS.DiemGPA, XL.TenXepLoai, GT.TenGioiTinh, NS.Nam, NH.TenNamHoc,
-                                         CC.TenChungChi, GS.DiemChungChi, GS.MaNamHoc,
-                                         GS.MaChungChi, DMCC.TenChungChi,
-                                         T.TenTruong, TD.TenTrinhDo, GS.TrangThaiDuyet
-                                ORDER BY
-                                    CASE
-                                        WHEN GS.TrangThaiDuyet = 'ChoDuyet' THEN 1
-                                        WHEN GS.TrangThaiDuyet = 'DaDuyet' THEN 2
-                                        ELSE 3
-                                    END, GS.MaGS DESC";
-                SqlDataAdapter da = new SqlDataAdapter(query, conn);
+                SqlDataAdapter da = new SqlDataAdapter(GiaSuSql.LayTatCaGiaSuAdmin, conn);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
                 return dt;
@@ -159,8 +114,7 @@ namespace DoAnGiaSu_WinForms.DAL
         {
             using (SqlConnection conn = db.GetConnection())
             {
-                string query = "UPDATE GIASU SET TrangThaiDuyet = @tt WHERE MaGS = @ma";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                SqlCommand cmd = new SqlCommand(GiaSuSql.CapNhatTrangThaiDuyet, conn);
                 cmd.Parameters.AddWithValue("@tt", trangThai);
                 cmd.Parameters.AddWithValue("@ma", maGS);
                 conn.Open();
@@ -172,30 +126,27 @@ namespace DoAnGiaSu_WinForms.DAL
         {
             using (SqlConnection conn = db.GetConnection())
             {
-                try 
+                try
                 {
                     conn.Open();
-                    string queryTutor = "SELECT MaTK FROM GIASU WHERE MaGS = @ma";
-                    SqlCommand getMaTK = new SqlCommand(queryTutor, conn);
+                    SqlCommand getMaTK = new SqlCommand(GiaSuSql.LayMaTKTheoMaGS, conn);
                     getMaTK.Parameters.AddWithValue("@ma", maGS);
                     object maTkObj = getMaTK.ExecuteScalar();
 
-                    string queryGS = "DELETE FROM GIASU WHERE MaGS = @ma";
-                    SqlCommand cmdGS = new SqlCommand(queryGS, conn);
+                    SqlCommand cmdGS = new SqlCommand(GiaSuSql.XoaGiaSuById, conn);
                     cmdGS.Parameters.AddWithValue("@ma", maGS);
                     cmdGS.ExecuteNonQuery();
 
-                    if(maTkObj != null)
+                    if (maTkObj != null)
                     {
-                        string queryTK = "DELETE FROM TAIKHOAN WHERE MaTK = @maTK";
-                        SqlCommand cmdTK = new SqlCommand(queryTK, conn);
+                        SqlCommand cmdTK = new SqlCommand(GiaSuSql.XoaTaiKhoanById, conn);
                         cmdTK.Parameters.AddWithValue("@maTK", maTkObj);
                         cmdTK.ExecuteNonQuery();
                     }
 
                     return true;
                 }
-                catch 
+                catch
                 {
                     return false;
                 }
@@ -206,10 +157,7 @@ namespace DoAnGiaSu_WinForms.DAL
         {
             using (SqlConnection conn = db.GetConnection())
             {
-                string query = @"SELECT gs.TrangThaiDuyet FROM GIASU gs
-                                JOIN TAIKHOAN tk ON gs.MaTK = tk.MaTK
-                                WHERE tk.TenDangNhap = @tk";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                SqlCommand cmd = new SqlCommand(GiaSuSql.KiemTraTrangThaiDuyet, conn);
                 cmd.Parameters.AddWithValue("@tk", tenDangNhap);
                 conn.Open();
                 object result = cmd.ExecuteScalar();
@@ -225,10 +173,7 @@ namespace DoAnGiaSu_WinForms.DAL
         {
             using (SqlConnection conn = db.GetConnection())
             {
-                string query = @"SELECT gs.MaGS FROM GIASU gs
-                                JOIN TAIKHOAN tk ON gs.MaTK = tk.MaTK
-                                WHERE tk.TenDangNhap = @tk";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                SqlCommand cmd = new SqlCommand(GiaSuSql.LayMaGS, conn);
                 cmd.Parameters.AddWithValue("@tk", tenDangNhap);
                 conn.Open();
                 object result = cmd.ExecuteScalar();

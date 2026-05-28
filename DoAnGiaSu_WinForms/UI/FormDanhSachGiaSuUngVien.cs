@@ -2,8 +2,8 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
-using Microsoft.Data.SqlClient;
-using DoAnGiaSu_WinForms.DAL;
+using DoAnGiaSu_WinForms.Business;
+using DoAnGiaSu_WinForms.DataAccess;
 
 namespace DoAnGiaSu_WinForms.GUI
 {
@@ -29,8 +29,8 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             try
             {
-                BaiDangDAL bdDal = new BaiDangDAL();
-                DataTable dsDangKy = bdDal.LayThongTinGiaSuDangKy(_maBaiDangHienTai);
+                BaiDangService baiDangService = new BaiDangService();
+                DataTable dsDangKy = baiDangService.LayThongTinGiaSuDangKy(_maBaiDangHienTai);
 
                 DataTable dsChoDuyet = dsDangKy.Clone();
                 foreach (DataRow row in dsDangKy.Rows)
@@ -128,55 +128,21 @@ namespace DoAnGiaSu_WinForms.GUI
 
             try
             {
-                using SqlConnection conn = new DBConnection().GetConnection();
-                conn.Open();
-
-                using SqlTransaction trans = conn.BeginTransaction();
-
-                try
+                BaiDangService baiDangService = new BaiDangService();
+                if (baiDangService.PhuHuynhDuyetGiaSu(_maBaiDangHienTai, maGS))
                 {
-                    using (SqlCommand cmd = new SqlCommand(
-                        "UPDATE BAIDANG SET MaGS = @MaGS, TrangThai = N'DangGiaoDich' WHERE MaBaiDang = @MaBaiDang",
-                        conn, trans))
-                    {
-                        cmd.Parameters.AddWithValue("@MaGS", maGS);
-                        cmd.Parameters.AddWithValue("@MaBaiDang", _maBaiDangHienTai);
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    using (SqlCommand cmd = new SqlCommand(
-                        "UPDATE DANGKYNHANLOP SET TrangThai = N'ThanhCong' WHERE MaBaiDang = @MaBaiDang AND MaGS = @MaGS",
-                        conn, trans))
-                    {
-                        cmd.Parameters.AddWithValue("@MaBaiDang", _maBaiDangHienTai);
-                        cmd.Parameters.AddWithValue("@MaGS", maGS);
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    using (SqlCommand cmd = new SqlCommand(
-                        "UPDATE DANGKYNHANLOP SET TrangThai = N'TuChoi' WHERE MaBaiDang = @MaBaiDang AND MaGS <> @MaGS",
-                        conn, trans))
-                    {
-                        cmd.Parameters.AddWithValue("@MaBaiDang", _maBaiDangHienTai);
-                        cmd.Parameters.AddWithValue("@MaGS", maGS);
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    trans.Commit();
                     MessageBox.Show("Chọn gia sư thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     MaGiaSuChon = maGS;
                     DialogResult = DialogResult.OK;
                     Close();
+                    return;
                 }
-                catch (Exception ex)
-                {
-                    trans.Rollback();
-                    MessageBox.Show("Lỗi cập nhật dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+
+                MessageBox.Show($"Không thể cập nhật dữ liệu. Vui lòng thử lại.\n(MaBaiDang={_maBaiDangHienTai}, MaGS={maGS})", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi kết nối: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi chi tiết: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

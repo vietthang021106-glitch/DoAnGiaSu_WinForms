@@ -5,18 +5,19 @@ using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
 using System.IO;
 using System.Windows.Forms;
-using DoAnGiaSu_WinForms.DAL;
+using DoAnGiaSu_WinForms.Business;
+using DoAnGiaSu_WinForms.DataAccess;
 
 namespace DoAnGiaSu_WinForms.GUI
 {
     public partial class FormMainAdmin : Form
     {
         private bool _isFormLoaded = false;
-        private readonly BaiDangDAL bdDal = new BaiDangDAL();
+        private readonly BaiDangService baiDangService = new BaiDangService();
         private readonly GiaSuDAL gsDal = new GiaSuDAL();
+        private readonly GiaoDichService giaoDichService = new GiaoDichService();
 
         public FormMainAdmin()
         {
@@ -63,12 +64,12 @@ namespace DoAnGiaSu_WinForms.GUI
             BackgroundImageLayout = frmLogin.BackgroundImageLayout;
         }
 
-        private async void FormMainAdmin_Shown(object? sender, EventArgs e)
+        private void FormMainAdmin_Shown(object? sender, EventArgs e)
         {
             ApplyRoundedStyle();
             CenterPanel();
-            await LoadCardBaiDangAsync();
-            await LoadDanhSachGiaSuAsync();
+            _ = LoadCardBaiDangAsync();
+            _ = LoadDanhSachGiaSuAsync();
             LoadDataHoaHong();
         }
 
@@ -132,7 +133,7 @@ namespace DoAnGiaSu_WinForms.GUI
             _isFormLoaded = true;
         }
 
-        public async Task LoadCardBaiDangAsync()
+        public Task LoadCardBaiDangAsync()
         {
             try
             {
@@ -141,44 +142,22 @@ namespace DoAnGiaSu_WinForms.GUI
                 string trangThai = string.IsNullOrWhiteSpace(cmbLocTrangThai?.Text) ? "Tất cả" : cmbLocTrangThai.Text;
                 var cards = new List<Control>();
 
-                using SqlConnection conn = new DBConnection().GetConnection();
-                await conn.OpenAsync();
-
-                const string query = @"SELECT bd.MaBaiDang, ph.HoTen, m.TenMon, l.TenLop, td.TenTrinhDo, ht.TenHinhThuc, q.TenQuan, bd.SoNhaDuong, bd.YeuCauThem, bd.MucLuong, bd.TrangThai, bd.MaGS
-                                FROM BAIDANG bd
-                                LEFT JOIN PHUHUYNH ph ON bd.MaPH = ph.MaPH
-                                LEFT JOIN DM_MONHOC m ON bd.MaMon = m.MaMon
-                                LEFT JOIN DM_LOPHOC l ON bd.MaLop = l.MaLop
-                                LEFT JOIN DM_TRINHDO td ON bd.YeuCauTrinhDo = td.MaTrinhDo
-                                LEFT JOIN DM_HINHTHUC ht ON bd.MaHinhThuc = ht.MaHinhThuc
-                                LEFT JOIN DM_QUANHUYEN q ON bd.MaQuan = q.MaQuan
-                                WHERE (@TrangThai = N'Tất cả' OR bd.TrangThai = @TrangThai)
-                                ORDER BY 
-                                    CASE 
-                                        WHEN bd.TrangThai = 'DangGiaoDich' THEN 1
-                                        WHEN bd.TrangThai = 'ChuaGiao' THEN 2
-                                        WHEN bd.TrangThai = 'DaGiao' THEN 3
-                                        ELSE 4
-                                    END, bd.MaBaiDang DESC";
-
-                using SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@TrangThai", trangThai);
-                using SqlDataReader reader = await cmd.ExecuteReaderAsync();
-                while (await reader.ReadAsync())
+                DataTable dt = baiDangService.LayTatCaBaiAdmin(trangThai);
+                foreach (DataRow row in dt.Rows)
                 {
                     var card = new ucAdminBaiDang
                     {
-                        MaBaiDang = reader["MaBaiDang"] == DBNull.Value ? 0 : Convert.ToInt32(reader["MaBaiDang"]),
-                        PhuHuynh = reader["HoTen"]?.ToString() ?? "",
-                        MonHoc = reader["TenMon"]?.ToString() ?? "",
-                        Lop = reader["TenLop"]?.ToString() ?? "",
-                        TrinhDo = reader["TenTrinhDo"]?.ToString() ?? "",
-                        HinhThuc = reader["TenHinhThuc"]?.ToString() ?? "",
-                        KhuVuc = reader["TenQuan"]?.ToString() ?? "",
-                        MucLuong = reader["MucLuong"]?.ToString() ?? "",
-                        TrangThai = reader["TrangThai"]?.ToString() ?? "",
-                        MaGSNhan = reader["MaGS"] != DBNull.Value ? reader["MaGS"].ToString() : "",
-                        YeuCau = reader["YeuCauThem"]?.ToString() ?? ""
+                        MaBaiDang = row["MaBaiDang"] == DBNull.Value ? 0 : Convert.ToInt32(row["MaBaiDang"]),
+                        PhuHuynh = row["HoTen"]?.ToString() ?? "",
+                        MonHoc = row["TenMon"]?.ToString() ?? "",
+                        Lop = row["TenLop"]?.ToString() ?? "",
+                        TrinhDo = row.Table.Columns.Contains("TenTrinhDo") ? row["TenTrinhDo"]?.ToString() ?? "" : "",
+                        HinhThuc = row["TenHinhThuc"]?.ToString() ?? "",
+                        KhuVuc = row["TenQuan"]?.ToString() ?? "",
+                        MucLuong = row["MucLuong"]?.ToString() ?? "",
+                        TrangThai = row["TrangThai"]?.ToString() ?? "",
+                        MaGSNhan = row["MaGS"] != DBNull.Value ? row["MaGS"].ToString() : "",
+                        YeuCau = row["YeuCauThem"]?.ToString() ?? ""
                     };
                     card.XoaBaiClicked += (_, _) => XoaBaiDang(card.MaBaiDang);
                     card.MinimumSize = new Size(330, 380);
@@ -199,6 +178,7 @@ namespace DoAnGiaSu_WinForms.GUI
                 flpBaiDang.PerformLayout();
                 flpBaiDang.Refresh();
             }
+            return Task.CompletedTask;
         }
 
         private void UpdateBaiDangLayout()
@@ -235,7 +215,7 @@ namespace DoAnGiaSu_WinForms.GUI
         private void XoaBaiDang(int maBD)
         {
             if (MessageBox.Show("Xóa bài đăng này?", "Xác nhận", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
-            if (bdDal.XoaBaiDang(maBD))
+            if (baiDangService.XoaBaiDang(maBD))
                 _ = LoadCardBaiDangAsync();
         }
 
@@ -245,32 +225,43 @@ namespace DoAnGiaSu_WinForms.GUI
             {
                 flpHoaHong.SuspendLayout();
                 flpHoaHong.Controls.Clear();
-                DataTable dt = bdDal.LayBaiChoDuyetPhi();
+                DataTable dt = baiDangService.LayBaiChoDuyetPhi();
                 foreach (DataRow row in dt.Rows)
                 {
-                    var card = new ucAdminHoaHong
+                    try
                     {
-                        MaBaiDang = row["MaBaiDang"] == DBNull.Value ? 0 : Convert.ToInt32(row["MaBaiDang"]),
-                        PhuHuynh = row.Table.Columns.Contains("TenPhuHuynh") ? row["TenPhuHuynh"]?.ToString() ?? "" : "",
-                        MonHoc = row["TenMon"]?.ToString() ?? "",
-                        MucLuong = row["MucLuong"]?.ToString() ?? "",
-                        HoaHong = row.Table.Columns.Contains("HoaHong") ? row["HoaHong"]?.ToString() ?? "" : "",
-                        TrangThai = row["TrangThai"]?.ToString() ?? "",
-                        MaGS = row.Table.Columns.Contains("MaGS") && row["MaGS"] != DBNull.Value ? row["MaGS"].ToString() : ""
-                    };
-                    if (row.Table.Columns.Contains("AnhChuyenKhoan") && row["AnhChuyenKhoan"] is byte[] bytes && bytes.Length > 0)
-                    {
-                        using var ms = new MemoryStream(bytes);
-                        card.AnhBillImage = Image.FromStream(ms);
+                        string trangThaiGiaoDich = row.Table.Columns.Contains("TrangThai") ? row["TrangThai"]?.ToString() ?? "" : "";
+
+                        var card = new ucAdminHoaHong
+                        {
+                            MaBaiDang = row["MaBaiDang"] == DBNull.Value ? 0 : Convert.ToInt32(row["MaBaiDang"]),
+                            PhuHuynh = row.Table.Columns.Contains("TenPhuHuynh") ? row["TenPhuHuynh"]?.ToString() ?? "" : "",
+                            MonHoc = row["TenMon"]?.ToString() ?? "",
+                            MucLuong = row["MucLuong"]?.ToString() ?? "",
+                            HoaHong = row.Table.Columns.Contains("HoaHong") ? row["HoaHong"]?.ToString() ?? "" : "",
+                            TrangThai = trangThaiGiaoDich,
+                            MaGS = row.Table.Columns.Contains("MaGS") && row["MaGS"] != DBNull.Value ? row["MaGS"].ToString() : ""
+                        };
+                        if (row.Table.Columns.Contains("AnhChuyenKhoan") && row["AnhChuyenKhoan"] is byte[] bytes && bytes.Length > 0)
+                        {
+                            using var ms = new MemoryStream(bytes);
+                            card.AnhBillImage = Image.FromStream(ms);
+                        }
+                        card.XemAnhClicked += (_, _) => XemAnhChuyenKhoan(card.MaBaiDang);
+                        card.TuChoiBillClicked += (_, _) => TuChoiHoaHong(card.MaBaiDang);
+                        card.XacNhanClicked += (_, _) => XacNhanHoaHong(card.MaBaiDang);
+                        card.MinimumSize = new Size(330, 300);
+                        card.Margin = new Padding(10);
+                        flpHoaHong.Controls.Add(card);
                     }
-                    card.XemAnhClicked += (_, _) => XemAnhChuyenKhoan(card.MaBaiDang);
-                    card.TuChoiBillClicked += (_, _) => TuChoiHoaHong(card.MaBaiDang);
-                    card.XacNhanClicked += (_, _) => XacNhanHoaHong(card.MaBaiDang);
-                    card.MinimumSize = new Size(330, 300);
-                    card.Margin = new Padding(10);
-                    flpHoaHong.Controls.Add(card);
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Lỗi vẽ thẻ: " + ex.Message);
+                    }
                 }
 
+                flpHoaHong.Visible = true;
+                flpHoaHong.BringToFront();
                 UpdateHoaHongLayout();
             }
             catch (Exception ex)
@@ -311,7 +302,7 @@ namespace DoAnGiaSu_WinForms.GUI
 
         private void XemAnhChuyenKhoan(int maBD)
         {
-            byte[] anh = bdDal.LayAnhChuyenKhoanTheoBaiDang(maBD);
+            byte[] anh = giaoDichService.LayAnhChuyenKhoanTheoBaiDang(maBD);
             if (anh == null || anh.Length == 0)
             {
                 MessageBox.Show("Gia sư chưa tải ảnh chuyển khoản lên!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -330,7 +321,7 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             if (MessageBox.Show("Bạn có chắc chắn muốn xác nhận đã nhận hoa hồng?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                if (bdDal.XacNhanHoaHong(maBD))
+                if (baiDangService.XacNhanHoaHong(maBD))
                     LoadDataHoaHong();
             }
         }
@@ -339,7 +330,7 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             if (MessageBox.Show("Từ chối bill chuyển khoản này?", "Xác nhận từ chối", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                if (bdDal.TuChoiHoaHong(maBD))
+                if (baiDangService.TuChoiHoaHong(maBD))
                     LoadDataHoaHong();
             }
         }
@@ -352,51 +343,8 @@ namespace DoAnGiaSu_WinForms.GUI
                 flpGiaSu.Controls.Clear();
 
                 var cards = new List<Control>();
-
-                using SqlConnection conn = new DBConnection().GetConnection();
-                await conn.OpenAsync();
-
-                const string query = @"SELECT GS.MaGS, GS.HoTen, GS.SDT, GS.CCCD,
-                                GS.AnhMinhChung, GS.AnhBangDiem, GS.AnhChungChi,
-                                ISNULL('GPA: ' + GS.DiemGPA, XL.TenXepLoai) AS ThanhTich,
-                                GT.TenGioiTinh, NS.Nam, NH.TenNamHoc,
-                                ISNULL(CC.TenChungChi + ': ' + GS.DiemChungChi, '') AS ThongTinChungChi,
-                                GS.MaNamHoc, GS.MaChungChi, GS.DiemChungChi, DMCC.TenChungChi,
-                                T.TenTruong, TD.TenTrinhDo, GS.TrangThaiDuyet,
-                                AVG(CAST(DG.SoSao AS FLOAT)) AS DiemTrungBinh,
-                                COUNT(DG.MaDanhGia) AS SoLuotDanhGia,
-                                CASE
-                                    WHEN COUNT(DG.MaDanhGia) > 0 THEN
-                                        CONVERT(NVARCHAR(10), CAST(ROUND(AVG(CAST(DG.SoSao AS FLOAT)), 1) AS DECIMAL(10,1)))
-                                        + N' ⭐ (' + CAST(COUNT(DG.MaDanhGia) AS NVARCHAR(20)) + N' đánh giá)'
-                                    ELSE N'Chưa có đánh giá'
-                                END AS colRating
-                                FROM GIASU GS
-                                LEFT JOIN DM_GIOITINH GT ON GS.MaGioiTinh = GT.MaGioiTinh
-                                LEFT JOIN DM_NAMSINH NS ON GS.MaNamSinh = NS.MaNamSinh
-                                LEFT JOIN DM_NAMHOC NH ON GS.MaNamHoc = NH.MaNamHoc
-                                LEFT JOIN DM_TRUONG T ON GS.MaTruong = T.MaTruong
-                                LEFT JOIN DM_TRINHDO TD ON GS.MaTrinhDo = TD.MaTrinhDo
-                                LEFT JOIN DM_CHUNGCHI DMCC ON GS.MaChungChi = DMCC.MaChungChi
-                                LEFT JOIN DM_CHUNGCHI CC ON GS.MaChungChi = CC.MaChungChi
-                                LEFT JOIN DM_XEPLOAI XL ON GS.MaXepLoai = XL.MaXepLoai
-                                LEFT JOIN DANHGIA DG ON DG.MaGS = GS.MaGS
-                                GROUP BY GS.MaGS, GS.HoTen, GS.SDT, GS.CCCD,
-                                         GS.AnhMinhChung, GS.AnhBangDiem, GS.AnhChungChi,
-                                         GS.DiemGPA, XL.TenXepLoai, GT.TenGioiTinh, NS.Nam, NH.TenNamHoc,
-                                         CC.TenChungChi, GS.DiemChungChi, GS.MaNamHoc,
-                                         GS.MaChungChi, DMCC.TenChungChi,
-                                         T.TenTruong, TD.TenTrinhDo, GS.TrangThaiDuyet
-                                ORDER BY
-                                    CASE
-                                        WHEN GS.TrangThaiDuyet = 'ChoDuyet' THEN 1
-                                        WHEN GS.TrangThaiDuyet = 'DaDuyet' THEN 2
-                                        ELSE 3
-                                    END, GS.MaGS DESC";
-
-                using SqlCommand cmd = new SqlCommand(query, conn);
-                using SqlDataReader reader = await cmd.ExecuteReaderAsync();
-                while (await reader.ReadAsync())
+                DataTable dt = baiDangService.LayTatCaGiaSuAdmin();
+                foreach (DataRow reader in dt.Rows)
                 {
                     var card = new ucAdminGiaSu
                     {

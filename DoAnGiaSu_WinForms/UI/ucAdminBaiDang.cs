@@ -11,7 +11,6 @@ namespace DoAnGiaSu_WinForms.GUI
         private readonly Panel pnlContent;
         private readonly FlowLayoutPanel flpMainContent;
         private readonly TableLayoutPanel tlpButtons;
-        private readonly Button btnDuyet;
         private readonly Button btnXoa;
         private readonly Label lblMaBaiDang;
         private readonly Label lblMonHoc;
@@ -25,8 +24,8 @@ namespace DoAnGiaSu_WinForms.GUI
         private readonly Label lblYeuCau;
         private readonly Label lblTrinhDo;
         private readonly Label[] contentLabels;
+        private string _trangThaiGoc = "";
 
-        public event EventHandler DuyetClicked;
         public event EventHandler XoaBaiClicked;
 
         public ucAdminBaiDang()
@@ -118,40 +117,28 @@ namespace DoAnGiaSu_WinForms.GUI
             tlpButtons = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                ColumnCount = 2,
+                ColumnCount = 3,
                 RowCount = 1,
                 Margin = new Padding(0),
                 Padding = new Padding(10, 5, 10, 8),
                 BackColor = Color.White
             };
             tlpButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tlpButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80F));
             tlpButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-
-            btnDuyet = new Button
-            {
-                Dock = DockStyle.Fill,
-                Margin = new Padding(6, 0, 6, 0),
-                BackColor = Color.DodgerBlue,
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Text = "Duyệt"
-            };
-            btnDuyet.FlatAppearance.BorderSize = 0;
-            btnDuyet.Click += (_, _) => DuyetClicked?.Invoke(this, EventArgs.Empty);
 
             btnXoa = new Button
             {
                 Dock = DockStyle.Fill,
-                Margin = new Padding(6, 0, 6, 0),
+                Margin = new Padding(0),
                 BackColor = Color.Crimson,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Text = "Xóa"
             };
             btnXoa.FlatAppearance.BorderSize = 0;
-            btnXoa.Click += (_, _) => XoaBaiClicked?.Invoke(this, EventArgs.Empty);
+            btnXoa.Click += (_, _) => OnXoaBaiDang();
 
-            tlpButtons.Controls.Add(btnDuyet, 0, 0);
             tlpButtons.Controls.Add(btnXoa, 1, 0);
 
             tlpRoot.Controls.Add(lblMaBaiDang, 0, 0);
@@ -273,7 +260,12 @@ namespace DoAnGiaSu_WinForms.GUI
         public string TrangThai
         {
             get => lblTrangThai.Text;
-            set => lblTrangThai.Text = $"Trạng thái: {value}";
+            set
+            {
+                lblTrangThai.Text = $"Trạng thái: {value}";
+                _trangThaiGoc = value ?? "";
+                UpdateDeleteButtonState();
+            }
         }
 
         [Browsable(false)]
@@ -302,6 +294,30 @@ namespace DoAnGiaSu_WinForms.GUI
                 lblTrinhDo.Text = $"Trình độ: {value}";
                 lblTrinhDo.Visible = !string.IsNullOrWhiteSpace(value);
             }
+        }
+
+        private void UpdateDeleteButtonState()
+        {
+            if (_trangThaiGoc == "ChuaGiao")
+            {
+                btnXoa.Enabled = true;
+                btnXoa.Visible = true;
+            }
+            else
+            {
+                btnXoa.Enabled = false;
+                btnXoa.Visible = false;
+            }
+        }
+
+        private void OnXoaBaiDang()
+        {
+            if (_trangThaiGoc != "ChuaGiao")
+            {
+                MessageBox.Show("Chỉ được xóa bài chưa giao!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            XoaBaiClicked?.Invoke(this, EventArgs.Empty);
         }
     }
 }

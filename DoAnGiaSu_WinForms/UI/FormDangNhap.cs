@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using DoAnGiaSu_WinForms.BLL;
-using DoAnGiaSu_WinForms.DAL;
-using DoAnGiaSu_WinForms.Model;
+using DoAnGiaSu_WinForms.Business;
+using DoAnGiaSu_WinForms.DataAccess;
+using DoAnGiaSu_WinForms.Models;
 
 namespace DoAnGiaSu_WinForms.GUI
 {
@@ -27,9 +27,9 @@ namespace DoAnGiaSu_WinForms.GUI
 
         private void btnDangNhap_Click(object sender, EventArgs e)
         {
-            TaiKhoanBLL bll = new TaiKhoanBLL();
+            AuthService authService = new AuthService();
             string username = txtTenDangNhap.Text.Trim();
-            TaiKhoan user = bll.Login(username, txtMatKhau.Text.Trim());
+            TaiKhoan user = authService.Authenticate(username, txtMatKhau.Text.Trim());
 
             if (user != null)
             {
@@ -57,7 +57,7 @@ namespace DoAnGiaSu_WinForms.GUI
                     else if (trangThai == "ChoDuyet")
                     {
                         MessageBox.Show("Hồ sơ của bạn đang chờ Admin duyệt. Vui lòng quay lại sau!", "Thông báo");
-                        return; // Không cho đăng nhập
+                        return;
                     }
                     else if (trangThai == "DaDuyet")
                     {
@@ -67,7 +67,7 @@ namespace DoAnGiaSu_WinForms.GUI
                     else
                     {
                         MessageBox.Show("Trạng thái tài khoản không hợp lệ hoặc bị từ chối.", "Thông báo");
-                        return; // Ngăn đăng nhập và giữ lại màn hình
+                        return;
                     }
                 }
 

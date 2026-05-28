@@ -1,8 +1,9 @@
-﻿using Microsoft.Data.SqlClient;
-using DoAnGiaSu_WinForms.Model;
-using System;
+﻿using System;
+using System.Data;
+using Microsoft.Data.SqlClient;
+using DoAnGiaSu_WinForms.Models;
 
-namespace DoAnGiaSu_WinForms.DAL
+namespace DoAnGiaSu_WinForms.DataAccess
 {
     public class PhuHuynhDAL
     {
@@ -55,14 +56,30 @@ namespace DoAnGiaSu_WinForms.DAL
             }
         }
 
-        public System.Data.DataTable LayDanhSachQuan()
+        public DataTable LayDanhSachQuan()
         {
             using (SqlConnection conn = db.GetConnection())
             {
                 string query = "SELECT MaQuan, TenQuan FROM DM_QUANHUYEN ORDER BY TenQuan";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 SqlDataAdapter adapter = new SqlDataAdapter(cmd);
-                System.Data.DataTable dt = new System.Data.DataTable();
+                DataTable dt = new DataTable();
+                adapter.Fill(dt);
+                return dt;
+            }
+        }
+
+        public DataTable LayThongKeDanhGiaGiaSu(int maGS)
+        {
+            using (SqlConnection conn = db.GetConnection())
+            {
+                string query = @"SELECT CAST(AVG(CAST(SoSao AS FLOAT)) AS FLOAT) AS DiemTB, COUNT(*) AS LuotDanhGia
+                                 FROM DANHGIA
+                                 WHERE MaGS = @MaGS";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@MaGS", maGS);
+                SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
                 adapter.Fill(dt);
                 return dt;
             }

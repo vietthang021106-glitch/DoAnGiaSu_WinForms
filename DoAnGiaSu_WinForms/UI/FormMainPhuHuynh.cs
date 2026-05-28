@@ -6,8 +6,8 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
-using Microsoft.Data.SqlClient;
-using DoAnGiaSu_WinForms.DAL;
+using DoAnGiaSu_WinForms.Business;
+using DoAnGiaSu_WinForms.DataAccess;
 
 namespace DoAnGiaSu_WinForms.GUI
 {
@@ -16,9 +16,10 @@ namespace DoAnGiaSu_WinForms.GUI
         private readonly string _user;
         private FormDangBai frmDangBai;
 
-        private readonly BaiDangDAL bdDal = new BaiDangDAL();
-        private readonly PhuHuynhDAL phDal = new PhuHuynhDAL();
+        private readonly BaiDangService baiDangService = new BaiDangService();
+        private readonly PhuHuynhService phService = new PhuHuynhService();
         private readonly TaiKhoanDAL tkDal = new TaiKhoanDAL();
+        private readonly DanhMucService danhMucService = new DanhMucService();
 
         public FormMainPhuHuynh(string username)
         {
@@ -131,7 +132,6 @@ namespace DoAnGiaSu_WinForms.GUI
             btnDanhGia.Enabled = false;
             btnDanhGia.Visible = false;
 
-            // Ẩn nút "Xem/Duyệt Gia Sư" cũ (ngoài Form) vì đã có nút Xem trong mỗi thẻ Card
             btnDuyetGiaSu.Visible = false;
 
             if (btnQuanLyBai != null)
@@ -150,57 +150,37 @@ namespace DoAnGiaSu_WinForms.GUI
             try
             {
                 int maTK = tkDal.LayMaTKTuTen(_user);
-                int maPH = phDal.LayMaPH(maTK);
+                int maPH = phService.LayMaPH(maTK);
                 if (maPH <= 0) return;
 
                 flpBaiDangCuaToi.Controls.Clear();
                 _selectedCard = null;
 
-                using (SqlConnection conn = new DBConnection().GetConnection())
+                DataTable dt = baiDangService.LayBaiDangCuaPhuHuynhChiTiet(maPH);
+                foreach (DataRow row in dt.Rows)
                 {
-                    conn.Open();
-                    const string sql = @"SELECT bd.MaBaiDang, m.TenMon, l.TenLop, td.TenTrinhDo, ht.TenHinhThuc, 
-                                                bd.MucLuong, bd.SoNhaDuong, bd.YeuCauThem, bd.TrangThai, q.TenQuan
-                                         FROM BAIDANG bd
-                                         JOIN DM_MONHOC m ON bd.MaMon = m.MaMon
-                                         JOIN DM_LOPHOC l ON bd.MaLop = l.MaLop
-                                         LEFT JOIN DM_TRINHDO td ON bd.YeuCauTrinhDo = td.MaTrinhDo
-                                         LEFT JOIN DM_HINHTHUC ht ON bd.MaHinhThuc = ht.MaHinhThuc
-                                         LEFT JOIN DM_QUANHUYEN q ON bd.MaQuan = q.MaQuan
-                                         WHERE bd.MaPH = @maPH
-                                         ORDER BY bd.MaBaiDang DESC";
+                    int maBaiDang = row["MaBaiDang"] == DBNull.Value ? 0 : Convert.ToInt32(row["MaBaiDang"]);
+                    string tenMon = row["TenMon"]?.ToString() ?? "";
+                    string tenLop = row["TenLop"]?.ToString() ?? "";
+                    string tenTrinhDo = row["TenTrinhDo"]?.ToString() ?? "";
+                    string tenHinhThuc = row["TenHinhThuc"]?.ToString() ?? "";
+                    string mucLuong = row["MucLuong"]?.ToString() ?? "";
+                    string soNhaDuong = row["SoNhaDuong"]?.ToString() ?? "";
+                    string yeuCauThem = row["YeuCauThem"]?.ToString() ?? "";
+                    string trangThai = row["TrangThai"]?.ToString() ?? "";
+                    string tenQuan = row["TenQuan"]?.ToString() ?? "Chưa xác định";
 
-                    using SqlCommand cmd = new SqlCommand(sql, conn);
-                    cmd.Parameters.Add(new SqlParameter("@maPH", SqlDbType.Int) { Value = maPH });
+                    if (decimal.TryParse(mucLuong, out decimal luongDec))
+                        mucLuong = Math.Round(luongDec, 0).ToString();
 
-                    using SqlDataReader reader = cmd.ExecuteReader();
-                    {
-                        while (reader.Read())
-                        {
-                            int maBaiDang = (int)reader["MaBaiDang"];
-                            string tenMon = reader["TenMon"]?.ToString() ?? "";
-                            string tenLop = reader["TenLop"]?.ToString() ?? "";
-                            string tenTrinhDo = reader["TenTrinhDo"]?.ToString() ?? "";
-                            string tenHinhThuc = reader["TenHinhThuc"]?.ToString() ?? "";
-                            string mucLuong = reader["MucLuong"]?.ToString() ?? "";
-                            string soNhaDuong = reader["SoNhaDuong"]?.ToString() ?? "";
-                            string yeuCauThem = reader["YeuCauThem"]?.ToString() ?? "";
-                            string trangThai = reader["TrangThai"]?.ToString() ?? "";
-                            string tenQuan = reader["TenQuan"]?.ToString() ?? "Chưa xác định";
+                    ucCardBaiDangPH card = new ucCardBaiDangPH();
+                    card.LoadData(maBaiDang, tenMon, tenLop, tenTrinhDo, tenHinhThuc, mucLuong, soNhaDuong, yeuCauThem, trangThai, tenQuan);
 
-                            if (decimal.TryParse(mucLuong, out decimal luongDec))
-                                mucLuong = Math.Round(luongDec, 0).ToString();
+                    card.XemDuyetClicked += Card_XemDuyetClicked;
+                    card.SuaClicked += Card_SuaClicked;
+                    card.XoaClicked += Card_XoaClicked;
 
-                            ucCardBaiDangPH card = new ucCardBaiDangPH();
-                            card.LoadData(maBaiDang, tenMon, tenLop, tenTrinhDo, tenHinhThuc, mucLuong, soNhaDuong, yeuCauThem, trangThai, tenQuan);
-
-                            card.XemDuyetClicked += Card_XemDuyetClicked;
-                            card.SuaClicked += Card_SuaClicked;
-                            card.XoaClicked += Card_XoaClicked;
-
-                            flpBaiDangCuaToi.Controls.Add(card);
-                        }
-                    }
+                    flpBaiDangCuaToi.Controls.Add(card);
                 }
             }
             catch (Exception ex)
@@ -223,11 +203,11 @@ namespace DoAnGiaSu_WinForms.GUI
                 return;
             }
 
-            DataTable dt = bdDal.LayThongTinGiaSuDangKy(maBD);
+            DataTable dt = baiDangService.LayThongTinGiaSuDangKy(maBD);
 
             if (dt.Rows.Count == 0 && (trangThai == "DangGiaoDich" || trangThai == "DaGiao"))
             {
-                dt = LayThongTinGiaSuTuBaiDangKhiThieuDangKy(maBD);
+                dt = baiDangService.LayThongTinGiaSuTuBaiDangKhiThieuDangKy(maBD);
             }
 
             if (dt.Rows.Count == 0)
@@ -279,18 +259,12 @@ namespace DoAnGiaSu_WinForms.GUI
             int luotDanhGia = 0;
             try
             {
-                using SqlConnection connDanhGia = new DBConnection().GetConnection();
-                const string sqlDanhGia = @"SELECT CAST(AVG(CAST(SoSao AS FLOAT)) AS FLOAT) AS DiemTB, COUNT(*) AS LuotDanhGia
-                                             FROM DANHGIA
-                                             WHERE MaGS = @MaGS";
-                using SqlCommand cmdDanhGia = new SqlCommand(sqlDanhGia, connDanhGia);
-                cmdDanhGia.Parameters.Add(new SqlParameter("@MaGS", SqlDbType.Int) { Value = maGS });
-                connDanhGia.Open();
-                using SqlDataReader rdDanhGia = cmdDanhGia.ExecuteReader();
-                if (rdDanhGia.Read())
+                DataTable dtDanhGia = phService.LayThongKeDanhGiaGiaSu(maGS);
+                if (dtDanhGia.Rows.Count > 0)
                 {
-                    if (rdDanhGia["DiemTB"] != DBNull.Value) diemTB = Convert.ToDouble(rdDanhGia["DiemTB"]);
-                    if (rdDanhGia["LuotDanhGia"] != DBNull.Value) luotDanhGia = Convert.ToInt32(rdDanhGia["LuotDanhGia"]);
+                    DataRow rowDanhGia = dtDanhGia.Rows[0];
+                    if (rowDanhGia["DiemTB"] != DBNull.Value) diemTB = Convert.ToDouble(rowDanhGia["DiemTB"]);
+                    if (rowDanhGia["LuotDanhGia"] != DBNull.Value) luotDanhGia = Convert.ToInt32(rowDanhGia["LuotDanhGia"]);
                 }
             }
             catch
@@ -540,7 +514,7 @@ namespace DoAnGiaSu_WinForms.GUI
 
             if (MessageBox.Show("Xóa bài đăng này?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                if (bdDal.XoaBaiDang(maBD))
+                if (baiDangService.XoaBaiDang(maBD))
                 {
                     MessageBox.Show("Đã xóa bài đăng!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadDataBaiDang();
@@ -613,35 +587,5 @@ namespace DoAnGiaSu_WinForms.GUI
             pic.Image = avatar;
         }
 
-        private DataTable LayThongTinGiaSuTuBaiDangKhiThieuDangKy(int maBD)
-        {
-            DataTable dt = new DataTable();
-
-            using (SqlConnection conn = new DBConnection().GetConnection())
-            {
-                const string sql = @"SELECT bd.MaGS, gs.HoTen, gs.SDT, gs.CCCD,
-                                     tr.TenTruong, td.TenTrinhDo,
-                                     gs.AnhMinhChung, gs.AnhBangDiem,
-                                     ISNULL('GPA: ' + gs.DiemGPA, xl.TenXepLoai) AS ThanhTich, gs.MaNamHoc,
-                                     gs.MaChungChi, dmcc.TenChungChi, gs.DiemChungChi,
-                                     gt.TenGioiTinh, ns.Nam AS NamSinh,
-                                     CAST('DaDuyet' AS NVARCHAR(20)) AS TrangThaiDangKy
-                                     FROM BAIDANG bd
-                                     JOIN GIASU gs ON bd.MaGS = gs.MaGS
-                                     LEFT JOIN DM_TRUONG tr ON gs.MaTruong = tr.MaTruong
-                                     LEFT JOIN DM_TRINHDO td ON gs.MaTrinhDo = td.MaTrinhDo
-                                     LEFT JOIN DM_GIOITINH gt ON gs.MaGioiTinh = gt.MaGioiTinh
-                                     LEFT JOIN DM_NAMSINH ns ON gs.MaNamSinh = ns.MaNamSinh
-                                     LEFT JOIN DM_CHUNGCHI dmcc ON gs.MaChungChi = dmcc.MaChungChi
-                                     LEFT JOIN DM_XEPLOAI xl ON gs.MaXepLoai = xl.MaXepLoai
-                                     WHERE bd.MaBaiDang = @ma";
-
-                using SqlDataAdapter da = new SqlDataAdapter(sql, conn);
-                da.SelectCommand.Parameters.Add(new SqlParameter("@ma", SqlDbType.Int) { Value = maBD });
-                da.Fill(dt);
-            }
-
-            return dt;
-        }
     }
 }

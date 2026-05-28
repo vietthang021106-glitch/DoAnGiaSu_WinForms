@@ -1,8 +1,8 @@
 ﻿using Microsoft.Data.SqlClient;
-using DoAnGiaSu_WinForms.Model;
+using DoAnGiaSu_WinForms.Models;
 using System;
 
-namespace DoAnGiaSu_WinForms.DAL
+namespace DoAnGiaSu_WinForms.DataAccess
 {
     public class TaiKhoanDAL
     {

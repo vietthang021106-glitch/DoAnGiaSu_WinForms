@@ -2,8 +2,8 @@
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using DoAnGiaSu_WinForms.BLL;
-using DoAnGiaSu_WinForms.Model;
+using DoAnGiaSu_WinForms.Business;
+using DoAnGiaSu_WinForms.Models;
 
 namespace DoAnGiaSu_WinForms.GUI
 {
@@ -42,10 +42,8 @@ namespace DoAnGiaSu_WinForms.GUI
             TaiKhoanBLL bll = new TaiKhoanBLL();
             string user = txtTenDangNhap.Text.Trim();
 
-            // Xác định vai trò dựa trên RadioButton
             string vaiTro = radPhuHuynh.Checked ? "PhuHuynh" : "GiaSu";
 
-            // Gọi BLL để thực hiện đăng ký (Kiểm tra trùng, mật khẩu khớp...)
             string result = bll.RegisterAccount(user, txtMatKhau.Text.Trim(), txtXacNhanMK.Text.Trim(), vaiTro);
 
             if (result == "Thành công")
@@ -54,36 +52,30 @@ namespace DoAnGiaSu_WinForms.GUI
 
                 if (radGiaSu.Checked)
                 {
-                    // Nếu chọn Gia sư -> Mở Form cập nhật Gia sư
                     FormCapNhatGiaSu frmGS = new FormCapNhatGiaSu(tk);
                     frmGS.Show();
                 }
                 else if (radPhuHuynh.Checked)
                 {
-                    // Nếu chọn Phụ huynh -> Mở Form cập nhật Phụ huynh
                     FormCapNhatPhuHuynh frmPH = new FormCapNhatPhuHuynh(tk);
                     frmPH.Show();
                 }
 
-                // Ẩn form đăng ký này đi
                 this.Hide();
             }
             else
             {
-                // Nếu thất bại (trùng tên, sai pass...) thì hiện lỗi từ BLL trả về
                 MessageBox.Show(result, "Thông báo lỗi");
             }
         }
 
         private void btnQuayLai_Click(object sender, EventArgs e)
         {
-            // Quay lại Form Đăng nhập
             this.Close();
         }
 
         private void FormDangKy_Load(object sender, EventArgs e)
         {
-            // Mặc định chọn một vai trò để tránh lỗi người dùng không chọn gì
             radGiaSu.Checked = true;
             CenterPanel();
         }

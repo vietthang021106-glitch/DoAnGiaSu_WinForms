@@ -6,9 +6,9 @@ using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
-using Microsoft.Data.SqlClient;
-using DoAnGiaSu_WinForms.DAL;
-using DoAnGiaSu_WinForms.Model;
+using DoAnGiaSu_WinForms.Business;
+using DoAnGiaSu_WinForms.DataAccess;
+using DoAnGiaSu_WinForms.Models;
 
 namespace DoAnGiaSu_WinForms.GUI
 {
@@ -23,20 +23,20 @@ namespace DoAnGiaSu_WinForms.GUI
         private bool _dangLocLop;
 
         [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
-        public bool IsEmbedded 
-        { 
+        public bool IsEmbedded
+        {
             get => _isEmbedded;
-            set 
-            { 
-                _isEmbedded = value; 
-                if (_isEmbedded) 
-                { 
+            set
+            {
+                _isEmbedded = value;
+                if (_isEmbedded)
+                {
                     if (this.Controls.ContainsKey("panel1"))
                     {
                         this.Controls["panel1"].BackColor = Color.FromArgb(185, 255, 255, 255);
                     }
-                } 
-            } 
+                }
+            }
         }
         public event EventHandler OnDangBaiSuccess;
 
@@ -44,9 +44,10 @@ namespace DoAnGiaSu_WinForms.GUI
         public int MaBaiDangEdit { get; set; } = 0;
 
         GiaSuDAL gsDal = new GiaSuDAL();
-        BaiDangDAL bdDal = new BaiDangDAL();
+        BaiDangService baiDangService = new BaiDangService();
         PhuHuynhDAL phDal = new PhuHuynhDAL();
         TaiKhoanDAL tkDal = new TaiKhoanDAL();
+        private readonly DanhMucService danhMucService = new DanhMucService();
 
         public FormDangBai(string username)
         {
@@ -144,23 +145,22 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             try
             {
-                cboMonHoc.DataSource = gsDal.LayDanhMuc("DM_MONHOC");
+                cboMonHoc.DataSource = danhMucService.LayMonHoc();
                 cboMonHoc.DisplayMember = "TenMon";
                 cboMonHoc.ValueMember = "MaMon";
 
-                _dsLopHocGoc = gsDal.LayDanhMuc("DM_LOPHOC");
+                _dsLopHocGoc = danhMucService.LayLopHoc();
                 cboLopHoc.DataSource = _dsLopHocGoc;
                 cboLopHoc.DisplayMember = "TenLop";
                 cboLopHoc.ValueMember = "MaLop";
 
-                cboHinhThuc.DataSource = gsDal.LayDanhMuc("DM_HINHTHUC");
+                cboHinhThuc.DataSource = danhMucService.LayHinhThuc();
                 cboHinhThuc.DisplayMember = "TenHinhThuc";
                 cboHinhThuc.ValueMember = "MaHinhThuc";
 
-                // Load district data from DM_QUANHUYEN
                 LayDanhSachQuan();
 
-                cmbYeuCauTrinhDo.DataSource = gsDal.LayDanhMuc("DM_TRINHDO");
+                cmbYeuCauTrinhDo.DataSource = danhMucService.LayTrinhDo();
                 cmbYeuCauTrinhDo.DisplayMember = "TenTrinhDo";
                 cmbYeuCauTrinhDo.ValueMember = "MaTrinhDo";
 
@@ -422,11 +422,11 @@ namespace DoAnGiaSu_WinForms.GUI
                 bool success = false;
                 if (MaBaiDangEdit > 0)
                 {
-                    success = bdDal.SuaBaiDang(bd);
+                    success = baiDangService.SuaBaiDang(bd);
                 }
                 else
                 {
-                    success = bdDal.ThemBaiDang(bd);
+                    success = baiDangService.ThemBaiDang(bd);
                 }
 
                 if (success)
@@ -453,26 +453,10 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             try
             {
-                using (SqlConnection conn = new DBConnection().GetConnection())
-                {
-                    conn.Open();
-                    const string sql = "SELECT MaQuan, TenQuan FROM DM_QUANHUYEN ORDER BY TenQuan";
-                    using SqlCommand cmd = new SqlCommand(sql, conn);
-                    using SqlDataReader reader = cmd.ExecuteReader();
-                    
-                    System.Data.DataTable dt = new System.Data.DataTable();
-                    dt.Columns.Add("MaQuan", typeof(int));
-                    dt.Columns.Add("TenQuan", typeof(string));
-                    
-                    while (reader.Read())
-                    {
-                        dt.Rows.Add(reader["MaQuan"], reader["TenQuan"]);
-                    }
-                    
-                    cmbQuan.DataSource = dt;
-                    cmbQuan.DisplayMember = "TenQuan";
-                    cmbQuan.ValueMember = "MaQuan";
-                }
+                var dt = danhMucService.LayQuanHuyen();
+                cmbQuan.DataSource = dt;
+                cmbQuan.DisplayMember = "TenQuan";
+                cmbQuan.ValueMember = "MaQuan";
             }
             catch (Exception ex)
             {

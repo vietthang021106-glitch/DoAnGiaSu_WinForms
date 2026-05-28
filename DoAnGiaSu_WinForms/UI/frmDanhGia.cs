@@ -1,8 +1,8 @@
 using System;
 using System.Data;
 using System.Windows.Forms;
-using Microsoft.Data.SqlClient;
-using DoAnGiaSu_WinForms.DAL;
+using DoAnGiaSu_WinForms.Business;
+using DoAnGiaSu_WinForms.Models;
 
 namespace DoAnGiaSu_WinForms.GUI
 {
@@ -11,6 +11,7 @@ namespace DoAnGiaSu_WinForms.GUI
         private readonly int _maPH;
         private readonly int _maGS;
         private readonly int _maBaiDang;
+        private readonly DanhGiaService danhGiaService = new DanhGiaService();
 
         private Label lblTieuDe;
         private Label lblSoSao;
@@ -103,20 +104,16 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             try
             {
-                const string sql = @"INSERT INTO DANHGIA (MaPH, MaGS, MaBaiDang, SoSao, NoiDung, NgayDanhGia)
-                                     VALUES (@MaPH, @MaGS, @MaBaiDang, @SoSao, @NoiDung, GETDATE())";
+                DanhGia danhGia = new DanhGia
+                {
+                    MaPH = _maPH,
+                    MaGS = _maGS,
+                    MaBaiDang = _maBaiDang,
+                    SoSao = Convert.ToInt32(numSao.Value),
+                    NoiDung = rtbNoiDung.Text.Trim()
+                };
 
-                using SqlConnection conn = new DBConnection().GetConnection();
-                using SqlCommand cmd = new SqlCommand(sql, conn);
-                cmd.Parameters.Add(new SqlParameter("@MaPH", SqlDbType.Int) { Value = _maPH });
-                cmd.Parameters.Add(new SqlParameter("@MaGS", SqlDbType.Int) { Value = _maGS });
-                cmd.Parameters.Add(new SqlParameter("@MaBaiDang", SqlDbType.Int) { Value = _maBaiDang });
-                cmd.Parameters.Add(new SqlParameter("@SoSao", SqlDbType.Int) { Value = Convert.ToInt32(numSao.Value) });
-                cmd.Parameters.Add(new SqlParameter("@NoiDung", SqlDbType.NVarChar, -1) { Value = rtbNoiDung.Text.Trim() });
-
-                conn.Open();
-                int soDong = cmd.ExecuteNonQuery();
-                if (soDong > 0)
+                if (danhGiaService.ThemDanhGia(danhGia))
                 {
                     MessageBox.Show("Gửi đánh giá thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     Close();

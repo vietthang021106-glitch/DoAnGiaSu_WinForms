@@ -2,14 +2,14 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
-using Microsoft.Data.SqlClient;
-using DoAnGiaSu_WinForms.DAL;
+using DoAnGiaSu_WinForms.Business;
 
 namespace DoAnGiaSu_WinForms.GUI
 {
     public class FormChiTietDanhGia : Form
     {
         private readonly int _maGS;
+        private readonly DanhGiaService danhGiaService = new DanhGiaService();
 
         private Label lblTieuDe;
         private FlowLayoutPanel flpDanhGia;
@@ -60,26 +60,15 @@ namespace DoAnGiaSu_WinForms.GUI
             try
             {
                 flpDanhGia.Controls.Clear();
+                DataTable dt = danhGiaService.LayDanhGiaTheoGiaSu(_maGS);
 
-                const string sql = @"SELECT ph.HoTen, dg.SoSao, dg.NoiDung, dg.NgayDanhGia
-                                     FROM DANHGIA dg
-                                     JOIN PHUHUYNH ph ON dg.MaPH = ph.MaPH
-                                     WHERE dg.MaGS = @MaGS
-                                     ORDER BY dg.NgayDanhGia DESC";
-
-                using SqlConnection conn = new DBConnection().GetConnection();
-                using SqlCommand cmd = new SqlCommand(sql, conn);
-                cmd.Parameters.Add(new SqlParameter("@MaGS", SqlDbType.Int) { Value = _maGS });
-                conn.Open();
-
-                using SqlDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
+                foreach (DataRow row in dt.Rows)
                 {
-                    string hoTen = reader["HoTen"]?.ToString() ?? "";
-                    int soSao = reader["SoSao"] != DBNull.Value ? Convert.ToInt32(reader["SoSao"]) : 0;
-                    string noiDung = reader["NoiDung"]?.ToString() ?? "";
-                    string ngayDanhGia = reader["NgayDanhGia"] != DBNull.Value
-                        ? Convert.ToDateTime(reader["NgayDanhGia"]).ToString("dd/MM/yyyy")
+                    string hoTen = row["HoTen"]?.ToString() ?? "";
+                    int soSao = row["SoSao"] != DBNull.Value ? Convert.ToInt32(row["SoSao"]) : 0;
+                    string noiDung = row["NoiDung"]?.ToString() ?? "";
+                    string ngayDanhGia = row["NgayDanhGia"] != DBNull.Value
+                        ? Convert.ToDateTime(row["NgayDanhGia"]).ToString("dd/MM/yyyy")
                         : "";
 
                     Panel pnlItem = new Panel

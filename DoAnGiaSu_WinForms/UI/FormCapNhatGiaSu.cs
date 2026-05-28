@@ -4,8 +4,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
-using DoAnGiaSu_WinForms.DAL;
-using DoAnGiaSu_WinForms.Model;
+using DoAnGiaSu_WinForms.Business;
+using DoAnGiaSu_WinForms.DataAccess;
+using DoAnGiaSu_WinForms.Models;
 
 namespace DoAnGiaSu_WinForms.GUI
 {
@@ -36,20 +37,21 @@ namespace DoAnGiaSu_WinForms.GUI
         private Label lblGPA;
         private TextBox txtGPA;
 
-        GiaSuDAL gsDal = new GiaSuDAL();
-        TaiKhoanDAL tkDal = new TaiKhoanDAL();
+        private readonly DanhMucService danhMucService = new DanhMucService();
+        private readonly PhuHuynhService phService = new PhuHuynhService();
+        private readonly GiaSuDAL gsDal = new GiaSuDAL();
+        private readonly TaiKhoanDAL tkDal = new TaiKhoanDAL();
 
         public FormCapNhatGiaSu(TaiKhoan tk)
         {
             InitializeComponent();
-            this._tkDangKy = tk;
+            _tkDangKy = tk;
 
             ApplySameBackgroundAsLogin();
             Resize += FormCapNhatGiaSu_Resize;
             Shown += FormCapNhatGiaSu_Shown;
             FormClosed += FormCapNhatGiaSu_FormClosed;
             AttachSizeChangedHandlers(this);
-
             AutoScroll = true;
             ApplyRoundedStyle();
             CenterPanel();
@@ -58,26 +60,18 @@ namespace DoAnGiaSu_WinForms.GUI
         private void ApplySameBackgroundAsLogin()
         {
             var frmLogin = new FormDangNhap();
-            this.BackgroundImage = frmLogin.BackgroundImage;
-            this.BackgroundImageLayout = frmLogin.BackgroundImageLayout;
+            BackgroundImage = frmLogin.BackgroundImage;
+            BackgroundImageLayout = frmLogin.BackgroundImageLayout;
         }
 
         private void CenterPanel()
         {
-            if (!this.Controls.ContainsKey("panel1")) return;
-
-            Control panel1 = this.Controls["panel1"];
+            if (!Controls.ContainsKey("panel1")) return;
+            Control panel1 = Controls["panel1"];
             int margin = 20;
-
             int left = (ClientSize.Width - panel1.Width) / 2;
             if (left < margin) left = margin;
-
-            int top;
-            if (panel1.Height + margin * 2 <= ClientSize.Height)
-                top = (ClientSize.Height - panel1.Height) / 2;
-            else
-                top = margin;
-
+            int top = panel1.Height + margin * 2 <= ClientSize.Height ? (ClientSize.Height - panel1.Height) / 2 : margin;
             panel1.Location = new Point(left, top);
             AutoScrollMinSize = new Size(panel1.Width + margin * 2, panel1.Height + margin * 2);
         }
@@ -92,9 +86,7 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             var formDangKy = Application.OpenForms["FormDangKy"];
             if (formDangKy != null)
-            {
                 formDangKy.Show();
-            }
         }
 
         private void FormCapNhatGiaSu_Resize(object? sender, EventArgs e)
@@ -127,7 +119,6 @@ namespace DoAnGiaSu_WinForms.GUI
             foreach (Control control in parent.Controls)
             {
                 control.SizeChanged += (_, _) => ApplyRoundedStyle();
-
                 if (control.HasChildren)
                     AttachSizeChangedHandlers(control);
             }
@@ -154,7 +145,7 @@ namespace DoAnGiaSu_WinForms.GUI
 
         private void FormCapNhatGiaSu_Load(object sender, EventArgs e)
         {
-            this.Text = "Hồ sơ gia sư của tài khoản: " + _tkDangKy.TenDangNhap;
+            Text = "Hồ sơ gia sư của tài khoản: " + _tkDangKy.TenDangNhap;
             LoadAllComboBox();
             InitializeExtendedTutorControls();
             cboTrinhDo.SelectedIndexChanged -= cboTrinhDo_SelectedIndexChanged;
@@ -166,30 +157,21 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             try
             {
-                cboGioiTinh.DataSource = gsDal.LayDanhMuc("DM_GIOITINH");
+                cboGioiTinh.DataSource = danhMucService.LayGioiTinh();
                 cboGioiTinh.DisplayMember = "TenGioiTinh";
                 cboGioiTinh.ValueMember = "MaGioiTinh";
 
-                cboTruong.DataSource = gsDal.LayDanhMuc("DM_TRUONG");
+                cboTruong.DataSource = danhMucService.LayTruong();
                 cboTruong.DisplayMember = "TenTruong";
                 cboTruong.ValueMember = "MaTruong";
 
-                cboTrinhDo.DataSource = gsDal.LayDanhMuc("DM_TRINHDO");
+                cboTrinhDo.DataSource = danhMucService.LayTrinhDo();
                 cboTrinhDo.DisplayMember = "TenTrinhDo";
                 cboTrinhDo.ValueMember = "MaTrinhDo";
 
-                cboNamSinh.DataSource = gsDal.LayDanhMuc("DM_NAMSINH");
+                cboNamSinh.DataSource = danhMucService.LayNamSinh();
                 cboNamSinh.DisplayMember = "Nam";
                 cboNamSinh.ValueMember = "MaNamSinh";
-
-                // Tải thêm dữ liệu cho năm học và chứng chỉ nếu cần thiết
-                // cboNamHoc.DataSource = gsDal.LayDanhMuc("DM_NAMHOC");
-                // cboNamHoc.DisplayMember = "NamHoc";
-                // cboNamHoc.ValueMember = "MaNamHoc";
-
-                // cboChungChi.DataSource = gsDal.LayDanhMuc("DM_CHUNGCHI");
-                // cboChungChi.DisplayMember = "TenChungChi";
-                // cboChungChi.ValueMember = "MaChungChi";
             }
             catch (Exception ex)
             {
@@ -199,43 +181,37 @@ namespace DoAnGiaSu_WinForms.GUI
 
         private void btnChonAnh_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog ofd = new OpenFileDialog())
+            using OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
+            ofd.Title = "Chọn ảnh minh chứng";
+            if (ofd.ShowDialog() == DialogResult.OK)
             {
-                ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
-                ofd.Title = "Chọn ảnh minh chứng";
-                if (ofd.ShowDialog() == DialogResult.OK)
-                {
-                    duongDanAnh = ofd.FileName;
-                    picMinhChung.Image = Image.FromFile(duongDanAnh);
-                }
+                duongDanAnh = ofd.FileName;
+                picMinhChung.Image = Image.FromFile(duongDanAnh);
             }
         }
 
         private void btnChonAnhBangDiem_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog ofd = new OpenFileDialog())
+            using OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
+            ofd.Title = "Chọn ảnh bảng điểm";
+            if (ofd.ShowDialog() == DialogResult.OK)
             {
-                ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
-                ofd.Title = "Chọn ảnh bảng điểm";
-                if (ofd.ShowDialog() == DialogResult.OK)
-                {
-                    duongDanAnhBangDiem = ofd.FileName;
-                    picBangDiem.Image = Image.FromFile(duongDanAnhBangDiem);
-                }
+                duongDanAnhBangDiem = ofd.FileName;
+                picBangDiem.Image = Image.FromFile(duongDanAnhBangDiem);
             }
         }
 
         private void btnChonAnhChungChi_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog ofd = new OpenFileDialog())
+            using OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
+            ofd.Title = "Chọn ảnh chứng chỉ";
+            if (ofd.ShowDialog() == DialogResult.OK)
             {
-                ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
-                ofd.Title = "Chọn ảnh chứng chỉ";
-                if (ofd.ShowDialog() == DialogResult.OK)
-                {
-                    duongDanAnhChungChi = ofd.FileName;
-                    picChungChi.Image = Image.FromFile(duongDanAnhChungChi);
-                }
+                duongDanAnhChungChi = ofd.FileName;
+                picChungChi.Image = Image.FromFile(duongDanAnhChungChi);
             }
         }
 
@@ -277,30 +253,49 @@ namespace DoAnGiaSu_WinForms.GUI
                 string sdt = txtSDT.Text.Trim();
                 string cccd = txtCCCD.Text.Trim();
 
-                string loiTonTai = gsDal.KiemTraTonTai(cccd, sdt);
+                string loiTonTai = phService.KiemTraSoDienThoai(sdt);
                 if (!string.IsNullOrEmpty(loiTonTai))
                 {
                     MessageBox.Show(loiTonTai, "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                GiaSu gs = new GiaSu();
-                gs.HoTen = txtHoTen.Text.Trim();
-                gs.SDT = sdt;
-                gs.CCCD = cccd;
-                gs.MaGioiTinh = Convert.ToInt32(cboGioiTinh.SelectedValue);
-                gs.MaNamSinh = Convert.ToInt32(cboNamSinh.SelectedValue);
-                gs.MaTruong = Convert.ToInt32(cboTruong.SelectedValue);
-                gs.MaTrinhDo = Convert.ToInt32(cboTrinhDo.SelectedValue);
+                int maTK = tkDal.LayMaTKTuTen(_tkDangKy.TenDangNhap);
+                if (maTK == 0)
+                {
+                    if (!tkDal.DangKy(_tkDangKy))
+                    {
+                        MessageBox.Show("Lỗi: Không thể tạo tài khoản!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    maTK = tkDal.LayMaTKTuTen(_tkDangKy.TenDangNhap);
+                }
 
-                gs.AnhMinhChung = CopyProofImage(duongDanAnh, _tkDangKy.TenDangNhap, "the");
-                gs.AnhBangDiem = CopyProofImage(duongDanAnhBangDiem, _tkDangKy.TenDangNhap, "bang");
+                if (maTK == 0)
+                {
+                    MessageBox.Show("Không tìm thấy ID tài khoản! Vui lòng thử lại.");
+                    return;
+                }
 
-                gs.DiemChungChi = txtDiemChungChi?.Text.Trim() ?? "";
-
-                gs.MaNamHoc = null;
-                gs.DiemGPA = null;
-                gs.MaXepLoai = null;
+                GiaSu gs = new GiaSu
+                {
+                    HoTen = txtHoTen.Text.Trim(),
+                    SDT = sdt,
+                    CCCD = cccd,
+                    MaGioiTinh = Convert.ToInt32(cboGioiTinh.SelectedValue),
+                    MaNamSinh = Convert.ToInt32(cboNamSinh.SelectedValue),
+                    MaTruong = Convert.ToInt32(cboTruong.SelectedValue),
+                    MaTrinhDo = Convert.ToInt32(cboTrinhDo.SelectedValue),
+                    TrangThaiDuyet = GiaSuSql.TrangThaiChoDuyet,
+                    AnhMinhChung = CopyProofImage(duongDanAnh, _tkDangKy.TenDangNhap, "the"),
+                    AnhBangDiem = CopyProofImage(duongDanAnhBangDiem, _tkDangKy.TenDangNhap, "bang"),
+                    DiemChungChi = txtDiemChungChi?.Text.Trim() ?? "",
+                    MaNamHoc = null,
+                    DiemGPA = null,
+                    MaXepLoai = null,
+                    MaChungChi = null,
+                    AnhChungChi = ""
+                };
 
                 if (laSV)
                 {
@@ -315,8 +310,6 @@ namespace DoAnGiaSu_WinForms.GUI
                     gs.MaXepLoai = cboXepLoai?.SelectedValue != null && int.TryParse(cboXepLoai.SelectedValue.ToString(), out int maXepLoai) ? maXepLoai : null;
                 }
 
-                gs.MaChungChi = null;
-                gs.AnhChungChi = "";
                 if (cboChungChi != null && cboChungChi.SelectedItem != null)
                 {
                     string tenChungChi = cboChungChi.Text?.Trim() ?? "";
@@ -337,45 +330,22 @@ namespace DoAnGiaSu_WinForms.GUI
                     }
                 }
 
-                int maTK = tkDal.LayMaTKTuTen(_tkDangKy.TenDangNhap);
-                if (maTK == 0)
-                {
-                    if (!tkDal.DangKy(_tkDangKy))
-                    {
-                        MessageBox.Show("Lỗi: Không thể tạo tài khoản!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-                    maTK = tkDal.LayMaTKTuTen(_tkDangKy.TenDangNhap);
-                }
-
-                if (maTK == 0)
-                {
-                    MessageBox.Show("Không tìm thấy ID tài khoản! Vui lòng thử lại.");
-                    return;
-                }
                 gs.MaTK = maTK;
 
                 if (gsDal.ThemGiaSu(gs))
                 {
                     MessageBox.Show("Hồ sơ đã gửi thành công! Vui lòng chờ Admin duyệt hồ sơ trước khi đăng nhập.", "Thông báo");
-
                     var loginForm = Application.OpenForms["FormDangNhap"];
                     if (loginForm != null)
-                    {
                         loginForm.Show();
-                    }
                     else
-                    {
                         new FormDangNhap().Show();
-                    }
 
                     var formDangKy = Application.OpenForms["FormDangKy"];
                     if (formDangKy != null)
-                    {
                         formDangKy.Close();
-                    }
 
-                    this.Hide();
+                    Hide();
                 }
                 else
                 {
@@ -443,9 +413,7 @@ namespace DoAnGiaSu_WinForms.GUI
             pnl.Controls.Add(txtGPA);
 
             if (button1 != null)
-            {
                 button1.Location = new Point(60, 1220);
-            }
 
             pnl.Size = new Size(520, 1280);
             ClientSize = new Size(800, 920);
@@ -460,10 +428,9 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             try
             {
-                DataTable dtNamHoc = gsDal.LayDanhMuc("DM_NAMHOC");
-                cboNamHoc.DataSource = dtNamHoc;
-                cboNamHoc.ValueMember = dtNamHoc.Columns[0].ColumnName;
-                cboNamHoc.DisplayMember = dtNamHoc.Columns.Count > 1 ? dtNamHoc.Columns[1].ColumnName : dtNamHoc.Columns[0].ColumnName;
+                cboNamHoc.DataSource = danhMucService.LayNamHoc();
+                cboNamHoc.ValueMember = "MaNamHoc";
+                cboNamHoc.DisplayMember = "TenNamHoc";
             }
             catch
             {
@@ -474,10 +441,9 @@ namespace DoAnGiaSu_WinForms.GUI
 
             try
             {
-                DataTable dtXepLoai = gsDal.LayDanhMuc("DM_XEPLOAI");
-                cboXepLoai.DataSource = dtXepLoai;
-                cboXepLoai.ValueMember = dtXepLoai.Columns[0].ColumnName;
-                cboXepLoai.DisplayMember = dtXepLoai.Columns.Count > 1 ? dtXepLoai.Columns[1].ColumnName : dtXepLoai.Columns[0].ColumnName;
+                cboXepLoai.DataSource = danhMucService.LayXepLoai();
+                cboXepLoai.ValueMember = "MaXepLoai";
+                cboXepLoai.DisplayMember = "TenXepLoai";
             }
             catch
             {
@@ -489,10 +455,9 @@ namespace DoAnGiaSu_WinForms.GUI
 
             try
             {
-                DataTable dtChungChi = gsDal.LayDanhMuc("DM_CHUNGCHI");
-                cboChungChi.DataSource = dtChungChi;
-                cboChungChi.ValueMember = dtChungChi.Columns[0].ColumnName;
-                cboChungChi.DisplayMember = dtChungChi.Columns.Count > 1 ? dtChungChi.Columns[1].ColumnName : dtChungChi.Columns[0].ColumnName;
+                cboChungChi.DataSource = danhMucService.LayChungChi();
+                cboChungChi.ValueMember = "MaChungChi";
+                cboChungChi.DisplayMember = "TenChungChi";
             }
             catch
             {
@@ -520,16 +485,12 @@ namespace DoAnGiaSu_WinForms.GUI
 
             if (lblNamHoc != null) lblNamHoc.Visible = laSV;
             if (cboNamHoc != null) cboNamHoc.Visible = laSV;
-
             if (lblThanhTich != null) lblThanhTich.Visible = laSV;
             if (txtThanhTich != null) txtThanhTich.Visible = laSV;
-
             if (lblGPA != null) lblGPA.Visible = laSV;
             if (txtGPA != null) txtGPA.Visible = laSV;
-
             if (lblXepLoai != null) lblXepLoai.Visible = !laSV;
             if (cboXepLoai != null) cboXepLoai.Visible = !laSV;
-
             if (lblAnhBangDiem != null) lblAnhBangDiem.Text = laSV ? "Ảnh Bảng điểm" : "Ảnh Bằng Tốt Nghiệp";
         }
 
@@ -546,4 +507,5 @@ namespace DoAnGiaSu_WinForms.GUI
             File.Copy(sourcePath, destPath, true);
             return destPath;
         }
-    }}
+    }
+}

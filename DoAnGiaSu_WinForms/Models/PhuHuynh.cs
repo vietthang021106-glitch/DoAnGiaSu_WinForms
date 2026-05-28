@@ -1,12 +1,12 @@
-﻿namespace DoAnGiaSu_WinForms.Model
+﻿namespace DoAnGiaSu_WinForms.Models
 {
     public class PhuHuynh
     {
-        public int MaPH { get; set; }           // Mã tự tăng trong SQL
-        public string HoTen { get; set; }        // Họ tên phụ huynh
-        public string SDT { get; set; }          // Số điện thoại
-        public int MaQuan { get; set; }          // ID của Quận/Huyện
-        public string SoNhaDuong { get; set; }   // Địa chỉ chi tiết
-        public int MaTK { get; set; }            // ID tài khoản liên kết
+        public int MaPH { get; set; }
+        public string HoTen { get; set; }
+        public string SDT { get; set; }
+        public int MaQuan { get; set; }
+        public string SoNhaDuong { get; set; }
+        public int MaTK { get; set; }
     }
 }
