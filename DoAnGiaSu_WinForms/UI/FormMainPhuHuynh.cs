@@ -341,7 +341,7 @@ namespace DoAnGiaSu_WinForms.GUI
                     }
                     else
                     {
-                        lblSDT.Text = "SĐT Liên Hệ: (Vui lòng thanh toán phí hoa hồng để xem)";
+                        lblSDT.Text = "SĐT Liên Hệ: (Đang chờ gia sư hoàn tất thủ tục đóng phí)";
                         lblSDT.ForeColor = Color.Gray;
                     }
 
@@ -582,7 +582,7 @@ namespace DoAnGiaSu_WinForms.GUI
                     }
                     else
                     {
-                        lblSDT.Text = "SĐT Liên Hệ: (Vui lòng thanh toán phí hoa hồng để xem)";
+                        lblSDT.Text = "SĐT Liên Hệ: (Đang chờ gia sư hoàn tất thủ tục đóng phí)";
                         lblSDT.ForeColor = Color.Gray;
                     }
 

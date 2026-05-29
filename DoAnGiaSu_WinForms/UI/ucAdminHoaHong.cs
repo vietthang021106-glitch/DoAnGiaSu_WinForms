@@ -39,9 +39,9 @@ namespace DoAnGiaSu_WinForms.GUI
             Margin = new Padding(10);
             Padding = new Padding(0);
             AutoSize = false;
-            Width = 330;
+            Width = 350;
             Height = 300;
-            MinimumSize = new Size(330, 300);
+            MinimumSize = new Size(350, 300);
             DoubleBuffered = true;
 
             tlpRoot = new TableLayoutPanel
@@ -102,13 +102,12 @@ namespace DoAnGiaSu_WinForms.GUI
             flpMainContent.Controls.Add(lblMonHoc);
             flpMainContent.Controls.Add(lblMucLuong);
             flpMainContent.Controls.Add(lblHoaHong);
-            flpMainContent.Controls.Add(lblTrangThai);
             flpMainContent.Controls.Add(lblMaGS);
 
             pnlImage = new Panel
             {
                 Dock = DockStyle.Right,
-                Width = 90,
+                Width = 70,
                 BackColor = Color.White,
                 Margin = new Padding(0),
                 Padding = new Padding(0)
@@ -134,7 +133,7 @@ namespace DoAnGiaSu_WinForms.GUI
                 Padding = new Padding(0)
             };
             tblBody.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tblBody.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90F));
+            tblBody.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 70F));
             tblBody.Controls.Add(flpMainContent, 0, 0);
             tblBody.Controls.Add(pnlImage, 1, 0);
 
@@ -156,15 +155,19 @@ namespace DoAnGiaSu_WinForms.GUI
                 RowCount = 1,
                 BackColor = Color.White,
                 Margin = new Padding(0),
-                Padding = new Padding(10, 5, 10, 8)
+                Padding = new Padding(6, 2, 6, 4)
             };
             tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
             tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
             tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.34F));
 
-            btnXemAnh = CreateButton("Xem bill", Color.FromArgb(108, 117, 125), Color.White);
+            btnXemAnh = CreateButton("Xem ảnh", Color.FromArgb(108, 117, 125), Color.White);
             btnTuChoiBill = CreateButton("Từ chối", Color.Goldenrod, Color.White);
             btnXacNhan = CreateButton("Xác nhận", Color.DodgerBlue, Color.White);
+
+            btnXemAnh.Margin = new Padding(4, 0, 4, 0);
+            btnTuChoiBill.Margin = new Padding(4, 0, 4, 0);
+            btnXacNhan.Margin = new Padding(4, 0, 4, 0);
 
             btnXemAnh.Click += (_, _) => XemAnhClicked?.Invoke(this, EventArgs.Empty);
             btnTuChoiBill.Click += (_, _) => TuChoiBillClicked?.Invoke(this, EventArgs.Empty);
@@ -232,6 +235,26 @@ namespace DoAnGiaSu_WinForms.GUI
                 {
                     label.MaximumSize = new Size(contentWidth, 0);
                 }
+            }
+
+            if (tblFooter != null && !tblFooter.IsDisposed && btnXemAnh != null && btnTuChoiBill != null && btnXacNhan != null)
+            {
+                int footerWidth = Math.Max(120, tblFooter.ClientSize.Width - tblFooter.Padding.Left - tblFooter.Padding.Right);
+                int totalMarginPerButton = btnXemAnh.Margin.Left + btnXemAnh.Margin.Right;
+                int availableForButtons = Math.Max(0, footerWidth - totalMarginPerButton * 3);
+                int minWidthForTuChoi = TextRenderer.MeasureText(btnTuChoiBill.Text, btnTuChoiBill.Font).Width + 20;
+                int minWidthForXacNhan = TextRenderer.MeasureText(btnXacNhan.Text, btnXacNhan.Font).Width + 20;
+                int minWidthForXem = TextRenderer.MeasureText(btnXemAnh.Text, btnXemAnh.Font).Width + 20;
+                int requiredMin = Math.Max(minWidthForTuChoi, Math.Max(minWidthForXacNhan, minWidthForXem));
+                int buttonWidth = Math.Max(requiredMin, availableForButtons / 3);
+                tblFooter.ColumnStyles.Clear();
+                tblFooter.ColumnCount = 3;
+                tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
+                tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
+                tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.34F));
+                btnXemAnh.Dock = DockStyle.Fill;
+                btnTuChoiBill.Dock = DockStyle.Fill;
+                btnXacNhan.Dock = DockStyle.Fill;
             }
         }
 

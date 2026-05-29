@@ -119,7 +119,6 @@ namespace DoAnGiaSu_WinForms.GUI
             flpMainContent.Controls.Add(lblThanhTich);
             flpMainContent.Controls.Add(lblNamHoc);
             flpMainContent.Controls.Add(lblTruong);
-            flpMainContent.Controls.Add(lblTrinhDo);
             flpMainContent.Controls.Add(lblChungChi);
 
             pnlImageStack = new Panel
@@ -275,6 +274,23 @@ namespace DoAnGiaSu_WinForms.GUI
                 {
                     label.MaximumSize = new Size(contentWidth, 0);
                 }
+            }
+
+            if (tblFooter != null && !tblFooter.IsDisposed && btnDuyet != null && btnTuChoi != null && btnXoa != null)
+            {
+                int footerWidth = Math.Max(120, tblFooter.ClientSize.Width - tblFooter.Padding.Left - tblFooter.Padding.Right);
+                int totalMarginPerButton = btnDuyet.Margin.Left + btnDuyet.Margin.Right;
+                int availableForButtons = Math.Max(0, footerWidth - totalMarginPerButton * 3);
+                int minWidthForTuChoi = TextRenderer.MeasureText(btnTuChoi.Text, btnTuChoi.Font).Width + 20;
+                int buttonWidth = Math.Max(minWidthForTuChoi, availableForButtons / 3);
+                tblFooter.ColumnStyles.Clear();
+                tblFooter.ColumnCount = 3;
+                tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, buttonWidth));
+                tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, buttonWidth));
+                tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, buttonWidth));
+                btnDuyet.Dock = DockStyle.Fill;
+                btnTuChoi.Dock = DockStyle.Fill;
+                btnXoa.Dock = DockStyle.Fill;
             }
         }
 
