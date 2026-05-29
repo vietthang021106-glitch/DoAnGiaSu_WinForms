@@ -368,7 +368,8 @@ namespace DoAnGiaSu_WinForms.GUI
                         NamHoc = reader["TenNamHoc"]?.ToString() ?? "",
                         Truong = reader["TenTruong"]?.ToString() ?? "",
                         TrinhDo = reader["TenTrinhDo"]?.ToString() ?? "",
-                        ChungChi = reader["ThongTinChungChi"]?.ToString() ?? ""
+                        ChungChi = reader["ThongTinChungChi"]?.ToString() ?? "",
+                        TrangThaiDuyet = reader.Table.Columns.Contains("TrangThaiDuyet") ? reader["TrangThaiDuyet"]?.ToString() ?? "" : ""
                     };
 
                     card.UrlAnhThe = reader["AnhMinhChung"]?.ToString() ?? "";

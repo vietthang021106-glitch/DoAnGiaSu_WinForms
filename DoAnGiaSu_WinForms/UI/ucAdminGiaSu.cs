@@ -320,6 +320,25 @@ namespace DoAnGiaSu_WinForms.GUI
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public string TrangThaiDuyet
+        {
+            set
+            {
+                if (value == "DaDuyet")
+                {
+                    btnDuyet.Visible = false;
+                    btnTuChoi.Visible = false;
+                }
+                else
+                {
+                    btnDuyet.Visible = true;
+                    btnTuChoi.Visible = true;
+                }
+            }
+        }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string HoTen
         {
             get => lblHoTen.Text;

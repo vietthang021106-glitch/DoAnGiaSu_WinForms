@@ -744,7 +744,7 @@ namespace DoAnGiaSu_WinForms.DataAccess
                                        ISNULL('GPA: ' + gs.DiemGPA, xl.TenXepLoai) AS ThanhTich,
                                        gt.TenGioiTinh, ns.Nam AS NamSinh, nh.TenNamHoc,
                                        ISNULL(CC.TenChungChi + ': ' + gs.DiemChungChi, '') AS ThongTinChungChi,
-                                       tr.TenTruong, td.TenTrinhDo
+                                       tr.TenTruong, td.TenTrinhDo, gs.TrangThaiDuyet
                                 FROM GIASU gs
                                 LEFT JOIN DM_XEPLOAI xl ON gs.MaXepLoai = xl.MaXepLoai
                                 LEFT JOIN DM_GIOITINH gt ON gs.MaGioiTinh = gt.MaGioiTinh
