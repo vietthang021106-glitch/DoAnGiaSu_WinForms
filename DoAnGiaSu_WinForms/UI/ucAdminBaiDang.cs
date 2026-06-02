@@ -78,10 +78,21 @@ namespace DoAnGiaSu_WinForms.GUI
                 AutoSize = true,
                 ForeColor = Color.Gray,
                 Font = new Font("Segoe UI", 9F),
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.Left,
                 TextAlign = ContentAlignment.MiddleLeft,
                 Padding = new Padding(10, 3, 10, 3)
             };
+            lblTrangThai = new Label
+            {
+                AutoSize = true,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                Dock = DockStyle.Right,
+                TextAlign = ContentAlignment.MiddleRight,
+                Padding = new Padding(3, 3, 10, 3)
+            };
+            var pnlTopBD = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0) };
+            pnlTopBD.Controls.Add(lblTrangThai);
+            pnlTopBD.Controls.Add(lblMaBaiDang);
 
             lblMonHoc = CreateLabel(10F, FontStyle.Regular, Color.Black, "Môn học: ");
             lblLop = CreateLabel(10F, FontStyle.Bold, Color.Navy, "Lớp: ");
@@ -91,13 +102,12 @@ namespace DoAnGiaSu_WinForms.GUI
             lblTrinhDo = CreateLabel(10F, FontStyle.Regular, Color.Black, "Trình độ: ");
             lblMucLuong = CreateLabel(12F, FontStyle.Bold, Color.Red, "Mức lương: ");
             lblPhuHuynh = CreateLabel(10F, FontStyle.Regular, Color.DimGray, "Phụ huynh: ");
-            lblTrangThai = CreateLabel(10F, FontStyle.Regular, Color.DimGray, "Trạng thái: ");
             lblMaGSNhan = CreateLabel(10F, FontStyle.Regular, Color.DimGray, "Mã GS nhận: ");
 
             contentLabels = new[]
             {
                 lblMonHoc, lblLop, lblTrinhDo, lblHinhThuc, lblKhuVuc, lblYeuCau,
-                lblMucLuong, lblPhuHuynh, lblTrangThai, lblMaGSNhan
+                lblMucLuong, lblPhuHuynh, lblMaGSNhan
             };
 
             flpMainContent.Controls.Add(lblMaBaiDang);
@@ -109,7 +119,6 @@ namespace DoAnGiaSu_WinForms.GUI
             flpMainContent.Controls.Add(lblYeuCau);
             flpMainContent.Controls.Add(lblMucLuong);
             flpMainContent.Controls.Add(lblPhuHuynh);
-            flpMainContent.Controls.Add(lblTrangThai);
             flpMainContent.Controls.Add(lblMaGSNhan);
 
             pnlContent.Controls.Add(flpMainContent);
@@ -141,7 +150,7 @@ namespace DoAnGiaSu_WinForms.GUI
 
             flpButtons.Controls.Add(btnXoa);
 
-            tlpRoot.Controls.Add(lblMaBaiDang, 0, 0);
+            tlpRoot.Controls.Add(pnlTopBD, 0, 0);
             tlpRoot.Controls.Add(pnlContent, 0, 1);
             tlpRoot.Controls.Add(flpButtons, 0, 2);
 
@@ -270,11 +279,25 @@ namespace DoAnGiaSu_WinForms.GUI
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string TrangThai
         {
-            get => lblTrangThai.Text;
+            get => _trangThaiGoc;
             set
             {
-                lblTrangThai.Text = $"Trạng thái: {value}";
                 _trangThaiGoc = value ?? "";
+                if (string.IsNullOrWhiteSpace(value) || value == "ChoDuyet" || value == "Chờ duyệt")
+                {
+                    lblTrangThai.Text = "Chờ duyệt";
+                    lblTrangThai.ForeColor = Color.Orange;
+                }
+                else if (value == "DaDuyet" || value == "Đã duyệt")
+                {
+                    lblTrangThai.Text = "Đã duyệt";
+                    lblTrangThai.ForeColor = Color.Green;
+                }
+                else if (value == "TuChoi" || value == "Từ chối")
+                {
+                    lblTrangThai.Text = "Đã từ chối";
+                    lblTrangThai.ForeColor = Color.Red;
+                }
                 UpdateDeleteButtonState();
             }
         }

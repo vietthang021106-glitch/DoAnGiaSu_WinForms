@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using DoAnGiaSu_WinForms.Business;
@@ -56,7 +56,12 @@ namespace DoAnGiaSu_WinForms.GUI
                     }
                     else if (trangThai == "ChoDuyet")
                     {
-                        MessageBox.Show("Hồ sơ của bạn đang chờ Admin duyệt. Vui lòng quay lại sau!", "Thông báo");
+                        MessageBox.Show("Tài khoản của bạn đang chờ Admin phê duyệt. Vui lòng quay lại sau!", "Thông báo");
+                        return;
+                    }
+                    else if (trangThai == "TuChoi")
+                    {
+                        MessageBox.Show("Hồ sơ của bạn đã bị từ chối do không hợp lệ. Vui lòng liên hệ Admin (Hotline: 09xx.xxx.xxx) để được hỗ trợ!", "Thông báo");
                         return;
                     }
                     else if (trangThai == "DaDuyet")
@@ -66,7 +71,7 @@ namespace DoAnGiaSu_WinForms.GUI
                     }
                     else
                     {
-                        MessageBox.Show("Trạng thái tài khoản không hợp lệ hoặc bị từ chối.", "Thông báo");
+                        MessageBox.Show("Trạng thái tài khoản không hợp lệ.", "Thông báo");
                         return;
                     }
                 }

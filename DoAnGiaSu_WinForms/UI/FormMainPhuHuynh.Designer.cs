@@ -1,4 +1,4 @@
-﻿namespace DoAnGiaSu_WinForms.GUI
+namespace DoAnGiaSu_WinForms.GUI
 {
     partial class FormMainPhuHuynh
     {
@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            btnDanhGia = new System.Windows.Forms.Button();
             panel1 = new System.Windows.Forms.Panel();
             panelSidebar = new System.Windows.Forms.Panel();
             btnDangBaiMoi = new System.Windows.Forms.Button();
@@ -149,7 +148,6 @@
             tabPage1.Controls.Add(flpBaiDangCuaToi);
             tabPage1.Controls.Add(btnTaiLai);
             tabPage1.Controls.Add(btnDuyetGiaSu);
-            tabPage1.Controls.Add(btnDanhGia);
             tabPage1.Location = new System.Drawing.Point(4, 5);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new System.Windows.Forms.Padding(3);
@@ -198,24 +196,6 @@
             btnDuyetGiaSu.Text = "Xem/Duyệt Gia Sư";
             btnDuyetGiaSu.UseVisualStyleBackColor = false;
             // 
-            // btnDanhGia
-            // 
-            btnDanhGia.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-            btnDanhGia.BackColor = System.Drawing.Color.FromArgb(111, 66, 193);
-            btnDanhGia.Enabled = false;
-            btnDanhGia.FlatAppearance.BorderSize = 0;
-            btnDanhGia.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            btnDanhGia.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
-            btnDanhGia.ForeColor = System.Drawing.Color.White;
-            btnDanhGia.Location = new System.Drawing.Point(30, 600);
-            btnDanhGia.Name = "btnDanhGia";
-            btnDanhGia.Size = new System.Drawing.Size(160, 45);
-            btnDanhGia.TabIndex = 5;
-            btnDanhGia.Text = "Đánh giá Gia sư";
-            btnDanhGia.Visible = false;
-            btnDanhGia.UseVisualStyleBackColor = false;
-            btnDanhGia.Click += btnDanhGia_Click;
-            // 
             // tabPage2
             // 
             tabPage2.BackColor = System.Drawing.Color.Transparent;
@@ -255,11 +235,8 @@
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.FlowLayoutPanel flpBaiDangCuaToi;
-        private System.Windows.Forms.Button btnXoaBai;
         private System.Windows.Forms.Button btnTaiLai;
-        private System.Windows.Forms.Button btnSuaBai;
         private System.Windows.Forms.Button btnDangXuat;
         private System.Windows.Forms.Button btnDuyetGiaSu;
-        private System.Windows.Forms.Button btnDanhGia;
     }
 }

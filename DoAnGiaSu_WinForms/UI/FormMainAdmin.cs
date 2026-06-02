@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Drawing;
 using System.Collections.Generic;
@@ -264,7 +264,7 @@ namespace DoAnGiaSu_WinForms.GUI
                             }
                         }
                     }
-                    card.XemAnhClicked += (_, _) => XemAnhChuyenKhoan(card.MaBaiDang);
+
                     card.TuChoiBillClicked += (_, _) => TuChoiHoaHong(card.MaBaiDang);
                     card.XacNhanClicked += (_, _) => XacNhanHoaHong(card.MaBaiDang);
                     card.MinimumSize = new Size(330, 300);
@@ -310,22 +310,7 @@ namespace DoAnGiaSu_WinForms.GUI
             flpHoaHong.ResumeLayout();
         }
 
-        private void XemAnhChuyenKhoan(int maBD)
-        {
-            byte[] anh = baiDangService.LayAnhChuyenKhoanTheoBaiDang(maBD);
-            if (anh == null || anh.Length == 0)
-            {
-                MessageBox.Show("Gia sư chưa tải ảnh chuyển khoản lên!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
 
-            Form frm = new Form { Text = "Xem Ảnh Chuyển Khoản", Size = new Size(600, 800), StartPosition = FormStartPosition.CenterScreen };
-            PictureBox pic = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom };
-            using MemoryStream ms = new MemoryStream(anh);
-            pic.Image = Image.FromStream(ms);
-            frm.Controls.Add(pic);
-            frm.ShowDialog();
-        }
 
         private void XacNhanHoaHong(int maBD)
         {

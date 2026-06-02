@@ -1,4 +1,4 @@
-﻿namespace DoAnGiaSu_WinForms.GUI
+namespace DoAnGiaSu_WinForms.GUI
 {
     partial class FormCapNhatGiaSu
     {

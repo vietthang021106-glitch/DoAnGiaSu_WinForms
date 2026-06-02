@@ -32,6 +32,7 @@ namespace DoAnGiaSu_WinForms.GUI
         private readonly Panel pnlImageStack;
         private readonly Panel pnlContent;
         private readonly Label[] infoLabels;
+        private readonly Label lblTrangThai;
 
         public event EventHandler DuyetClicked;
         public event EventHandler TuChoiClicked;
@@ -65,13 +66,24 @@ namespace DoAnGiaSu_WinForms.GUI
             lblMaGS = new Label
             {
                 Text = "Mã GS: ",
-                AutoSize = false,
+                AutoSize = true,
                 ForeColor = Color.Gray,
                 Font = new Font("Segoe UI", 9F),
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.Left,
                 TextAlign = ContentAlignment.MiddleLeft,
                 Padding = new Padding(10, 3, 10, 3)
             };
+            lblTrangThai = new Label
+            {
+                AutoSize = true,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                Dock = DockStyle.Right,
+                TextAlign = ContentAlignment.MiddleRight,
+                Padding = new Padding(3, 3, 10, 3)
+            };
+            var pnlTopGS = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0) };
+            pnlTopGS.Controls.Add(lblTrangThai);
+            pnlTopGS.Controls.Add(lblMaGS);
 
             pnlContent = new Panel
             {
@@ -138,13 +150,17 @@ namespace DoAnGiaSu_WinForms.GUI
                 Padding = new Padding(0)
             };
             tblImages.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tblImages.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
-            tblImages.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
-            tblImages.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
+            tblImages.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
+            tblImages.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
+            tblImages.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
 
             picThe = CreatePictureBox();
             picBangDiem = CreatePictureBox();
             picChungChi = CreatePictureBox();
+
+            picThe.Click += XemAnh_Click;
+            picBangDiem.Click += XemAnh_Click;
+            picChungChi.Click += XemAnh_Click;
 
             tblImages.Controls.Add(picThe, 0, 0);
             tblImages.Controls.Add(picBangDiem, 0, 1);
@@ -191,7 +207,7 @@ namespace DoAnGiaSu_WinForms.GUI
             flpButtons.Controls.Add(btnTuChoi);
             flpButtons.Controls.Add(btnDuyet);
 
-            tlpRoot.Controls.Add(lblMaGS, 0, 0);
+            tlpRoot.Controls.Add(pnlTopGS, 0, 0);
             tlpRoot.Controls.Add(pnlContent, 0, 1);
             tlpRoot.Controls.Add(flpButtons, 0, 2);
 
@@ -222,8 +238,30 @@ namespace DoAnGiaSu_WinForms.GUI
                 SizeMode = PictureBoxSizeMode.Zoom,
                 BackColor = Color.WhiteSmoke,
                 Dock = DockStyle.Fill,
-                Margin = new Padding(4)
+                Margin = new Padding(3),
+                Cursor = Cursors.Hand
             };
+        }
+
+        private void XemAnh_Click(object sender, EventArgs e)
+        {
+            if (sender is PictureBox pb && pb.Image != null)
+            {
+                Form frm = new Form
+                {
+                    Text = "Xem ảnh chi tiết",
+                    Size = new Size(800, 600),
+                    StartPosition = FormStartPosition.CenterScreen
+                };
+                PictureBox pic = new PictureBox
+                {
+                    Dock = DockStyle.Fill,
+                    SizeMode = PictureBoxSizeMode.Zoom,
+                    Image = pb.Image
+                };
+                frm.Controls.Add(pic);
+                frm.ShowDialog();
+            }
         }
 
         private static Button CreateButton(string text, Color backColor, Color foreColor)
@@ -306,16 +344,35 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             set
             {
-                if (value == "DaDuyet")
+                if (string.IsNullOrWhiteSpace(value) || value == "ChoDuyet" || value == "Chờ duyệt")
+                {
+                    lblTrangThai.Text = "Chờ duyệt";
+                    lblTrangThai.ForeColor = Color.Orange;
+                }
+                else if (value == "DaDuyet" || value == "Đã duyệt")
+                {
+                    lblTrangThai.Text = "Đã duyệt";
+                    lblTrangThai.ForeColor = Color.Green;
+                }
+                else if (value == "TuChoi" || value == "Từ chối")
+                {
+                    lblTrangThai.Text = "Đã từ chối";
+                    lblTrangThai.ForeColor = Color.Red;
+                }
+                
+                if (value == "DaDuyet" || value == "TuChoi" || value == "Đã duyệt" || value == "Từ chối")
                 {
                     btnDuyet.Visible = false;
                     btnTuChoi.Visible = false;
+                    btnXoa.Visible = true;
                 }
                 else
                 {
                     btnDuyet.Visible = true;
                     btnTuChoi.Visible = true;
+                    btnXoa.Visible = false;
                 }
+                flpButtons.PerformLayout();
             }
         }
 

@@ -19,6 +19,7 @@ namespace DoAnGiaSu_WinForms.GUI
         private Button btnXemDuyet;
         private Button btnSua;
         private Button btnXoa;
+        private Button btnDanhGia;
         private FlowLayoutPanel flpBody;
         private Panel pnlHeader;
         private Panel pnlFooter;
@@ -58,6 +59,7 @@ namespace DoAnGiaSu_WinForms.GUI
         public event EventHandler XemDuyetClicked;
         public event EventHandler SuaClicked;
         public event EventHandler XoaClicked;
+        public event EventHandler DanhGiaClicked;
 
         public ucCardBaiDangPH()
         {
@@ -256,9 +258,25 @@ namespace DoAnGiaSu_WinForms.GUI
             btnXemDuyet.FlatAppearance.BorderSize = 0;
             btnXemDuyet.Click += BtnXemDuyet_Click;
 
+            btnDanhGia = new Button
+            {
+                Text = "Đánh giá",
+                Size = new Size(80, 30),
+                BackColor = Color.Purple,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                Margin = new Padding(5, 5, 5, 5),
+                TabIndex = 3,
+                Visible = false
+            };
+            btnDanhGia.FlatAppearance.BorderSize = 0;
+            btnDanhGia.Click += BtnDanhGia_Click;
+
             flpFooterButtons.Controls.Add(btnXoa);
             flpFooterButtons.Controls.Add(btnSua);
             flpFooterButtons.Controls.Add(btnXemDuyet);
+            flpFooterButtons.Controls.Add(btnDanhGia);
 
             pnlFooter.Controls.Add(flpFooterButtons);
 
@@ -281,6 +299,16 @@ namespace DoAnGiaSu_WinForms.GUI
         private void BtnXoa_Click(object sender, EventArgs e)
         {
             XoaClicked?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void BtnDanhGia_Click(object sender, EventArgs e)
+        {
+            DanhGiaClicked?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void HideBtnDanhGia()
+        {
+            if (btnDanhGia != null) btnDanhGia.Visible = false;
         }
 
         public void LoadData(int maBaiDang, string tenMon, string tenLop, string tenTrinhDo, string tenHinhThuc, 
@@ -339,6 +367,18 @@ namespace DoAnGiaSu_WinForms.GUI
                     btnXemDuyet.Visible = true;
                     btnSua.Visible = true;
                     btnXoa.Visible = true;
+                }
+
+                if (btnDanhGia != null)
+                {
+                    if (trangThai == "DaGiao" && !new DoAnGiaSu_WinForms.Business.DanhGiaService().KiemTraDaDanhGia(maBaiDang))
+                    {
+                        btnDanhGia.Visible = true;
+                    }
+                    else
+                    {
+                        btnDanhGia.Visible = false;
+                    }
                 }
 
                 // Gán giá trị cho từng Label

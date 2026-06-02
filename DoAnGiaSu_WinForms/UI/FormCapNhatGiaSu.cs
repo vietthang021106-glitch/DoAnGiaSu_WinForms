@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -34,8 +34,7 @@ namespace DoAnGiaSu_WinForms.GUI
         private Label lblAnhChungChi;
         private Button btnChonAnhChungChi;
         private PictureBox picChungChi;
-        private Label lblGPA;
-        private TextBox txtGPA;
+
 
         private readonly DanhMucService danhMucService = new DanhMucService();
         private readonly PhuHuynhService phService = new PhuHuynhService();
@@ -300,7 +299,7 @@ namespace DoAnGiaSu_WinForms.GUI
                 if (laSV)
                 {
                     gs.MaNamHoc = cboNamHoc?.SelectedValue != null && int.TryParse(cboNamHoc.SelectedValue.ToString(), out int maNamHoc) ? maNamHoc : null;
-                    gs.DiemGPA = txtGPA?.Text.Trim();
+                    gs.DiemGPA = txtThanhTich?.Text.Trim();
                     gs.MaXepLoai = null;
                 }
                 else
@@ -390,8 +389,7 @@ namespace DoAnGiaSu_WinForms.GUI
             btnChonAnhChungChi.Click += btnChonAnhChungChi_Click;
             picChungChi = new PictureBox { BorderStyle = BorderStyle.FixedSingle, Location = new Point(170, 995), Size = new Size(290, 105), SizeMode = PictureBoxSizeMode.Zoom, BackColor = Color.White, Visible = true };
 
-            lblGPA = new Label { Text = "GPA", AutoSize = true, BackColor = Color.Transparent, Font = new Font("Segoe UI", 10.5F, FontStyle.Bold), ForeColor = Color.FromArgb(24, 33, 53), Location = new Point(60, 1130) };
-            txtGPA = new TextBox { Font = new Font("Segoe UI", 11F), BorderStyle = BorderStyle.FixedSingle, Location = new Point(60, 1160), Size = new Size(200, 32), Visible = false };
+
 
             pnl.Controls.Add(lblNamHoc);
             pnl.Controls.Add(cboNamHoc);
@@ -409,13 +407,12 @@ namespace DoAnGiaSu_WinForms.GUI
             pnl.Controls.Add(lblAnhChungChi);
             pnl.Controls.Add(btnChonAnhChungChi);
             pnl.Controls.Add(picChungChi);
-            pnl.Controls.Add(lblGPA);
-            pnl.Controls.Add(txtGPA);
+
 
             if (button1 != null)
-                button1.Location = new Point(60, 1220);
+                button1.Location = new Point(60, 1130);
 
-            pnl.Size = new Size(520, 1280);
+            pnl.Size = new Size(520, 1190);
             ClientSize = new Size(800, 920);
 
             LoadBoSungDanhMuc();
@@ -487,8 +484,7 @@ namespace DoAnGiaSu_WinForms.GUI
             if (cboNamHoc != null) cboNamHoc.Visible = laSV;
             if (lblThanhTich != null) lblThanhTich.Visible = laSV;
             if (txtThanhTich != null) txtThanhTich.Visible = laSV;
-            if (lblGPA != null) lblGPA.Visible = laSV;
-            if (txtGPA != null) txtGPA.Visible = laSV;
+
             if (lblXepLoai != null) lblXepLoai.Visible = !laSV;
             if (cboXepLoai != null) cboXepLoai.Visible = !laSV;
             if (lblAnhBangDiem != null) lblAnhBangDiem.Text = laSV ? "Ảnh Bảng điểm" : "Ảnh Bằng Tốt Nghiệp";

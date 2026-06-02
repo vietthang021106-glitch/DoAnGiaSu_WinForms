@@ -132,9 +132,7 @@ namespace DoAnGiaSu_WinForms.GUI
 
             LoadDataBaiDang();
 
-            btnDanhGia.Enabled = false;
-            btnDanhGia.Visible = false;
-
+            btnDuyetGiaSu.Enabled = false;
             btnDuyetGiaSu.Visible = false;
 
             if (btnQuanLyBai != null)
@@ -187,6 +185,7 @@ namespace DoAnGiaSu_WinForms.GUI
                     card.XemDuyetClicked += Card_XemDuyetClicked;
                     card.SuaClicked += Card_SuaClicked;
                     card.XoaClicked += Card_XoaClicked;
+                    card.DanhGiaClicked += Card_DanhGiaClicked;
 
                     flpBaiDangCuaToi.Controls.Add(card);
                 }
@@ -752,8 +751,23 @@ namespace DoAnGiaSu_WinForms.GUI
 
         private void btnDangXuat_Click(object sender, EventArgs e) => Close();
 
-        private void btnDanhGia_Click(object sender, EventArgs e)
+        private void Card_DanhGiaClicked(object sender, EventArgs e)
         {
+            if (sender is not ucCardBaiDangPH card) return;
+
+            int maBD = (int)card.Tag;
+            int maTK = tkDal.LayMaTKTuTen(_user);
+            int maPH = phService.LayMaPH(maTK);
+
+            List<DangKyNhanLop> listDangKy = baiDangService.LayDangKyNhanLopTheoBaiList(maBD);
+            DangKyNhanLop dk = listDangKy.FirstOrDefault(x => string.Equals(x.TrangThai, "DaDuyet", StringComparison.OrdinalIgnoreCase)) ?? listDangKy.FirstOrDefault();
+            if (dk == null) return;
+            
+            using FormDanhGia frm = new FormDanhGia(dk.MaGS, maPH, maBD);
+            if (frm.ShowDialog() == DialogResult.OK)
+            {
+                card.HideBtnDanhGia();
+            }
         }
 
         private static string ChuanHoaHienThiDiemChungChi(string giaTri)

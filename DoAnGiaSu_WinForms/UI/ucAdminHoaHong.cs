@@ -17,8 +17,8 @@ namespace DoAnGiaSu_WinForms.GUI
         private readonly Label lblTrangThai;
         private readonly Label lblMaGS;
         private readonly PictureBox picBill;
-        private readonly FlowLayoutPanel flpButtons;
-        private readonly Button btnXemAnh;
+        private readonly TableLayoutPanel tblButtons;
+
         private readonly Button btnTuChoiBill;
         private readonly Button btnXacNhan;
         private readonly FlowLayoutPanel flpMainContent;
@@ -27,7 +27,7 @@ namespace DoAnGiaSu_WinForms.GUI
         private readonly Panel pnlContent;
         private readonly Label[] contentLabels;
 
-        public event EventHandler XemAnhClicked;
+
         public event EventHandler TuChoiBillClicked;
         public event EventHandler XacNhanClicked;
 
@@ -60,13 +60,24 @@ namespace DoAnGiaSu_WinForms.GUI
             lblMaBaiDang = new Label
             {
                 Text = "Mã bài: ",
-                AutoSize = false,
+                AutoSize = true,
                 ForeColor = Color.Gray,
                 Font = new Font("Segoe UI", 9F),
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.Left,
                 TextAlign = ContentAlignment.MiddleLeft,
                 Padding = new Padding(10, 3, 10, 3)
             };
+            lblTrangThai = new Label
+            {
+                AutoSize = true,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                Dock = DockStyle.Right,
+                TextAlign = ContentAlignment.MiddleRight,
+                Padding = new Padding(3, 3, 10, 3)
+            };
+            var pnlTopHH = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0) };
+            pnlTopHH.Controls.Add(lblTrangThai);
+            pnlTopHH.Controls.Add(lblMaBaiDang);
 
             pnlContent = new Panel
             {
@@ -92,10 +103,9 @@ namespace DoAnGiaSu_WinForms.GUI
             lblMonHoc = CreateLabel(10F, FontStyle.Regular, Color.Black);
             lblMucLuong = CreateLabel(10F, FontStyle.Regular, Color.Black);
             lblHoaHong = CreateLabel(12F, FontStyle.Bold, Color.Red);
-            lblTrangThai = CreateLabel(10F, FontStyle.Regular, Color.DimGray);
             lblMaGS = CreateLabel(10F, FontStyle.Regular, Color.DimGray);
 
-            contentLabels = new[] { lblPhuHuynh, lblMonHoc, lblMucLuong, lblHoaHong, lblTrangThai, lblMaGS };
+            contentLabels = new[] { lblPhuHuynh, lblMonHoc, lblMucLuong, lblHoaHong, lblMaGS };
 
             flpMainContent.Controls.Add(lblPhuHuynh);
             flpMainContent.Controls.Add(lblMonHoc);
@@ -120,6 +130,7 @@ namespace DoAnGiaSu_WinForms.GUI
                 Dock = DockStyle.Fill,
                 Margin = new Padding(4)
             };
+            picBill.Click += XemAnh_Click;
             pnlImage.Controls.Add(picBill);
 
             tblBody = new TableLayoutPanel
@@ -138,32 +149,36 @@ namespace DoAnGiaSu_WinForms.GUI
 
             pnlContent.Controls.Add(tblBody);
 
-            flpButtons = new FlowLayoutPanel
+            tblButtons = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                FlowDirection = FlowDirection.RightToLeft,
-                WrapContents = false,
-                AutoSize = false,
+                ColumnCount = 2,
+                RowCount = 1,
                 Margin = new Padding(0),
-                Padding = new Padding(10, 10, 10, 10),
+                Padding = new Padding(0),
                 BackColor = Color.White
             };
+            tblButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tblButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
 
-            btnXemAnh = CreateButton("Xem ảnh", Color.FromArgb(108, 117, 125), Color.White);
+
             btnTuChoiBill = CreateButton("Từ chối", Color.Goldenrod, Color.White);
             btnXacNhan = CreateButton("Xác nhận", Color.DodgerBlue, Color.White);
 
-            btnXemAnh.Click += (_, _) => XemAnhClicked?.Invoke(this, EventArgs.Empty);
+
             btnTuChoiBill.Click += (_, _) => TuChoiBillClicked?.Invoke(this, EventArgs.Empty);
             btnXacNhan.Click += (_, _) => XacNhanClicked?.Invoke(this, EventArgs.Empty);
 
-            flpButtons.Controls.Add(btnXacNhan);
-            flpButtons.Controls.Add(btnTuChoiBill);
-            flpButtons.Controls.Add(btnXemAnh);
+            btnTuChoiBill.Anchor = AnchorStyles.None;
+            btnXacNhan.Anchor = AnchorStyles.None;
 
-            tlpRoot.Controls.Add(lblMaBaiDang, 0, 0);
+            tblButtons.Controls.Add(btnTuChoiBill, 0, 0);
+            tblButtons.Controls.Add(btnXacNhan, 1, 0);
+
+
+            tlpRoot.Controls.Add(pnlTopHH, 0, 0);
             tlpRoot.Controls.Add(pnlContent, 0, 1);
-            tlpRoot.Controls.Add(flpButtons, 0, 2);
+            tlpRoot.Controls.Add(tblButtons, 0, 2);
 
             Controls.Add(tlpRoot);
             UpdateContentLayout();
@@ -188,12 +203,12 @@ namespace DoAnGiaSu_WinForms.GUI
             var btn = new Button
             {
                 Text = text,
-                Size = new Size(80, 30),
-                Margin = new Padding(5),
+                Size = new Size(110, 32),
+                Margin = new Padding(3),
                 BackColor = backColor,
                 ForeColor = foreColor,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 8.5F, FontStyle.Bold)
+                Font = new Font("Segoe UI", 9.5F, FontStyle.Bold)
             };
             btn.FlatAppearance.BorderSize = 0;
             SetRoundedRegion(btn, 10);
@@ -289,12 +304,32 @@ namespace DoAnGiaSu_WinForms.GUI
             set => lblHoaHong.Text = $"Hoa hồng: {value}";
         }
 
+        private string _trangThaiGoc = "";
+
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string TrangThai
         {
-            get => lblTrangThai.Text;
-            set => lblTrangThai.Text = $"Trạng thái: {value}";
+            get => _trangThaiGoc;
+            set
+            {
+                _trangThaiGoc = value ?? "";
+                if (string.IsNullOrWhiteSpace(value) || value == "ChoDuyet" || value == "Chờ duyệt")
+                {
+                    lblTrangThai.Text = "Chờ duyệt";
+                    lblTrangThai.ForeColor = Color.Orange;
+                }
+                else if (value == "DaDuyet" || value == "Đã duyệt")
+                {
+                    lblTrangThai.Text = "Đã duyệt";
+                    lblTrangThai.ForeColor = Color.Green;
+                }
+                else if (value == "TuChoi" || value == "Từ chối")
+                {
+                    lblTrangThai.Text = "Đã từ chối";
+                    lblTrangThai.ForeColor = Color.Red;
+                }
+            }
         }
 
         [Browsable(false)]
@@ -337,6 +372,27 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             pictureBox.Image = image == null ? null : new Bitmap(image);
             pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
+        }
+
+        private void XemAnh_Click(object sender, EventArgs e)
+        {
+            if (sender is PictureBox pb && pb.Image != null)
+            {
+                Form frm = new Form
+                {
+                    Text = "Xem ảnh chi tiết",
+                    Size = new Size(800, 600),
+                    StartPosition = FormStartPosition.CenterScreen
+                };
+                PictureBox pic = new PictureBox
+                {
+                    Dock = DockStyle.Fill,
+                    SizeMode = PictureBoxSizeMode.Zoom,
+                    Image = pb.Image
+                };
+                frm.Controls.Add(pic);
+                frm.ShowDialog();
+            }
         }
     }
 }

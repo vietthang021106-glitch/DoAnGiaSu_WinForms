@@ -59,5 +59,17 @@ namespace DoAnGiaSu_WinForms.DataAccess
                 return dt;
             }
         }
+
+        public bool KiemTraDaDanhGia(int maBaiDang)
+        {
+            using (SqlConnection conn = db.GetConnection())
+            {
+                string query = "SELECT COUNT(*) FROM DANHGIA WHERE MaBaiDang = @MaBaiDang";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@MaBaiDang", maBaiDang);
+                conn.Open();
+                return (int)cmd.ExecuteScalar() > 0;
+            }
+        }
     }
 }

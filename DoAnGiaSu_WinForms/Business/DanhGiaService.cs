@@ -13,5 +13,7 @@ namespace DoAnGiaSu_WinForms.Business
         public DataTable LayDanhGiaTheoGiaSu(int maGS) => repository.LayDanhGiaTheoGiaSu(maGS);
 
         public DataTable LayThongKeDanhGiaGiaSu(int maGS) => repository.LayThongKeDanhGiaGiaSu(maGS);
+
+        public bool KiemTraDaDanhGia(int maBaiDang) => repository.KiemTraDaDanhGia(maBaiDang);
     }
 }
