@@ -41,7 +41,7 @@ namespace DoAnGiaSu_WinForms.GUI
 
         private void InitializeComponent()
         {
-            Size = new Size(420, 380);
+            Size = new Size(280, 380);
             BackColor = Color.White;
             BorderStyle = BorderStyle.FixedSingle;
 
@@ -119,7 +119,7 @@ namespace DoAnGiaSu_WinForms.GUI
             return new Label
             {
                 AutoSize = true,
-                MaximumSize = new Size(380, 0),
+                MaximumSize = new Size(240, 0),
                 Font = new Font("Segoe UI", size, style),
                 ForeColor = color,
                 Margin = new Padding(0, 3, 0, 3)

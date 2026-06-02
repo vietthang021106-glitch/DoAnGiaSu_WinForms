@@ -23,8 +23,7 @@ namespace DoAnGiaSu_WinForms.GUI
         private readonly PictureBox picThe;
         private readonly PictureBox picBangDiem;
         private readonly PictureBox picChungChi;
-        private readonly Panel pnlFooter;
-        private readonly TableLayoutPanel tblFooter;
+        private readonly FlowLayoutPanel flpButtons;
         private readonly Button btnDuyet;
         private readonly Button btnTuChoi;
         private readonly Button btnXoa;
@@ -61,7 +60,7 @@ namespace DoAnGiaSu_WinForms.GUI
             tlpRoot.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tlpRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
             tlpRoot.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tlpRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 45F));
+            tlpRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 55F));
 
             lblMaGS = new Label
             {
@@ -169,27 +168,16 @@ namespace DoAnGiaSu_WinForms.GUI
 
             pnlContent.Controls.Add(tblBody);
 
-            pnlFooter = new Panel
+            flpButtons = new FlowLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                Height = 45,
-                BackColor = Color.White,
+                FlowDirection = FlowDirection.RightToLeft,
+                WrapContents = false,
+                AutoSize = false,
                 Margin = new Padding(0),
-                Padding = new Padding(0)
+                Padding = new Padding(10, 10, 10, 10),
+                BackColor = Color.White
             };
-
-            tblFooter = new TableLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                ColumnCount = 3,
-                RowCount = 1,
-                BackColor = Color.White,
-                Margin = new Padding(0),
-                Padding = new Padding(10, 5, 10, 8)
-            };
-            tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
-            tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
-            tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.34F));
 
             btnDuyet = CreateButton("Duyệt", Color.DodgerBlue, Color.White);
             btnTuChoi = CreateButton("Từ chối", Color.Goldenrod, Color.White);
@@ -199,14 +187,13 @@ namespace DoAnGiaSu_WinForms.GUI
             btnTuChoi.Click += (_, _) => TuChoiClicked?.Invoke(this, EventArgs.Empty);
             btnXoa.Click += (_, _) => XoaClicked?.Invoke(this, EventArgs.Empty);
 
-            tblFooter.Controls.Add(btnDuyet, 0, 0);
-            tblFooter.Controls.Add(btnTuChoi, 1, 0);
-            tblFooter.Controls.Add(btnXoa, 2, 0);
-            pnlFooter.Controls.Add(tblFooter);
+            flpButtons.Controls.Add(btnXoa);
+            flpButtons.Controls.Add(btnTuChoi);
+            flpButtons.Controls.Add(btnDuyet);
 
             tlpRoot.Controls.Add(lblMaGS, 0, 0);
             tlpRoot.Controls.Add(pnlContent, 0, 1);
-            tlpRoot.Controls.Add(pnlFooter, 0, 2);
+            tlpRoot.Controls.Add(flpButtons, 0, 2);
 
             Controls.Add(tlpRoot);
             UpdateContentLayout();
@@ -244,15 +231,27 @@ namespace DoAnGiaSu_WinForms.GUI
             var btn = new Button
             {
                 Text = text,
-                Dock = DockStyle.Fill,
-                Height = 40,
+                Size = new Size(80, 30),
+                Margin = new Padding(5),
                 BackColor = backColor,
                 ForeColor = foreColor,
                 FlatStyle = FlatStyle.Flat,
-                Margin = new Padding(6, 0, 6, 0)
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
             };
             btn.FlatAppearance.BorderSize = 0;
+            SetRoundedRegion(btn, 10);
             return btn;
+        }
+
+        private static void SetRoundedRegion(Button btn, int radius)
+        {
+            System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
+            path.AddArc(0, 0, radius, radius, 180, 90);
+            path.AddArc(btn.Width - radius, 0, radius, radius, 270, 90);
+            path.AddArc(btn.Width - radius, btn.Height - radius, radius, radius, 0, 90);
+            path.AddArc(0, btn.Height - radius, radius, radius, 90, 90);
+            path.CloseFigure();
+            btn.Region = new Region(path);
         }
 
         private void UpdateContentLayout()
@@ -274,23 +273,6 @@ namespace DoAnGiaSu_WinForms.GUI
                 {
                     label.MaximumSize = new Size(contentWidth, 0);
                 }
-            }
-
-            if (tblFooter != null && !tblFooter.IsDisposed && btnDuyet != null && btnTuChoi != null && btnXoa != null)
-            {
-                int footerWidth = Math.Max(120, tblFooter.ClientSize.Width - tblFooter.Padding.Left - tblFooter.Padding.Right);
-                int totalMarginPerButton = btnDuyet.Margin.Left + btnDuyet.Margin.Right;
-                int availableForButtons = Math.Max(0, footerWidth - totalMarginPerButton * 3);
-                int minWidthForTuChoi = TextRenderer.MeasureText(btnTuChoi.Text, btnTuChoi.Font).Width + 20;
-                int buttonWidth = Math.Max(minWidthForTuChoi, availableForButtons / 3);
-                tblFooter.ColumnStyles.Clear();
-                tblFooter.ColumnCount = 3;
-                tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, buttonWidth));
-                tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, buttonWidth));
-                tblFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, buttonWidth));
-                btnDuyet.Dock = DockStyle.Fill;
-                btnTuChoi.Dock = DockStyle.Fill;
-                btnXoa.Dock = DockStyle.Fill;
             }
         }
 

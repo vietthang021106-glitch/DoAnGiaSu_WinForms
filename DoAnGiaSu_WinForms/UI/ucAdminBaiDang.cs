@@ -10,7 +10,7 @@ namespace DoAnGiaSu_WinForms.GUI
         private readonly TableLayoutPanel tlpRoot;
         private readonly Panel pnlContent;
         private readonly FlowLayoutPanel flpMainContent;
-        private readonly TableLayoutPanel tlpButtons;
+        private readonly FlowLayoutPanel flpButtons;
         private readonly Button btnXoa;
         private readonly Label lblMaBaiDang;
         private readonly Label lblMonHoc;
@@ -51,7 +51,7 @@ namespace DoAnGiaSu_WinForms.GUI
             tlpRoot.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tlpRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
             tlpRoot.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tlpRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 45F));
+            tlpRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 55F));
 
             pnlContent = new Panel
             {
@@ -114,36 +114,36 @@ namespace DoAnGiaSu_WinForms.GUI
 
             pnlContent.Controls.Add(flpMainContent);
 
-            tlpButtons = new TableLayoutPanel
+            flpButtons = new FlowLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                ColumnCount = 3,
-                RowCount = 1,
+                FlowDirection = FlowDirection.RightToLeft,
+                WrapContents = false,
+                AutoSize = false,
                 Margin = new Padding(0),
-                Padding = new Padding(10, 5, 10, 8),
+                Padding = new Padding(10, 10, 10, 10),
                 BackColor = Color.White
             };
-            tlpButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tlpButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80F));
-            tlpButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
 
             btnXoa = new Button
             {
-                Dock = DockStyle.Fill,
-                Margin = new Padding(0),
+                Text = "Xóa",
+                Size = new Size(80, 30),
                 BackColor = Color.Crimson,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Text = "Xóa"
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                Margin = new Padding(5)
             };
             btnXoa.FlatAppearance.BorderSize = 0;
+            SetRoundedRegion(btnXoa, 10);
             btnXoa.Click += (_, _) => OnXoaBaiDang();
 
-            tlpButtons.Controls.Add(btnXoa, 1, 0);
+            flpButtons.Controls.Add(btnXoa);
 
             tlpRoot.Controls.Add(lblMaBaiDang, 0, 0);
             tlpRoot.Controls.Add(pnlContent, 0, 1);
-            tlpRoot.Controls.Add(tlpButtons, 0, 2);
+            tlpRoot.Controls.Add(flpButtons, 0, 2);
 
             Controls.Add(tlpRoot);
             UpdateContentLayout();
@@ -162,6 +162,17 @@ namespace DoAnGiaSu_WinForms.GUI
                 TextAlign = ContentAlignment.MiddleLeft,
                 Text = prefix
             };
+        }
+
+        private static void SetRoundedRegion(Button btn, int radius)
+        {
+            System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
+            path.AddArc(0, 0, radius, radius, 180, 90);
+            path.AddArc(btn.Width - radius, 0, radius, radius, 270, 90);
+            path.AddArc(btn.Width - radius, btn.Height - radius, radius, radius, 0, 90);
+            path.AddArc(0, btn.Height - radius, radius, radius, 90, 90);
+            path.CloseFigure();
+            btn.Region = new Region(path);
         }
 
         private void UpdateContentLayout()

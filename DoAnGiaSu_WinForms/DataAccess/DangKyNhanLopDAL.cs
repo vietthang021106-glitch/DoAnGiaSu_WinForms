@@ -10,7 +10,7 @@ namespace DoAnGiaSu_WinForms.DataAccess
     {
         private readonly DBConnection db = new DBConnection();
 
-        public bool VuotGioiHan4Lop(SqlConnection conn, SqlTransaction tran, int maGS)
+        public bool VuotGioiHan3Lop(SqlConnection conn, SqlTransaction tran, int maGS)
         {
             string query = @"SELECT COUNT(*) 
                              FROM DANGKYNHANLOP DK
@@ -24,7 +24,7 @@ namespace DoAnGiaSu_WinForms.DataAccess
             using SqlCommand cmd = new SqlCommand(query, conn, tran);
             cmd.Parameters.Add(new SqlParameter("@MaGS", System.Data.SqlDbType.Int) { Value = maGS });
             int soLopDangChiemSlot = Convert.ToInt32(cmd.ExecuteScalar());
-            return soLopDangChiemSlot >= 4;
+            return soLopDangChiemSlot >= 3;
         }
 
         public bool GiaSuNhanLop(int maBD, int maGS)
@@ -34,9 +34,9 @@ namespace DoAnGiaSu_WinForms.DataAccess
             SqlTransaction tran = conn.BeginTransaction();
             try
             {
-                if (VuotGioiHan4Lop(conn, tran, maGS))
+                if (VuotGioiHan3Lop(conn, tran, maGS))
                 {
-                    throw new Exception($"Gia sư MaGS={maGS} đã vượt giới hạn 4 lớp trong 30 ngày");
+                    throw new Exception($"Gia sư MaGS={maGS} đã vượt giới hạn 3 lớp trong 30 ngày");
                 }
 
                 string queryCheck = @"SELECT COUNT(*)
@@ -89,9 +89,9 @@ namespace DoAnGiaSu_WinForms.DataAccess
             SqlTransaction tran = conn.BeginTransaction();
             try
             {
-                if (VuotGioiHan4Lop(conn, tran, maGS))
+                if (VuotGioiHan3Lop(conn, tran, maGS))
                 {
-                    throw new Exception($"Gia sư MaGS={maGS} đã vượt giới hạn 4 lớp trong 30 ngày");
+                    throw new Exception($"Gia sư MaGS={maGS} đã vượt giới hạn 3 lớp trong 30 ngày");
                 }
 
                 string queryDuyet = @"UPDATE DANGKYNHANLOP

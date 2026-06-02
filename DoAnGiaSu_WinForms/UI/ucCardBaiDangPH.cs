@@ -34,7 +34,12 @@ namespace DoAnGiaSu_WinForms.GUI
         private string _trangThai;
         private string _tenQuan;
 
-        // Public properties
+        private int _maQuan;
+        private int _maTrinhDo;
+        private int _maMon;
+        private int _maLop;
+        private int _maHinhThuc;
+
         public string TenMonHoc => _tenMonHoc;
         public string TenLop => _tenLop;
         public string TenTrinhDo => _tenTrinhDo;
@@ -44,6 +49,11 @@ namespace DoAnGiaSu_WinForms.GUI
         public string YeuCauThem => _yeuCauThem;
         public string TrangThaiStr => _trangThai;
         public string TenQuan => _tenQuan;
+        public int MaQuan => _maQuan;
+        public int MaTrinhDo => _maTrinhDo;
+        public int MaMon => _maMon;
+        public int MaLop => _maLop;
+        public int MaHinhThuc => _maHinhThuc;
 
         public event EventHandler XemDuyetClicked;
         public event EventHandler SuaClicked;
@@ -274,7 +284,8 @@ namespace DoAnGiaSu_WinForms.GUI
         }
 
         public void LoadData(int maBaiDang, string tenMon, string tenLop, string tenTrinhDo, string tenHinhThuc, 
-                            string mucLuong, string soNhaDuong, string yeuCauThem, string trangThai, string tenQuan = "")
+                            string mucLuong, string soNhaDuong, string yeuCauThem, string trangThai, string tenQuan = "",
+                            int maQuan = 0, int maTrinhDo = 0, int maMon = 0, int maLop = 0, int maHinhThuc = 0)
         {
             try
             {
@@ -288,6 +299,11 @@ namespace DoAnGiaSu_WinForms.GUI
                 _yeuCauThem = yeuCauThem;
                 _trangThai = trangThai;
                 _tenQuan = tenQuan;
+                _maQuan = maQuan;
+                _maTrinhDo = maTrinhDo;
+                _maMon = maMon;
+                _maLop = maLop;
+                _maHinhThuc = maHinhThuc;
 
                 this.Tag = maBaiDang;
 
@@ -306,24 +322,20 @@ namespace DoAnGiaSu_WinForms.GUI
                 else
                     lblTrangThai.ForeColor = Color.Black;
 
-                // ========== LOGIC ẨN/HIỆN NÚT DỰA TRÊN TRẠNG THÁI ==========
                 if (trangThai == "ChuaGiao")
                 {
-                    // Chưa giao: Hiển thị cả 3 nút (cho phép sửa/xóa)
-                    btnXemDuyet.Visible = true;
+                    btnXemDuyet.Visible = false;
                     btnSua.Visible = true;
                     btnXoa.Visible = true;
                 }
                 else if (trangThai == "DangGiaoDich" || trangThai == "DaGiao" || trangThai == "ChoPhuHuynhDuyet")
                 {
-                    // Đang giao dịch, đã giao, hoặc chờ phụ huynh duyệt: Chỉ hiển thị nút Xem (không cho sửa/xóa)
                     btnXemDuyet.Visible = true;
                     btnSua.Visible = false;
                     btnXoa.Visible = false;
                 }
                 else
                 {
-                    // Các trạng thái khác: Hiển thị đủ 3 nút
                     btnXemDuyet.Visible = true;
                     btnSua.Visible = true;
                     btnXoa.Visible = true;

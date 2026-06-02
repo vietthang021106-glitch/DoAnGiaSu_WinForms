@@ -26,7 +26,7 @@ namespace DoAnGiaSu_WinForms.GUI
 
         private void InitializeComponent()
         {
-            this.Size = new Size(380, 320);
+            this.Size = new Size(280, 320);
             this.BackColor = Color.White;
             this.BorderStyle = BorderStyle.FixedSingle;
 
@@ -57,7 +57,7 @@ namespace DoAnGiaSu_WinForms.GUI
             lblMonHoc = new Label
             {
                 AutoSize = true,
-                MaximumSize = new Size(340, 0),
+                MaximumSize = new Size(240, 0),
                 Font = new Font("Segoe UI", 10F),
                 ForeColor = Color.Black,
                 Margin = new Padding(0, 3, 0, 3)
@@ -66,7 +66,7 @@ namespace DoAnGiaSu_WinForms.GUI
             lblLop = new Label
             {
                 AutoSize = true,
-                MaximumSize = new Size(340, 0),
+                MaximumSize = new Size(240, 0),
                 Font = new Font("Segoe UI", 10F, FontStyle.Bold),
                 ForeColor = Color.Navy,
                 Margin = new Padding(0, 3, 0, 3)
@@ -75,7 +75,7 @@ namespace DoAnGiaSu_WinForms.GUI
             lblHinhThuc = new Label
             {
                 AutoSize = true,
-                MaximumSize = new Size(340, 0),
+                MaximumSize = new Size(240, 0),
                 Font = new Font("Segoe UI", 10F),
                 ForeColor = Color.Black,
                 Margin = new Padding(0, 3, 0, 3)
@@ -84,7 +84,7 @@ namespace DoAnGiaSu_WinForms.GUI
             lblKhuVuc = new Label
             {
                 AutoSize = true,
-                MaximumSize = new Size(340, 0),
+                MaximumSize = new Size(240, 0),
                 Font = new Font("Segoe UI", 10F),
                 ForeColor = Color.Black,
                 Margin = new Padding(0, 3, 0, 3)
@@ -93,7 +93,7 @@ namespace DoAnGiaSu_WinForms.GUI
             lblYeuCau = new Label
             {
                 AutoSize = true,
-                MaximumSize = new Size(340, 0),
+                MaximumSize = new Size(240, 0),
                 Font = new Font("Segoe UI", 10F),
                 ForeColor = Color.DarkRed,
                 Margin = new Padding(0, 3, 0, 3)

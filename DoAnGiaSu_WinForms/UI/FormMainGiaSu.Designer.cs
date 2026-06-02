@@ -1,4 +1,4 @@
-﻿namespace DoAnGiaSu_WinForms.GUI
+namespace DoAnGiaSu_WinForms.GUI
 {
     partial class FormMainGiaSu
     {
@@ -150,14 +150,14 @@
             tabPage1.Controls.Add(panelFilter);
             tabPage1.Location = new System.Drawing.Point(4, 5);
             tabPage1.Name = "tabPage1";
-            tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            tabPage1.Padding = new System.Windows.Forms.Padding(30, 20, 30, 30);
             tabPage1.Size = new System.Drawing.Size(942, 691);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Lớp mới";
             // 
             // panelFilter
             // 
-            panelFilter.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            panelFilter.Dock = System.Windows.Forms.DockStyle.Top;
             panelFilter.BackColor = System.Drawing.Color.FromArgb(245, 248, 252);
             panelFilter.Controls.Add(tlpFilter);
             panelFilter.Location = new System.Drawing.Point(30, 20);
@@ -323,7 +323,7 @@
             // 
             // flpTimLop
             // 
-            flpTimLop.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            flpTimLop.Dock = System.Windows.Forms.DockStyle.Fill;
             flpTimLop.AutoScroll = true;
             flpTimLop.BackColor = System.Drawing.Color.White;
             flpTimLop.Location = new System.Drawing.Point(30, 100);
@@ -337,19 +337,19 @@
             tabPage2.Controls.Add(flpLopDaNhan);
             tabPage2.Location = new System.Drawing.Point(4, 5);
             tabPage2.Name = "tabPage2";
-            tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            tabPage2.Padding = new System.Windows.Forms.Padding(30);
             tabPage2.Size = new System.Drawing.Size(942, 691);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Lớp đã nhận";
             // 
             // flpLopDaNhan
             // 
-            flpLopDaNhan.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            flpLopDaNhan.Dock = System.Windows.Forms.DockStyle.Fill;
             flpLopDaNhan.AutoScroll = true;
             flpLopDaNhan.BackColor = System.Drawing.Color.White;
-            flpLopDaNhan.Location = new System.Drawing.Point(30, 30);
+            flpLopDaNhan.Location = new System.Drawing.Point(3, 3);
             flpLopDaNhan.Name = "flpLopDaNhan";
-            flpLopDaNhan.Size = new System.Drawing.Size(880, 630);
+            flpLopDaNhan.Size = new System.Drawing.Size(936, 685);
             flpLopDaNhan.TabIndex = 0;
             // 
             // FormMainGiaSu

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
@@ -21,6 +21,16 @@ namespace DoAnGiaSu_WinForms.GUI
         private bool _isEmbedded = false;
         private DataTable _dsLopHocGoc;
         private bool _dangLocLop;
+        
+        private int _editMaMon = 0;
+        private int _editMaLop = 0;
+        private int _editMaQuan = 0;
+        private int _editMaTrinhDo = 0;
+        private int _editMaHinhThuc = 0;
+        private string _editLuong = "";
+        private string _editDiaChi = "";
+        private string _editGhiChu = "";
+        private bool _isLoaded = false;
 
         [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
         public bool IsEmbedded
@@ -141,32 +151,40 @@ namespace DoAnGiaSu_WinForms.GUI
             control.Region = new Region(path);
         }
 
-        private void FormDangBai_Load(object sender, EventArgs e)
+        private async void FormDangBai_Load(object sender, EventArgs e)
         {
             try
             {
-                cboMonHoc.DataSource = danhMucService.LayMonHoc();
+                var dtMon = await System.Threading.Tasks.Task.Run(() => danhMucService.LayMonHoc());
+                cboMonHoc.DataSource = dtMon;
                 cboMonHoc.DisplayMember = "TenMon";
                 cboMonHoc.ValueMember = "MaMon";
 
-                _dsLopHocGoc = danhMucService.LayLopHoc();
+                _dsLopHocGoc = await System.Threading.Tasks.Task.Run(() => danhMucService.LayLopHoc());
                 cboLopHoc.DataSource = _dsLopHocGoc;
                 cboLopHoc.DisplayMember = "TenLop";
                 cboLopHoc.ValueMember = "MaLop";
 
-                cboHinhThuc.DataSource = danhMucService.LayHinhThuc();
+                var dtHinhThuc = await System.Threading.Tasks.Task.Run(() => danhMucService.LayHinhThuc());
+                cboHinhThuc.DataSource = dtHinhThuc;
                 cboHinhThuc.DisplayMember = "TenHinhThuc";
                 cboHinhThuc.ValueMember = "MaHinhThuc";
 
-                LayDanhSachQuan();
+                var dtQuan = await System.Threading.Tasks.Task.Run(() => danhMucService.LayQuanHuyen());
+                cmbQuan.DataSource = dtQuan;
+                cmbQuan.DisplayMember = "TenQuan";
+                cmbQuan.ValueMember = "MaQuan";
 
-                cmbYeuCauTrinhDo.DataSource = danhMucService.LayTrinhDo();
+                var dtTrinhDo = await System.Threading.Tasks.Task.Run(() => danhMucService.LayTrinhDo());
+                cmbYeuCauTrinhDo.DataSource = dtTrinhDo;
                 cmbYeuCauTrinhDo.DisplayMember = "TenTrinhDo";
                 cmbYeuCauTrinhDo.ValueMember = "MaTrinhDo";
 
                 cboMonHoc.SelectedIndexChanged -= cboMonHoc_SelectedIndexChanged;
                 cboMonHoc.SelectedIndexChanged += cboMonHoc_SelectedIndexChanged;
-                LocDanhSachLopTheoMon();
+                
+                _isLoaded = true;
+                ApplyEditData();
             }
             catch (Exception ex)
             {
@@ -343,21 +361,61 @@ namespace DoAnGiaSu_WinForms.GUI
             return sb.ToString().Normalize(NormalizationForm.FormC);
         }
 
-        public void LoadDataForEdit(int maBD, string tenMon, string tenLop, string hinhThuc, string luong, string diaChi, string ghiChu)
+        public void LoadDataForEdit(int maBD, int maMon, int maLop, int maQuan, int maTrinhDo, int maHinhThuc, string luong, string diaChi, string ghiChu)
         {
             MaBaiDangEdit = maBD;
-            cboMonHoc.Text = tenMon;
-            cboLopHoc.Text = tenLop;
-            cboHinhThuc.Text = hinhThuc;
-            txtHocPhi.Text = luong;
-            txtDiaChiDay.Text = diaChi;
-            txtGhiChu.Text = ghiChu;
+            _editMaMon = maMon;
+            _editMaLop = maLop;
+            _editMaQuan = maQuan;
+            _editMaTrinhDo = maTrinhDo;
+            _editMaHinhThuc = maHinhThuc;
+            _editLuong = luong;
+            _editDiaChi = diaChi;
+            _editGhiChu = ghiChu;
 
             btnXacNhanDang.Text = "Cập Nhật Bài Đăng";
             if (this.Controls.ContainsKey("panel1") && this.Controls["panel1"].Controls.ContainsKey("labelTitle"))
             {
                 this.Controls["panel1"].Controls["labelTitle"].Text = "CẬP NHẬT BÀI ĐĂNG";
             }
+            
+            if (_isLoaded)
+            {
+                ApplyEditData();
+            }
+        }
+
+        private void ApplyEditData()
+        {
+            if (MaBaiDangEdit <= 0) 
+            {
+                LocDanhSachLopTheoMon();
+                return;
+            }
+
+            cboMonHoc.SelectedIndexChanged -= cboMonHoc_SelectedIndexChanged;
+
+            if (_editMaMon > 0)
+            {
+                cboMonHoc.SelectedValue = _editMaMon;
+            }
+
+            LocDanhSachLopTheoMon();
+
+            if (_editMaLop > 0)
+            {
+                cboLopHoc.SelectedValue = _editMaLop;
+            }
+
+            if (_editMaHinhThuc > 0) cboHinhThuc.SelectedValue = _editMaHinhThuc;
+            if (_editMaQuan > 0) cmbQuan.SelectedValue = _editMaQuan;
+            if (_editMaTrinhDo > 0) cmbYeuCauTrinhDo.SelectedValue = _editMaTrinhDo;
+
+            txtHocPhi.Text = _editLuong;
+            txtDiaChiDay.Text = _editDiaChi;
+            txtGhiChu.Text = _editGhiChu;
+
+            cboMonHoc.SelectedIndexChanged += cboMonHoc_SelectedIndexChanged;
         }
 
         public void ResetForm()
@@ -451,17 +509,6 @@ namespace DoAnGiaSu_WinForms.GUI
 
         public void LayDanhSachQuan()
         {
-            try
-            {
-                var dt = danhMucService.LayQuanHuyen();
-                cmbQuan.DataSource = dt;
-                cmbQuan.DisplayMember = "TenQuan";
-                cmbQuan.ValueMember = "MaQuan";
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi load danh sách quận: " + ex.Message);
-            }
         }
     }
 }

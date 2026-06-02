@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -31,6 +31,9 @@ namespace DoAnGiaSu_WinForms.GUI
             FormClosed += FormMainGiaSu_FormClosed;
             AttachSizeChangedHandlers(this);
             ApplyRoundedStyle();
+            
+            flpLopDaNhan.SizeChanged += FlpLopDaNhan_SizeChanged;
+            flpTimLop.SizeChanged += FlpTimLop_SizeChanged;
         }
 
         private void CenterPanel()
@@ -275,6 +278,7 @@ namespace DoAnGiaSu_WinForms.GUI
                 card.DangKyClicked += Card_DangKyClicked;
                 flpTimLop.Controls.Add(card);
             }
+            FlpTimLop_SizeChanged(null, null);
         }
 
         private void Card_DangKyClicked(object sender, int maLop)
@@ -367,6 +371,7 @@ namespace DoAnGiaSu_WinForms.GUI
                     }
                     flpLopDaNhan.Controls.Add(card);
                 }
+                FlpLopDaNhan_SizeChanged(null, null);
             }
             catch (Exception ex)
             {
@@ -411,6 +416,46 @@ namespace DoAnGiaSu_WinForms.GUI
                     return;
                 }
             }
+        }
+
+        private void FlpLopDaNhan_SizeChanged(object sender, EventArgs e)
+        {
+            if (flpLopDaNhan.Controls.Count == 0) return;
+            int fixedColumns = 5;
+            int targetWidth = (flpLopDaNhan.ClientSize.Width - flpLopDaNhan.Padding.Horizontal - (fixedColumns * 12)) / fixedColumns;
+            if (targetWidth < 250) targetWidth = 250;
+            
+            flpLopDaNhan.SuspendLayout();
+            foreach (Control ctrl in flpLopDaNhan.Controls)
+            {
+                if (ctrl is ucCardLopDaNhan card)
+                {
+                    card.MinimumSize = new System.Drawing.Size(targetWidth, card.Height);
+                    card.MaximumSize = new System.Drawing.Size(targetWidth, card.Height);
+                    card.Width = targetWidth;
+                }
+            }
+            flpLopDaNhan.ResumeLayout();
+        }
+
+        private void FlpTimLop_SizeChanged(object sender, EventArgs e)
+        {
+            if (flpTimLop.Controls.Count == 0) return;
+            int fixedColumns = 5;
+            int targetWidth = (flpTimLop.ClientSize.Width - flpTimLop.Padding.Horizontal - (fixedColumns * 12)) / fixedColumns;
+            if (targetWidth < 250) targetWidth = 250;
+            
+            flpTimLop.SuspendLayout();
+            foreach (Control ctrl in flpTimLop.Controls)
+            {
+                if (ctrl is ucCardTimLop card)
+                {
+                    card.MinimumSize = new System.Drawing.Size(targetWidth, card.Height);
+                    card.MaximumSize = new System.Drawing.Size(targetWidth, card.Height);
+                    card.Width = targetWidth;
+                }
+            }
+            flpTimLop.ResumeLayout();
         }
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -172,12 +172,17 @@ namespace DoAnGiaSu_WinForms.GUI
                     string yeuCauThem = row["YeuCauThem"]?.ToString() ?? "";
                     string trangThai = row["TrangThai"]?.ToString() ?? "";
                     string tenQuan = row["TenQuan"]?.ToString() ?? "Chưa xác định";
+                    int maQuan = row.Table.Columns.Contains("MaQuan") && row["MaQuan"] != DBNull.Value ? Convert.ToInt32(row["MaQuan"]) : 0;
+                    int maTrinhDo = row.Table.Columns.Contains("YeuCauTrinhDo") && row["YeuCauTrinhDo"] != DBNull.Value ? Convert.ToInt32(row["YeuCauTrinhDo"]) : 0;
+                    int maMon = row.Table.Columns.Contains("MaMon") && row["MaMon"] != DBNull.Value ? Convert.ToInt32(row["MaMon"]) : 0;
+                    int maLop = row.Table.Columns.Contains("MaLop") && row["MaLop"] != DBNull.Value ? Convert.ToInt32(row["MaLop"]) : 0;
+                    int maHinhThuc = row.Table.Columns.Contains("MaHinhThuc") && row["MaHinhThuc"] != DBNull.Value ? Convert.ToInt32(row["MaHinhThuc"]) : 0;
 
                     if (decimal.TryParse(mucLuong, out decimal luongDec))
                         mucLuong = Math.Round(luongDec, 0).ToString();
 
                     ucCardBaiDangPH card = new ucCardBaiDangPH();
-                    card.LoadData(maBaiDang, tenMon, tenLop, tenTrinhDo, tenHinhThuc, mucLuong, soNhaDuong, yeuCauThem, trangThai, tenQuan);
+                    card.LoadData(maBaiDang, tenMon, tenLop, tenTrinhDo, tenHinhThuc, mucLuong, soNhaDuong, yeuCauThem, trangThai, tenQuan, maQuan, maTrinhDo, maMon, maLop, maHinhThuc);
 
                     card.XemDuyetClicked += Card_XemDuyetClicked;
                     card.SuaClicked += Card_SuaClicked;
@@ -307,7 +312,7 @@ namespace DoAnGiaSu_WinForms.GUI
                     {
                         Dock = DockStyle.Fill,
                         FlowDirection = FlowDirection.TopDown,
-                        AutoScroll = true,
+                        AutoScroll = false,
                         AutoSize = false,
                         AutoSizeMode = AutoSizeMode.GrowAndShrink,
                         WrapContents = false,
@@ -319,7 +324,7 @@ namespace DoAnGiaSu_WinForms.GUI
                     Label lblHoTen = new Label
                     {
                         AutoSize = true,
-                        MaximumSize = new Size(300, 0),
+                        MaximumSize = new Size(380, 0),
                         Font = new Font("Segoe UI", 14F, FontStyle.Bold),
                         ForeColor = Color.FromArgb(24, 33, 53),
                         Margin = new Padding(0, 0, 0, 6),
@@ -329,7 +334,7 @@ namespace DoAnGiaSu_WinForms.GUI
                     Label lblSDT = new Label
                     {
                         AutoSize = true,
-                        MaximumSize = new Size(300, 0),
+                        MaximumSize = new Size(380, 0),
                         Font = new Font("Segoe UI", 10.5F, FontStyle.Bold),
                         Margin = new Padding(0, 0, 0, 2)
                     };
@@ -367,7 +372,7 @@ namespace DoAnGiaSu_WinForms.GUI
                     Label lblThongTinCaNhan = new Label
                     {
                         AutoSize = true,
-                        MaximumSize = new Size(300, 0),
+                        MaximumSize = new Size(380, 0),
                         Font = new Font("Segoe UI", 10F),
                         ForeColor = Color.Black,
                         Margin = new Padding(0, 2, 0, 2),
@@ -377,7 +382,7 @@ namespace DoAnGiaSu_WinForms.GUI
                     Label lblHocVan = new Label
                     {
                         AutoSize = true,
-                        MaximumSize = new Size(300, 0),
+                        MaximumSize = new Size(380, 0),
                         Font = new Font("Segoe UI", 10F),
                         ForeColor = Color.Black,
                         Margin = new Padding(0, 2, 0, 2),
@@ -387,7 +392,7 @@ namespace DoAnGiaSu_WinForms.GUI
                     Label lblChungChi = new Label
                     {
                         AutoSize = true,
-                        MaximumSize = new Size(300, 0),
+                        MaximumSize = new Size(380, 0),
                         Font = new Font("Segoe UI", 10F),
                         ForeColor = Color.DarkGreen,
                         Margin = new Padding(0, 2, 0, 2),
@@ -398,7 +403,7 @@ namespace DoAnGiaSu_WinForms.GUI
                     Label lblThanhTich = new Label
                     {
                         AutoSize = true,
-                        MaximumSize = new Size(300, 0),
+                        MaximumSize = new Size(380, 0),
                         Font = new Font("Segoe UI", 10F),
                         ForeColor = Color.Black,
                         Margin = new Padding(0, 2, 0, 2),
@@ -495,7 +500,7 @@ namespace DoAnGiaSu_WinForms.GUI
                 using (Form frmProfile = new Form())
                 {
                     frmProfile.Text = "Thông tin gia sư đã duyệt";
-                    frmProfile.Size = new Size(500, 300);
+                    frmProfile.Size = new Size(650, 450);
                     frmProfile.StartPosition = FormStartPosition.CenterParent;
                     frmProfile.FormBorderStyle = FormBorderStyle.FixedDialog;
                     frmProfile.MaximizeBox = false;
@@ -548,7 +553,7 @@ namespace DoAnGiaSu_WinForms.GUI
                     {
                         Dock = DockStyle.Fill,
                         FlowDirection = FlowDirection.TopDown,
-                        AutoScroll = true,
+                        AutoScroll = false,
                         AutoSize = false,
                         AutoSizeMode = AutoSizeMode.GrowAndShrink,
                         WrapContents = false,
@@ -560,7 +565,7 @@ namespace DoAnGiaSu_WinForms.GUI
                     Label lblHoTen = new Label
                     {
                         AutoSize = true,
-                        MaximumSize = new Size(300, 0),
+                        MaximumSize = new Size(380, 0),
                         Font = new Font("Segoe UI", 14F, FontStyle.Bold),
                         ForeColor = Color.FromArgb(24, 33, 53),
                         Margin = new Padding(0, 0, 0, 6),
@@ -570,7 +575,7 @@ namespace DoAnGiaSu_WinForms.GUI
                     Label lblSDT = new Label
                     {
                         AutoSize = true,
-                        MaximumSize = new Size(300, 0),
+                        MaximumSize = new Size(380, 0),
                         Font = new Font("Segoe UI", 10.5F, FontStyle.Bold),
                         Margin = new Padding(0, 0, 0, 2)
                     };
@@ -689,10 +694,15 @@ namespace DoAnGiaSu_WinForms.GUI
             string luong = card.MucLuong;
             string diaChi = card.SoNhaDuong;
             string ghiChu = card.YeuCauThem;
+            int maQuan = card.MaQuan;
+            int maTrinhDo = card.MaTrinhDo;
+            int maMon = card.MaMon;
+            int maLop = card.MaLop;
+            int maHinhThuc = card.MaHinhThuc;
 
             if (frmDangBai != null)
             {
-                frmDangBai.LoadDataForEdit(maBD, mon, lop, hinhThuc, luong, diaChi, ghiChu);
+                frmDangBai.LoadDataForEdit(maBD, maMon, maLop, maQuan, maTrinhDo, maHinhThuc, luong, diaChi, ghiChu);
                 tabControl1.SelectedIndex = 1;
                 btnDangBaiMoi.BackColor = Color.FromArgb(24, 119, 242);
                 btnQuanLyBai.BackColor = Color.Transparent;

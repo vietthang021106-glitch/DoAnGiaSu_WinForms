@@ -10,7 +10,7 @@ namespace DoAnGiaSu_WinForms.DataAccess
     {
         private readonly DBConnection db = new DBConnection();
 
-        private bool VuotGioiHan4Lop(SqlConnection conn, SqlTransaction tran, int maGS)
+        private bool VuotGioiHan3Lop(SqlConnection conn, SqlTransaction tran, int maGS)
         {
             string query = @"SELECT COUNT(*) 
                              FROM DANGKYNHANLOP DK
@@ -26,7 +26,7 @@ namespace DoAnGiaSu_WinForms.DataAccess
             cmd.Parameters.Add(new SqlParameter("@MaGS", SqlDbType.Int) { Value = maGS });
 
             int soLopDangChiemSlot = Convert.ToInt32(cmd.ExecuteScalar());
-            return soLopDangChiemSlot >= 4;
+            return soLopDangChiemSlot >= 3;
         }
 
         private void DamBaoCotHanNopLaiBill(SqlConnection conn)
@@ -220,9 +220,9 @@ namespace DoAnGiaSu_WinForms.DataAccess
                 SqlTransaction tran = conn.BeginTransaction();
                 try
                 {
-                    if (VuotGioiHan4Lop(conn, tran, maGS))
+                    if (VuotGioiHan3Lop(conn, tran, maGS))
                     {
-                        throw new Exception($"Gia sư MaGS={maGS} đã vượt giới hạn 4 lớp trong 30 ngày");
+                        throw new Exception($"Gia sư MaGS={maGS} đã vượt giới hạn 3 lớp trong 30 ngày");
                     }
 
                     string queryCheck = @"SELECT COUNT(*)
@@ -283,9 +283,9 @@ namespace DoAnGiaSu_WinForms.DataAccess
                 SqlTransaction tran = conn.BeginTransaction();
                 try
                 {
-                    if (VuotGioiHan4Lop(conn, tran, maGS))
+                    if (VuotGioiHan3Lop(conn, tran, maGS))
                     {
-                        throw new Exception($"Gia sư MaGS={maGS} đã vượt giới hạn 4 lớp trong 30 ngày");
+                        throw new Exception($"Gia sư MaGS={maGS} đã vượt giới hạn 3 lớp trong 30 ngày");
                     }
 
                     string queryDuyet = @"UPDATE DANGKYNHANLOP
@@ -683,7 +683,8 @@ namespace DoAnGiaSu_WinForms.DataAccess
             {
                 conn.Open();
                 const string sql = @"SELECT bd.MaBaiDang, m.TenMon, l.TenLop, td.TenTrinhDo, ht.TenHinhThuc, 
-                                                bd.MucLuong, bd.SoNhaDuong, bd.YeuCauThem, bd.TrangThai, q.TenQuan
+                                                bd.MucLuong, bd.SoNhaDuong, bd.YeuCauThem, bd.TrangThai, q.TenQuan,
+                                                bd.MaQuan, bd.YeuCauTrinhDo, bd.MaMon, bd.MaLop, bd.MaHinhThuc
                                          FROM BAIDANG bd
                                          JOIN DM_MONHOC m ON bd.MaMon = m.MaMon
                                          JOIN DM_LOPHOC l ON bd.MaLop = l.MaLop
