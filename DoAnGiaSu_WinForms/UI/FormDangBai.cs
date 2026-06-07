@@ -7,7 +7,6 @@ using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
 using DoAnGiaSu_WinForms.Business;
-using DoAnGiaSu_WinForms.DataAccess;
 using DoAnGiaSu_WinForms.Models;
 
 namespace DoAnGiaSu_WinForms.GUI
@@ -53,10 +52,10 @@ namespace DoAnGiaSu_WinForms.GUI
         [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
         public int MaBaiDangEdit { get; set; } = 0;
 
-        GiaSuDAL gsDal = new GiaSuDAL();
+        GiaSuService gsService = new GiaSuService();
         BaiDangService baiDangService = new BaiDangService();
-        PhuHuynhDAL phDal = new PhuHuynhDAL();
-        TaiKhoanDAL tkDal = new TaiKhoanDAL();
+        PhuHuynhService phService = new PhuHuynhService();
+        TaiKhoanBLL tkBll = new TaiKhoanBLL();
         private readonly DanhMucService danhMucService = new DanhMucService();
 
         public FormDangBai(string username)
@@ -460,8 +459,8 @@ namespace DoAnGiaSu_WinForms.GUI
                     return;
                 }
 
-                int maTK = tkDal.LayMaTKTuTen(_user);
-                int maPH = phDal.LayMaPH(maTK);
+                int maTK = tkBll.LayMaTKTuTen(_user);
+                int maPH = phService.LayMaPH(maTK);
 
                 BaiDang bd = new BaiDang
                 {

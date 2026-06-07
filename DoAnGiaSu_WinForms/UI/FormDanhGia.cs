@@ -1,8 +1,8 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Microsoft.Data.SqlClient;
-using DoAnGiaSu_WinForms.DataAccess;
+using DoAnGiaSu_WinForms.Business;
+using DoAnGiaSu_WinForms.Models;
 
 namespace DoAnGiaSu_WinForms.GUI
 {
@@ -55,25 +55,25 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             try
             {
-                DBConnection db = new DBConnection();
-                using (SqlConnection conn = db.GetConnection())
+                DanhGia danhGia = new DanhGia
                 {
-                    string query = "INSERT INTO DANHGIA (MaGS, MaPH, MaBaiDang, SoSao, NoiDung, NgayDanhGia) VALUES (@MaGS, @MaPH, @MaBaiDang, @SoSao, @NoiDung, GETDATE())";
-                    SqlCommand cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@MaGS", _maGS);
-                    cmd.Parameters.AddWithValue("@MaPH", _maPH);
-                    cmd.Parameters.AddWithValue("@MaBaiDang", _maBaiDang);
-                    cmd.Parameters.AddWithValue("@SoSao", int.Parse(cmbSoSao.SelectedItem.ToString()));
-                    cmd.Parameters.AddWithValue("@NoiDung", txtNhanXet.Text.Trim());
-                    
-                    conn.Open();
-                    int res = cmd.ExecuteNonQuery();
-                    if (res > 0)
-                    {
-                        MessageBox.Show("Đánh giá thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        this.DialogResult = DialogResult.OK;
-                        this.Close();
-                    }
+                    MaGS = _maGS,
+                    MaPH = _maPH,
+                    MaBaiDang = _maBaiDang,
+                    SoSao = int.Parse(cmbSoSao.SelectedItem.ToString()),
+                    NoiDung = txtNhanXet.Text.Trim()
+                };
+
+                DanhGiaService service = new DanhGiaService();
+                if (service.ThemDanhGia(danhGia))
+                {
+                    MessageBox.Show("Đánh giá thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    MessageBox.Show("Đánh giá thất bại. Vui lòng thử lại.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)

@@ -1,8 +1,8 @@
 using System;
 using System.Drawing.Drawing2D;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using DoAnGiaSu_WinForms.Business;
-using DoAnGiaSu_WinForms.DataAccess;
 using DoAnGiaSu_WinForms.Models;
 
 namespace DoAnGiaSu_WinForms.GUI
@@ -45,8 +45,8 @@ namespace DoAnGiaSu_WinForms.GUI
                 }
                 else if (user.VaiTro == "GiaSu")
                 {
-                    GiaSuDAL gsDal = new GiaSuDAL();
-                    string trangThai = gsDal.KiemTraTrangThaiDuyet(username);
+                    GiaSuService gsService = new GiaSuService();
+                    string trangThai = gsService.KiemTraTrangThaiDuyet(username);
 
                     if (trangThai == "ChuaCapNhat")
                     {

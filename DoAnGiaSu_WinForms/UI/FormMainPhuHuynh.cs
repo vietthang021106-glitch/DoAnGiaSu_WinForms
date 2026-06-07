@@ -9,7 +9,6 @@ using System.Windows.Forms;
 using System.Linq;
 using System.Collections.Generic;
 using DoAnGiaSu_WinForms.Business;
-using DoAnGiaSu_WinForms.DataAccess;
 using DoAnGiaSu_WinForms.Models;
 
 namespace DoAnGiaSu_WinForms.GUI
@@ -21,7 +20,7 @@ namespace DoAnGiaSu_WinForms.GUI
 
         private readonly BaiDangService baiDangService = new BaiDangService();
         private readonly PhuHuynhService phService = new PhuHuynhService();
-        private readonly TaiKhoanDAL tkDal = new TaiKhoanDAL();
+        private readonly TaiKhoanBLL tkBll = new TaiKhoanBLL();
         private readonly DanhMucService danhMucService = new DanhMucService();
 
         public FormMainPhuHuynh(string username)
@@ -150,7 +149,7 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             try
             {
-                int maTK = tkDal.LayMaTKTuTen(_user);
+                int maTK = tkBll.LayMaTKTuTen(_user);
                 int maPH = phService.LayMaPH(maTK);
                 if (maPH <= 0) return;
 
@@ -756,7 +755,7 @@ namespace DoAnGiaSu_WinForms.GUI
             if (sender is not ucCardBaiDangPH card) return;
 
             int maBD = (int)card.Tag;
-            int maTK = tkDal.LayMaTKTuTen(_user);
+            int maTK = tkBll.LayMaTKTuTen(_user);
             int maPH = phService.LayMaPH(maTK);
 
             List<DangKyNhanLop> listDangKy = baiDangService.LayDangKyNhanLopTheoBaiList(maBD);

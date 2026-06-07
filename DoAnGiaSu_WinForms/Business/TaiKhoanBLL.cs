@@ -1,4 +1,4 @@
-﻿using DoAnGiaSu_WinForms.DataAccess;
+using DoAnGiaSu_WinForms.DataAccess;
 using DoAnGiaSu_WinForms.Models;
 
 namespace DoAnGiaSu_WinForms.Business
@@ -27,6 +27,41 @@ namespace DoAnGiaSu_WinForms.Business
                 return "Tên đăng nhập đã tồn tại!";
 
             return "Thành công";
+        }
+
+        public bool DangKy(TaiKhoan tk)
+        {
+            if (tk == null || string.IsNullOrWhiteSpace(tk.TenDangNhap) || string.IsNullOrWhiteSpace(tk.MatKhau))
+                return false;
+            return dal.DangKy(tk);
+        }
+
+        public bool KiemTraSDT(string tenDangNhap, string sdt)
+        {
+            if (string.IsNullOrWhiteSpace(tenDangNhap) || string.IsNullOrWhiteSpace(sdt))
+                return false;
+            return dal.KiemTraSDT(tenDangNhap, sdt);
+        }
+
+        public bool CapNhatMatKhau(string tenDangNhap, string matKhauMoi)
+        {
+            if (string.IsNullOrWhiteSpace(tenDangNhap) || string.IsNullOrWhiteSpace(matKhauMoi))
+                return false;
+            return dal.CapNhatMatKhau(tenDangNhap, matKhauMoi);
+        }
+
+        public int LayMaTKTuTen(string tenDangNhap)
+        {
+            if (string.IsNullOrWhiteSpace(tenDangNhap))
+                return 0;
+            return dal.LayMaTKTuTen(tenDangNhap);
+        }
+
+        public string LayVaiTro(string tenDangNhap)
+        {
+            if (string.IsNullOrWhiteSpace(tenDangNhap))
+                return "";
+            return dal.LayVaiTro(tenDangNhap);
         }
     }
 }

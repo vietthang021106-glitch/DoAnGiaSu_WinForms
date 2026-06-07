@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using DoAnGiaSu_WinForms.Models;
 using System;
 
@@ -70,6 +70,39 @@ namespace DoAnGiaSu_WinForms.DataAccess
                 conn.Open();
                 object result = cmd.ExecuteScalar();
                 return result != null ? result.ToString() : "";
+            }
+        }
+
+        public bool KiemTraSDT(string tenDangNhap, string sdt)
+        {
+            using (SqlConnection conn = db.GetConnection())
+            {
+                string sql = @"SELECT 1 
+                               FROM TAIKHOAN t
+                               LEFT JOIN GIASU g ON t.MaTK = g.MaTK
+                               LEFT JOIN PHUHUYNH p ON t.MaTK = p.MaTK
+                               WHERE t.TenDangNhap = @tk 
+                                 AND (g.SoDienThoai = @sdt OR p.SoDienThoai = @sdt)";
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@tk", tenDangNhap);
+                cmd.Parameters.AddWithValue("@sdt", sdt);
+                conn.Open();
+                object result = cmd.ExecuteScalar();
+                return result != null;
+            }
+        }
+
+        public bool CapNhatMatKhau(string tenDangNhap, string matKhauMoi)
+        {
+            using (SqlConnection conn = db.GetConnection())
+            {
+                string sql = "UPDATE TAIKHOAN SET MatKhau = @mk WHERE TenDangNhap = @tk";
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@mk", matKhauMoi);
+                cmd.Parameters.AddWithValue("@tk", tenDangNhap);
+                conn.Open();
+                int rowsAffected = cmd.ExecuteNonQuery();
+                return rowsAffected > 0;
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Windows.Forms;
 using DoAnGiaSu_WinForms.Business;
@@ -60,8 +60,8 @@ namespace DoAnGiaSu_WinForms.GUI
 
             if (MessageBox.Show("Bạn có chắc chắn muốn xác nhận đã chuyển thanh toán và gửi ảnh minh chứng này?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                int maTK = new DoAnGiaSu_WinForms.DataAccess.TaiKhoanDAL().LayMaTKTuTen(_tenGiaSu);
-                int maGS = new DoAnGiaSu_WinForms.DataAccess.GiaSuDAL().LayMaGSMoiNhatTheoMaTK(maTK);
+                int maTK = new TaiKhoanBLL().LayMaTKTuTen(_tenGiaSu);
+                int maGS = new GiaSuService().LayMaGSMoiNhatTheoMaTK(maTK);
                 decimal phiHoaHong = _hocPhi * 2m;
                 if (giaoDichService.CapNhatAnhChuyenKhoan(_maBaiDang, maGS, phiHoaHong, _anhChuyenKhoan))
                 {

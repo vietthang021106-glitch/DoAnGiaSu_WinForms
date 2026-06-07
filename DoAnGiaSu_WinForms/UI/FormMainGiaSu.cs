@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using DoAnGiaSu_WinForms.Business;
-using DoAnGiaSu_WinForms.DataAccess;
 
 namespace DoAnGiaSu_WinForms.GUI
 {
@@ -15,7 +14,7 @@ namespace DoAnGiaSu_WinForms.GUI
     {
         private string _tenDangNhap;
         private readonly BaiDangService baiDangService = new BaiDangService();
-        private readonly GiaSuDAL _gsDal = new GiaSuDAL();
+        private readonly GiaSuService gsService = new GiaSuService();
         private readonly DanhMucService danhMucService = new DanhMucService();
         private DataTable _dtLopMoi;
         private bool _dangNapFilter;
@@ -157,7 +156,7 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             try
             {
-                int maGS = _gsDal.LayMaGS(_tenDangNhap);
+                int maGS = gsService.LayMaGS(_tenDangNhap);
                 _dtLopMoi = baiDangService.LayLopMoiChoGiaSu(maGS, GetOrderByClause());
                 ApplyFilter();
             }
@@ -286,7 +285,7 @@ namespace DoAnGiaSu_WinForms.GUI
             var dialogResult = MessageBox.Show("Bạn có chắc chắn muốn đăng ký nhận lớp học này?", "Xác nhận đăng ký", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
             if (dialogResult == DialogResult.Yes)
             {
-                int maGS = _gsDal.LayMaGS(_tenDangNhap);
+                int maGS = gsService.LayMaGS(_tenDangNhap);
                 try
                 {
                     if (baiDangService.GiaSuNhanLop(maLop, maGS))
@@ -340,7 +339,7 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             try
             {
-                int maGS = _gsDal.LayMaGS(_tenDangNhap);
+                int maGS = gsService.LayMaGS(_tenDangNhap);
                 DataTable dt = baiDangService.LayLopDaGiaoChoGiaSu(maGS);
 
                 flpLopDaNhan.Controls.Clear();

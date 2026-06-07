@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using DoAnGiaSu_WinForms.Business;
-using DoAnGiaSu_WinForms.DataAccess;
 using DoAnGiaSu_WinForms.Models;
 
 namespace DoAnGiaSu_WinForms.GUI
@@ -14,7 +13,7 @@ namespace DoAnGiaSu_WinForms.GUI
         private TaiKhoan _tkDangKy;
 
         private readonly PhuHuynhService phService = new PhuHuynhService();
-        private readonly TaiKhoanDAL tkDal = new TaiKhoanDAL();
+        private readonly TaiKhoanBLL tkBll = new TaiKhoanBLL();
 
         public FormCapNhatPhuHuynh(TaiKhoan tk)
         {
@@ -152,15 +151,15 @@ namespace DoAnGiaSu_WinForms.GUI
                     return;
                 }
 
-                int maTK = tkDal.LayMaTKTuTen(_tkDangKy.TenDangNhap);
+                int maTK = tkBll.LayMaTKTuTen(_tkDangKy.TenDangNhap);
                 if (maTK == 0)
                 {
-                    if (!tkDal.DangKy(_tkDangKy))
+                    if (!tkBll.DangKy(_tkDangKy))
                     {
                         MessageBox.Show("Lỗi: Không thể tạo tài khoản!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
-                    maTK = tkDal.LayMaTKTuTen(_tkDangKy.TenDangNhap);
+                    maTK = tkBll.LayMaTKTuTen(_tkDangKy.TenDangNhap);
                 }
 
                 if (maTK == 0)

@@ -1,8 +1,8 @@
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using Microsoft.Data.SqlClient;
-using DoAnGiaSu_WinForms.DataAccess;
+using DoAnGiaSu_WinForms.Business;
 
 namespace DoAnGiaSu_WinForms.GUI
 {
@@ -17,8 +17,6 @@ namespace DoAnGiaSu_WinForms.GUI
         private Panel pnlDoiMatKhau;
         private Panel panel1;
 
-        private string _tenDangNhapDaXacNhan;
-
         public FormQuenMatKhau()
         {
             InitializeUi();
@@ -31,7 +29,7 @@ namespace DoAnGiaSu_WinForms.GUI
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
-            ClientSize = new Size(480, 430);
+            ClientSize = new Size(480, 300);
             BackColor = Color.White;
             AutoSize = false;
             AutoScroll = true;
@@ -170,102 +168,83 @@ namespace DoAnGiaSu_WinForms.GUI
             Controls.Add(panel1);
         }
 
+        private void CenterPanel()
+        {
+            this.CenterToScreen();
+        }
+
         private void btnKiemTra_Click(object? sender, EventArgs e)
         {
-            string tenDangNhap = txtTenDangNhap.Text.Trim();
+            string username = txtTenDangNhap.Text.Trim();
             string sdt = txtSDT.Text.Trim();
 
-            if (string.IsNullOrWhiteSpace(tenDangNhap) || string.IsNullOrWhiteSpace(sdt))
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(sdt))
             {
-                MessageBox.Show("Vui lòng nhập đầy đủ tên đăng nhập và số điện thoại!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Vui lòng nhập đầy đủ thông tin!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             try
             {
-                using SqlConnection conn = new DBConnection().GetConnection();
-                const string sql = @"SELECT TK.MaTK 
-                                     FROM TAIKHOAN TK
-                                     LEFT JOIN PHUHUYNH PH ON TK.MaTK = PH.MaTK
-                                     LEFT JOIN GIASU GS ON TK.MaTK = GS.MaTK
-                                     WHERE TK.TenDangNhap = @TenDangNhap 
-                                       AND (PH.SDT = @SDT OR GS.SDT = @SDT)";
-                using SqlCommand cmd = new SqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@TenDangNhap", tenDangNhap);
-                cmd.Parameters.AddWithValue("@SDT", sdt);
-                conn.Open();
-
-                object result = cmd.ExecuteScalar();
-                if (result != null && result != DBNull.Value)
+                TaiKhoanBLL tkBll = new TaiKhoanBLL();
+                if (tkBll.KiemTraSDT(username, sdt))
                 {
-                    _tenDangNhapDaXacNhan = tenDangNhap;
                     txtTenDangNhap.Enabled = false;
                     txtSDT.Enabled = false;
                     btnKiemTra.Enabled = false;
+                    btnKiemTra.BackColor = Color.Gray;
 
                     pnlDoiMatKhau.Visible = true;
-                    MessageBox.Show("Thông tin hợp lệ. Vui lòng nhập mật khẩu mới.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    txtMatKhauMoi.Focus();
+                    this.Height += 120;
+                    CenterPanel();
+
+                    MessageBox.Show("Xác minh thành công! Vui lòng đặt mật khẩu mới.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                    MessageBox.Show("Tên đăng nhập hoặc Số điện thoại không chính xác!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Tên đăng nhập hoặc số điện thoại không khớp với hệ thống!", "Lỗi xác minh", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi kiểm tra thông tin: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi kết nối cơ sở dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnDoiMatKhau_Click(object? sender, EventArgs e)
         {
-            string mkMoi = txtMatKhauMoi.Text.Trim();
-            string xacNhan = txtXacNhanMK.Text.Trim();
+            string username = txtTenDangNhap.Text.Trim();
+            string newPass = txtMatKhauMoi.Text.Trim();
+            string confirmPass = txtXacNhanMK.Text.Trim();
 
-            if (string.IsNullOrWhiteSpace(mkMoi) || string.IsNullOrWhiteSpace(xacNhan))
+            if (string.IsNullOrWhiteSpace(newPass) || string.IsNullOrWhiteSpace(confirmPass))
             {
-                MessageBox.Show("Vui lòng nhập mật khẩu mới và xác nhận mật khẩu!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Vui lòng nhập mật khẩu mới và xác nhận!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            if (!string.Equals(mkMoi, xacNhan, StringComparison.Ordinal))
+            if (newPass != confirmPass)
             {
-                MessageBox.Show("Mật khẩu xác nhận không khớp!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(_tenDangNhapDaXacNhan))
-            {
-                MessageBox.Show("Bạn chưa xác thực thông tin tài khoản.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Mật khẩu không khớp!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             try
             {
-                using SqlConnection conn = new DBConnection().GetConnection();
-                const string sql = @"UPDATE TAIKHOAN 
-                                     SET MatKhau = @MatKhauMoi 
-                                     WHERE TenDangNhap = @TenDangNhap";
-                using SqlCommand cmd = new SqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@MatKhauMoi", mkMoi);
-                cmd.Parameters.AddWithValue("@TenDangNhap", _tenDangNhapDaXacNhan);
-                conn.Open();
-
-                int rows = cmd.ExecuteNonQuery();
-                if (rows > 0)
+                TaiKhoanBLL tkBll = new TaiKhoanBLL();
+                if (tkBll.CapNhatMatKhau(username, newPass))
                 {
-                    MessageBox.Show("Đổi mật khẩu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    Close();
+                    MessageBox.Show("Đổi mật khẩu thành công! Vui lòng đăng nhập lại.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    this.Close();
                 }
                 else
                 {
-                    MessageBox.Show("Không thể đổi mật khẩu.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Đổi mật khẩu thất bại. Vui lòng thử lại sau.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi đổi mật khẩu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi kết nối cơ sở dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

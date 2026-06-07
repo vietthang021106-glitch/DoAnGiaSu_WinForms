@@ -5,7 +5,6 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using DoAnGiaSu_WinForms.Business;
-using DoAnGiaSu_WinForms.DataAccess;
 using DoAnGiaSu_WinForms.Models;
 
 namespace DoAnGiaSu_WinForms.GUI

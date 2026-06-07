@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Windows.Forms;
 using DoAnGiaSu_WinForms.Business;
-using DoAnGiaSu_WinForms.DataAccess;
 
 namespace DoAnGiaSu_WinForms.GUI
 {
@@ -16,7 +15,7 @@ namespace DoAnGiaSu_WinForms.GUI
     {
         private bool _isFormLoaded = false;
         private readonly BaiDangService baiDangService = new BaiDangService();
-        private readonly GiaSuDAL gsDal = new GiaSuDAL();
+        private readonly GiaSuService gsService = new GiaSuService();
 
         public FormMainAdmin()
         {
@@ -412,7 +411,7 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             if (MessageBox.Show("Bạn có chắc chắn muốn duyệt gia sư này?", "Xác nhận duyệt", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                if (gsDal.CapNhatTrangThaiDuyet(maGS, "DaDuyet"))
+                if (gsService.CapNhatTrangThaiDuyet(maGS, "DaDuyet"))
                     _ = LoadDanhSachGiaSuAsync();
             }
         }
@@ -421,7 +420,7 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             if (MessageBox.Show("Bạn có chắc chắn muốn từ chối gia sư này?", "Xác nhận từ chối", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                if (gsDal.CapNhatTrangThaiDuyet(maGS, "TuChoi"))
+                if (gsService.CapNhatTrangThaiDuyet(maGS, "TuChoi"))
                     _ = LoadDanhSachGiaSuAsync();
             }
         }
@@ -430,7 +429,7 @@ namespace DoAnGiaSu_WinForms.GUI
         {
             if (MessageBox.Show("Bạn có chắc chắn muốn xóa gia sư này?", "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
-                if (gsDal.XoaGiaSu(maGS))
+                if (gsService.XoaGiaSu(maGS))
                     _ = LoadDanhSachGiaSuAsync();
             }
         }
